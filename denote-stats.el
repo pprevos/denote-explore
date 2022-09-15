@@ -70,3 +70,5 @@
            (keywords-table (denote-stats-keywords-table keywords)))
       (denote-stats-barchart keywords-table n
                              "Keywords" "Denote Keyword Frequencies")))
+
+(provide 'denote-stats)

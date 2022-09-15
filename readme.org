@@ -1,4 +1,4 @@
-#+title: Denote Statistics
+#+title: Denote var
 
 The [[https://protesilaos.com/emacs/denote][Denote package]] by Protesilaos Stavropol provides excellent functionality to create, retrieve, manage and link notes in plain text, Markdown and Org Mode.
 
