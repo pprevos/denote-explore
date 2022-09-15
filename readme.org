@@ -1,0 +1,23 @@
+#+title: Denote Statistics
+
+The [[https://protesilaos.com/emacs/denote][Denote package]] by Protesilaos Stavropol provides excellent functionality to create, retrieve, manage and link notes in plain text, Markdown and Org Mode.
+
+The `denote-stats` package provides some convenience functions to help you manage your collection of notes.
+
+This package has limited utility and is a practice ground to learn Elisp.
+
+The visualisations for this package are provided by the built-in chart package, which is a quaint visualisation tool that creates bar charts in plain text.
+
+* Available functions
+The following interactive functions are provided by this package:
+
+- `denote-stats-count-notes`: Count the number of notes.
+- `denote-stats-count-keywords`: Count the number of unique keywords (file tags)
+- `denote-stats-keywords-barchart`: Visualise the top-/n/ keywords.
+
+* Work in progress
+- Visualise file extensions
+- List keywords only mentioned once
+- Visualise by year
+- Visualise note growth over time
+- Network diagrams (use either R, Python or perhaps GNUplot)
