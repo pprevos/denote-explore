@@ -65,7 +65,7 @@
 
   (defun denote-stats-keywords-barchart (n)
     "Create a barchart with the top-n most used Denote keywords."
-    (interactive)
+    (interactive "nNumber of bars: ")
     (let* ((keywords (denote-stats-list-keywords))
            (keywords-table (denote-stats-keywords-table keywords)))
       (denote-stats-barchart keywords-table n

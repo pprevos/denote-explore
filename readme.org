@@ -6,14 +6,17 @@ The `denote-stats` package provides some convenience functions to help you manag
 
 This package has limited utility and is a practice ground to learn Elisp.
 
-The visualisations for this package are provided by the built-in chart package, which is a quaint visualisation tool that creates bar charts in plain text.
+The visualisations for this package are provided by the built-in =chart= package, which is a quaint visualisation tool that creates bar charts in plain text.
 
 * Available functions
 The following interactive functions are provided by this package:
 
-- `denote-stats-count-notes`: Count the number of notes.
-- `denote-stats-count-keywords`: Count the number of unique keywords (file tags)
-- `denote-stats-keywords-barchart`: Visualise the top-/n/ keywords.
+- =denote-stats-count-notes=: Count the number of notes.
+- =denote-stats-count-keywords=: Count the number of unique keywords (file tags)
+- =denote-stats-keywords-barchart=: Visualise the top-/n/ keywords.
+
+#+caption: Example of a bar chart of top-20 keywords in the chart package.
+[[file:denote-keywords-barchart.png]]
 
 * Work in progress
 - Visualise file extensions
