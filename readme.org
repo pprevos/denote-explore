@@ -1,26 +1,45 @@
 #+title: Denote Statistics
 #+author: Peter Prevos
 
-The [[https://protesilaos.com/emacs/denote][Denote package]] by Protesilaos Stavropol provides excellent functionality to create, retrieve, manage and link notes in plain text, Markdown and Org Mode.
+The [[https://protesilaos.com/emacs/denote][Denote package]] by Protesilaos Stavropol provides extensive functionality to create, retrieve, manage and link notes in plain text, Markdown and Org Mode. The most redeeming quality of this package is its simplicity and that it works a box of Lego. This package provides many entry points to extend functionality and use your computer the way you want to, instead of the other way around.
 
-The =denote-stats= package provides some convenience functions to help you manage your collection of notes. This package has limited utility and is a practice ground to learn Elisp.
+The =denote-extra= package provides some convenience functions to help you manage your collection of notes. I wrote this package as part of my learning curve to master Emacs Lisp. This package is a work-in-progress, feedback appreciated.
 
-The visualisations for this package are provided by the built-in =chart.el= package by Eric M. Ludlam, which is a quaint visualisation tool that creates bar charts in plain text.
+This package provides five types of interactive Emacs functions:
+1. Random walks
+2. Note statistics
+3. Maintain your note collection
+4. Visualise note statistics
+5. Visualise networks
 
-* Available functions
-The following interactive functions are provided by this package:
+* Random Walks
+Taking a random walk through your digital garden is an effective way to create new connections in your brain. Serendipity can be a fruitful method to stimulate creativity.
 
-- =denote-stats-count-notes=: Count the number of notes.
-- =denote-stats-count-keywords=: Count the number of unique keywords (file tags)
-- =denote-stats-keywords-barchart=: Visualise the top-/n/ keywords.
+There are three methods for random walks:
+1. =denote-extra-random-walk-note=: Jump to a random note in the collection
+2. =denote-extra-random-walk-keywords=: Jump to random note with the same tags [TODO]
+3. =denote-extra-random-walk-link=: Jump to random linked note (forward of backward) [TODO]
+
+* Note Statistics
+This section contains two functions:
+- =denote-extra-count-notes=: Count the number of notes
+- =denote-extra-count-keywords=: Count the number of distinct keywords (file tags)
+
+* Note Maintenance
+The =denote-extra-check-metadata= function open every Denote note file and synchronises the front matter with the filename. Note that it can take quite a while to check the complete collection.
+
+Next version could be a hook that operates every time you save a Denote file.
+
+* Visualise Note Statistics
+The visualisations for this package are provided by the built-in =chart.el= package by Eric M. Ludlam, which is a quaint visualisation tool that creates bar charts in plain text. The package provides a private wrapper function to interface with =chart.el= and a private function to tabulate lists. Two interactive functions are available to create bar charts::
+
+- =denote-extra-keywords-barchart=: Visualise the top /n/ keywords.
+- =denote-extra-extensions-barchart=: Visualise the used file extensions for notes and attachments.
 
 #+caption: Example of a bar chart of top-20 keywords in the chart package.
 #+attr_org: :width 600
 [[file:denote-keywords-barchart.png]]
 
-* Planned and work in progress
-- Visualise file extensions
-- List keywords only mentioned once
-- Visualise by year
-- Visualise note growth over time
-- Network diagrams (use either R, Python or perhaps GNUplot)
+* Visualise Networks
+I have experimented with visualising Denote using the R language, which is my weapon of choice for analysing data. The =denote-extra.R= file contains a first attempt.
+
