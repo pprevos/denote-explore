@@ -28,12 +28,14 @@
 ;; denote-explore-walk provides the following interactive functions:
 
 ;; 1. `denote-explore-random-note': Jump to a random note
-;; 2. `denote-explore-random-keyword': Jump to random note with a selected keyword
+;; 2. `denote-explore-random-keyword': Jump to random note with selected keyword
 ;; 2. `denote-explore-random-walk': Jump to a random link in a note
 ;;
 ;;; Code:
 
+(require 'f)
 (require 'denote)
+(require 'denote-explore-stats)
 
 (defun denote-explore--jump (denotes)
   "Jump to a random not in the DENOTES list."
@@ -49,69 +51,72 @@ With universal argument the sample includes attachments."
 	 (denotes-no-current (delete buffer-file-name denotes)))
     (denote-explore--jump denotes-no-current)))
 
+(defun denote-explore--keywords-regexp-dwim ()
+  "Select keyword(s) based on context.
+Within Denote buffer selects any of the assigned keywords.
+If the keyword list is an empty string, then pick any available keyword.
+When not in a Denote buffer, pick any available keyword."
+  (let* ((file (buffer-file-name))
+         (type (denote-filetype-heuristics file))
+         (keywords
+          (if (denote-file-is-note-p file)
+              (if-let* ((kwd (denote-retrieve-keywords-value file type))
+			(null kwd))
+                  (if (or (listp kwd) (not (string-blank-p kwd)))
+                      kwd
+                    (denote-keywords))
+                (denote-keywords))
+            (denote-keywords)))
+         (selected (completing-read-multiple
+		    "Select keyword: " keywords)))
+    (sort (copy-sequence selected) #'string<)))
+
 (defun denote-explore-random-keyword ()
-  "Jump to random note with keyword selected from current buffer."
+  "Jump to a random note with same selected keyword(s) as the current buffer.
+
+When not in a Denote buffer, or when no keyword is assigned in the
+current buffer, select from all available keywords.
+
+Multiple keywords only works when `denote-sort-keywords' is non-nil
+or when file keywords are in the same order as selection.  Use the
+`denote-explore-order-keywords' function to audit all files.
+
+With universal argument the sample includes attachments."
   (interactive)
-  ;; Reused `denote-keywords-remove code'
-  (if-let* ((file (buffer-file-name))
-            ((denote-file-is-note-p (buffer-file-name)))
-            (file-type (denote-filetype-heuristics file)))
-      (if-let* ((cur-keywords (denote-retrieve-keywords-value file file-type))
-		(or (listp cur-keywords) (not (string-blank-p cur-keywords))))
-	  ((let* ((selected-keyword
-		   (completing-read "Select keyword: " cur-keywords))
-		  (denotes (denote-directory-files-matching-regexp
-			    (concat "_" selected))))
-	     (denote-explore--jump (delete (buffer-file-name) denotes))))
-	(user-error "No keywords in Denote file"))
-    (user-error "Buffer not visiting a Denote file")))
+  (let* ((keywords-list (denote-explore--keywords-regexp-dwim))
+	 (keywords (mapconcat 'identity keywords-list ".*_"))
+	 (regexp (if (equal current-prefix-arg nil)
+		     (concat "_" keywords)
+		   (concat "_" keywords ".*\\.org\\|\\.md|\\.txt"))))
+    (if-let (denotes (denote-directory-files-matching-regexp regexp))
+	(denote-explore--jump (delete (buffer-file-name) denotes))
+      (user-error "Keywords not found"))))
 
+(defun denote-explore--gather-links ()
+  "Collect links in the current buffer."
+    (let* ((file (buffer-file-name))
+            (type (denote-filetype-heuristics file))
+            (regexp (denote--link-in-context-regexp type)))
+            (denote-link--expand-identifiers regexp)))
 
-(defun denote-explore-random-keyword ()
-  "Jump to random note with keyword selected from current buffer.
-With prefix argument, select keyword from all notes."
-  (interactive)
-  ;; Check if we are in denote
-  (if-let* ((file (buffer-file-name))
-            ((denote-file-is-note-p (buffer-file-name)))
-            (file-type (denote-filetype-heuristics file)))
-      (if-let* (
-		()
+(defun denote-explore--gather-backlinks ()
+  "Collect backlinks to the current buffer."
+  (let* ((file (buffer-file-name))
+            (id (denote-retrieve-filename-identifier file)))
+            (delete file (denote--retrieve-files-in-xrefs id))))
 
-
-		)
-
-       )
-    (user-error "You are not in a Denote file")))
-  
 (defun denote-explore-random-link ()
-  "Jump to a random link in the current buffer."
+  "Jump to a random linked note (forward or backward).
+With universal argument the sample includes attachments."
   (interactive)
-  (if-let* ((file (buffer-file-name))
-            ((denote-file-is-note-p file)))
-      (if-let* (
-		;; List all links in current buffer
-		;; List all backlinks in current buffer
-		(links nil)
-		(backlinks nil)
-		(buffer-links (append links backlinks))
-		)
-	  (denote-explore--jump buffer-links)
-	    (user-error "No links or backlinks found"))
-    (user-error "Buffer not visiting a Denote file")))
-
-(defun denote-link-find-file ()
-  "Use minibuffer completion to visit linked file."
-  (interactive)
-  (if-let* ((current-file (buffer-file-name))
-            (file-type (denote-filetype-heuristics current-file))
-            (setq regexp (denote--link-in-context-regexp file-type))
-            (files (denote-link--expand-identifiers regexp)))
-      (find-file
-       (denote-get-path-by-id
-        (denote-extract-id-from-string
-         (denote-link--find-file-prompt files))))
-    (user-error "No links found in the current buffer")))
+  (let* ((links (denote-explore--gather-links))
+         (backlinks (denote-explore--gather-backlinks))
+         (all-links (append links backlinks)))
+    ;; TODO Add prefix arg
+    (if (not (null all-links))
+        (denote-explore--jump all-links)
+      (user-error "No links in this buffer"))))
 
 (provide 'denote-explore-walk)
 ;;; denote-explore-walk.el ends here
+
