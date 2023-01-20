@@ -45,13 +45,23 @@
 	     (mapconcat 'identity (mapcar #'car single) ", "))))
 
 (defun denote-explore-sync-metadata ()
-  "Synchronise the filenames with the metadata for all denote files."
+  "Synchronise the filenames with the metadata for all Denote files."
+  (interactive)
+  (save-some-buffers)
+  ;; TODO add option to not confirm save
+  (let ((notes (denote-directory-text-only-files)))
+    (dolist (file notes)
+      (denote-rename-file-using-front-matter file)))
+  (message "Integrity check completed"))
+
+(defun denote-explore-order-keywords ()
+  "Order the keywords in all Denote files alphabetically."
   (interactive)
   (save-some-buffers)
   (let ((notes (denote-directory-text-only-files)))
     (dolist (file notes)
-	(denote-rename-file-using-front-matter file)))
-  (message "Integrity check completed"))
+      (message "Fooled!")))
+  (message "All keywords ordered alphabetically"))
 
 (provide 'denote-explore-qa)
 ;;; denote-explore-qa.el ends here
