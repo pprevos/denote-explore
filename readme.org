@@ -11,7 +11,7 @@ This package currently provides four types of interactive Emacs functions:
 3. Quality assurance: Maintain your note collection: Synchronise front matter and file names
 4. Network visualisation: In progress
 
-This package distinguishes between Denote files and attachments. Denote files are either Org Mode, Markdown or Plan Text (those listed in =denote-file-types=). Any other files are considered attachments (other file types such as images, PDFs, media files and so on).
+This package distinguishes between Denote files and attachments. Denote files are either Org Mode, Markdown or Plan Text (those listed in =denote-file-types=). Any other files are considered attachments (other file types such as images, PDFs, media files and so on). 
 
 * Denote Statistics
 First, you might like to know how many Denote files you have written and how many keywords you use:
@@ -38,10 +38,10 @@ Taking a random walk through your digital garden creates new connections in your
 The package provides three functions to ingest some randomness into your work:
 
 1. =denote-explore-random-note=: Jump to a random note or attachment.
-2. =denote-explore-random-keyword=: Jump to a random note with the same tag (or any available tag).
-3. =denote-explore-random-link=: Jump to a random linked note (forward or backwards)
+2. =denote-explore-random-keyword=: Jump to a random note with the same tag as the current buffer (or any available tag when launched from non-Denote file or attachment buffer or when the current buffer has no keywords).
+3. =denote-explore-random-link=: Jump to a random linked note (forward or backwards).
 
-The default state is that these functions jump to a Denote note file. Adding the universal argument (=C-u=).
+The default state is that these functions jump to a Denote file. Adding the universal argument (=C-u=) incudes attachments in the options.
 
 * Quality Assurance
 A potential weakness of Denote is that it stores metadata in both the filename and the front matter of the individual notes. The system thus relies on discipline by the author to keep both synchronised, with the front matter inside the file being the source of truth.
@@ -55,9 +55,9 @@ The =denote-stats-single-keywords= list keywords only used once. There are good 
 * TODO Visualise Networks
 This part of the package is a work in progress.
 
-I have experimented with visualising Denote using the R language, which is my weapon of choice for analysing data. The =denote-extra.R= file contains a first attempt, but requires using the R language.
+I am experimenting with visualising Denote using the R language, which is my weapon of choice for analysing data. The =denote-extra.R= file contains a first attempt, but requires using the R language. End goal is a [[https://shiny.rstudio.com/][Shiny application]] that lets the user visualise and explore the network.
 
-I am also looking at a plain text method to visualise parts of the network.
+I am also looking at a plain text method to visualise the network neighbourhood.
 
 * Installation
 Download or clone the files in this package and store them in your favourite location and activate it, e.g.:
