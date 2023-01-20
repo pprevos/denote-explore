@@ -60,7 +60,7 @@ I have experimented with visualising Denote using the R language, which is my we
 I am also looking at a plain text method to visualise parts of the network.
 
 * Installation
-Download or clone the files in this package and store them in your favourite location and active it using, for example:
+Download or clone the files in this package and store them in your favourite location and activate it, e.g.:
 
 #+begin_src elisp
   (add-to-list 'load-path "~/Documents/emacs/denote-explore/")
