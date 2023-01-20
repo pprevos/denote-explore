@@ -16,13 +16,13 @@ This package distinguishes between Denote files and attachments. Denote files ar
 * Denote Statistics
 First, you might like to know how many Denote files you have written and how many keywords you use:
 
-1. =denote-stats-count-notes=: Count the number of notes and attachments. 
-2. =denote-stats-count-keywords=: Count the number of distinct keywords (file tags).
+1. =denote-explore-count-notes=: Count the number of notes and attachments. 
+2. =denote-explore-count-keywords=: Count the number of distinct keywords (file tags).
 
 You can also visualise the most commonly used keywords and file types with a bar chart. The visualisations for this package are provided by the built-in =chart.el= package by Eric M. Ludlam, a quaint tool to create bar charts in plain text. Two interactive are available to visualise keywords and extensions:
 
-1. =denote-extra-keywords-barchart=: Visualise the top /n/ keywords.
-2. =denote-extra-extensions-barchart=: Visualise the used file extensions for notes and attachments.
+1. =denote-explore-keywords-barchart=: Visualise the top /n/ keywords.
+2. =denote-explore-extensions-barchart=: Visualise the used file extensions for notes and attachments.
 
 #+caption: Example of a bar chart of top-20 keywords in the chart package.
 #+attr_org: :width 600
@@ -57,7 +57,7 @@ This part of the package is a work in progress.
 
 I am experimenting with visualising Denote using the R language, which is my weapon of choice for analysing data. The =denote-extra.R= file contains a first attempt, but requires using the R language. End goal is a [[https://shiny.rstudio.com/][Shiny application]] that lets the user visualise and explore the network.
 
-I am also looking at a plain text method to visualise the network neighbourhood.
+I am also looking at a plain text method to visualise the network neighbourhood. The hierarchy package can display information in tree format, which might be useful to visualise the local neighbourhood of a Denote buffer, e.g. two links backwards and forwards.
 
 * Installation
 Download or clone the files in this package and store them in your favourite location and activate it, e.g.:
