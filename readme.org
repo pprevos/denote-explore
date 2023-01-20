@@ -41,7 +41,7 @@ The package provides three functions to ingest some randomness into your work:
 2. =denote-explore-random-keyword=: Jump to a random note with the same tag as the current buffer (or any available tag when launched from non-Denote file or attachment buffer or when the current buffer has no keywords).
 3. =denote-explore-random-link=: Jump to a random linked note (forward or backwards).
 
-The default state is that these functions jump to a Denote file. Adding the universal argument (=C-u=) incudes attachments in the options.
+The default state is that these functions jump to a Denote file. Adding the universal argument (=C-u=) excludes attachments in the options.
 
 * Quality Assurance
 A potential weakness of Denote is that it stores metadata in both the filename and the front matter of the individual notes. The system thus relies on discipline by the author to keep both synchronised, with the front matter inside the file being the source of truth.
@@ -57,7 +57,7 @@ This part of the package is a work in progress.
 
 I am experimenting with visualising Denote using the R language, which is my weapon of choice for analysing data. The =denote-extra.R= file contains a first attempt, but requires using the R language. End goal is a [[https://shiny.rstudio.com/][Shiny application]] that lets the user visualise and explore the network.
 
-I am also looking at a plain text method to visualise the network neighbourhood. The hierarchy package can display information in tree format, which might be useful to visualise the local neighbourhood of a Denote buffer, e.g. two links backwards and forwards.
+I am also looking at a plain text method to visualise the network neighbourhood. The [[https://emacs.cafe/emacs/guest-post/2017/06/26/hierarchy.html][hierarchy package]] can display information in tree format, which might be useful to visualise the local neighbourhood of a Denote buffer, e.g. two links backwards and forwards. 
 
 * Installation
 Download or clone the files in this package and store them in your favourite location and activate it, e.g.:

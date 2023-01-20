@@ -43,11 +43,11 @@
 
 (defun denote-explore-random-note ()
   "Jump to a random denote or attachment.
-With universal argument the sample includes attachments."
+With universal argument the sample excludes attachments."
   (interactive)
   (let* ((denotes (if (equal current-prefix-arg nil)
-		      (denote-directory-text-only-files)
-		    (denote-directory-files)))
+		      (denote-directory-files)
+		    (denote-directory-text-only-files)))
 	 (denotes-no-current (delete buffer-file-name denotes)))
     (denote-explore--jump denotes-no-current)))
 
@@ -94,28 +94,32 @@ With universal argument the sample includes attachments."
 
 (defun denote-explore--gather-links ()
   "Collect links in the current buffer."
-    (let* ((file (buffer-file-name))
-            (type (denote-filetype-heuristics file))
-            (regexp (denote--link-in-context-regexp type)))
-            (denote-link--expand-identifiers regexp)))
+  (let* ((file (buffer-file-name))
+         (type (denote-filetype-heuristics file))
+         (regexp (denote--link-in-context-regexp type)))
+    (denote-link--expand-identifiers regexp)))
 
 (defun denote-explore--gather-backlinks ()
   "Collect backlinks to the current buffer."
   (let* ((file (buffer-file-name))
-            (id (denote-retrieve-filename-identifier file)))
-            (delete file (denote--retrieve-files-in-xrefs id))))
+         (id (denote-retrieve-filename-identifier file)))
+    (delete file (denote--retrieve-files-in-xrefs id))))
 
 (defun denote-explore-random-link ()
   "Jump to a random linked note (forward or backward).
 With universal argument the sample includes attachments."
   (interactive)
-  (let* ((links (denote-explore--gather-links))
-         (backlinks (denote-explore--gather-backlinks))
-         (all-links (append links backlinks)))
-    ;; TODO Add prefix arg
-    (if (not (null all-links))
-        (denote-explore--jump all-links)
-      (user-error "No links in this buffer"))))
+  (if (denote-file-is-note-p (buffer-file-name)) 
+      (let* ((flinks (denote-explore--gather-links))
+	     (blinks (denote-explore--gather-backlinks))
+	     (alinks (append flinks blinks))
+	     (links (if current-prefix-arg
+			(seq-filter #'denote-file-is-note-p alinks)
+		      alinks)))
+	(if (not (null links))
+	    (denote-explore--jump links)
+	  (user-error "No links in this buffer")))
+  (user-error "Buffer is not a Denote file")))
 
 (provide 'denote-explore-walk)
 ;;; denote-explore-walk.el ends here
