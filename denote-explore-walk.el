@@ -1,4 +1,4 @@
-;;; denote-explore-walk.el --- Take random walks in your Denote files -*- lexical-binding: t -*-
+;;; denote-explore-random.el --- Take random walks in your Denote files -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2023  Peter Prevos
 
@@ -29,7 +29,7 @@
 
 ;; 1. `denote-explore-random-note': Jump to a random note
 ;; 2. `denote-explore-random-keyword': Jump to random note with selected keyword
-;; 2. `denote-explore-random-walk': Jump to a random link in a note
+;; 2. `denote-explore-random-link': Jump to a random link in a note
 ;;
 ;;; Code:
 
@@ -109,7 +109,7 @@ With universal argument the sample includes attachments."
   "Jump to a random linked note (forward or backward).
 With universal argument the sample includes attachments."
   (interactive)
-  (if (denote-file-is-note-p (buffer-file-name)) 
+  (if (denote-file-is-note-p (buffer-file-name))
       (let* ((flinks (denote-explore--gather-links))
 	     (blinks (denote-explore--gather-backlinks))
 	     (alinks (append flinks blinks))
@@ -121,6 +121,5 @@ With universal argument the sample includes attachments."
 	  (user-error "No links in this buffer")))
   (user-error "Buffer is not a Denote file")))
 
-(provide 'denote-explore-walk)
-;;; denote-explore-walk.el ends here
-
+(provide 'denote-explore-random)
+;;; denote-explore-random.el ends here

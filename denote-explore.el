@@ -34,7 +34,7 @@
 ;;; Code:
 
 (require 'denote-explore-stats)
-(require 'denote-explore-walk)
+(require 'denote-explore-random)
 ;;(require 'denote-explore-network)
 (require 'denote-explore-qa)
 

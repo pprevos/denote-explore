@@ -28,7 +28,15 @@
 
 ;;; Code:
 
-;; To be developed ...
+(require 'denote-explore-random)
+
+(defun denote-explore-network-local (&optional depth)
+  "Construct the local network for the current buffer, DEPTH deep."
+  (interactive)
+  ;; Gather links and backlinks
+  ;; Gather links to links
+  ;; Iterate n-times
+  nil)
 
 (provide 'denote-explore-network)
 ;;; denote-explore-network.el ends here
