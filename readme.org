@@ -69,10 +69,21 @@ Furthermore, Denote relies heavily on keywords (file tags) to categorise items. 
 
 The =denote-stats-single-keywords= list keywords only used once. There are good reasons to have monad keywords, but it is good to have a function that reviews them.
 
-* TODO Visualise Networks
-This part of the package is a work in progress.
+* Visualise Networks
+I am experimenting with visualising Denote using the R language, which is [[https://lucidmanager.org/tags/rstats/][my weapon of choice]] for analysing data.
 
-I am experimenting with visualising Denote using the R language, which is my weapon of choice for analysing data. The =denote-extra.R= file contains a first attempt, but requires using the R language. End goal is a [[https://shiny.rstudio.com/][Shiny application]] that lets the user visualise and explore the network.
+The =denote-explore.R= file contains a first attempt with the D3 visualisation engine. The script automatically installs packages needed for this visualisation.
+
+Open the R file and modify the =denote_directory= variable in line 17 to reflect the location of your notes.
+
+- For Emacs to run this code, you need to install ESS ([[https://ess.r-project.org/][Emacs Speaks Statistics]]). Within Emacs, use =ess-eval-buffer= (=C-c C-b=) to evaluate the buffer.
+- If you don't uses ESS, then you can also run this script in a shell with =r denote-explore-network.R=.
+
+This code reads and parses all Denote Org Mode files and saves a HTML file, and associated Javascript, in your home folder. Open the HTML file in your favourite browser and enjoy.
+
+The end goal is a [[https://shiny.rstudio.com/][Shiny application]] that lets the user visualise and explore the network by filtering tag.
+
+Ideally we need to let Emacs do most of the work, so we need some functions to store the Denote collection as a JSON.
 
 I am also looking at a plain text method to visualise the network neighbourhood. The [[https://emacs.cafe/emacs/guest-post/2017/06/26/hierarchy.html][hierarchy package]] can display information in tree format, which might be useful to visualise the local neighbourhood of a Denote buffer, e.g. two links backwards and forwards. 
 
