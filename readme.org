@@ -79,6 +79,8 @@ Open the R file and modify the =denote_directory= variable in line 17 to reflect
 - For Emacs to run this code, you need to install ESS ([[https://ess.r-project.org/][Emacs Speaks Statistics]]). Within Emacs, use =ess-eval-buffer= (=C-c C-b=) to evaluate the buffer.
 - If you don't uses ESS, then you can also run this script in a shell with =r denote-explore-network.R=.
 
+The script will install any required packages automatically.
+
 This code reads and parses all Denote Org Mode files and saves a HTML file, and associated Javascript, in your home folder. Open the HTML file in your favourite browser and enjoy.
 
 The end goal is a [[https://shiny.rstudio.com/][Shiny application]] that lets the user visualise and explore the network by filtering tag.
