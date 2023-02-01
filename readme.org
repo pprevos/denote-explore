@@ -43,7 +43,7 @@ You can use these functions with the [[https://github.com/emacs-dashboard/emacs-
   (add-to-list 'dashboard-items '(denote) t)
 #+end_src
 
-If you like to change the location of the Denote statistics, then modify =dashboard-items= to your satisfaction. 
+If you like to change the location of the Denote statistics, then modify =dashboard-items= to your satisfaction. This is a simple example, a more sophisticated version with hyperlinks is in the making.
 
 * Take a Random Walk
 When asking creative people where they get their inspiration, the answer is often vague and even mystical. The honest answer is, more often than not, the connection of random bits of information.
@@ -70,20 +70,20 @@ Furthermore, Denote relies heavily on keywords (file tags) to categorise items. 
 The =denote-stats-single-keywords= list keywords only used once. There are good reasons to have monad keywords, but it is good to have a function that reviews them.
 
 * Visualise Networks
-I am experimenting with visualising Denote using the R language, which is [[https://lucidmanager.org/tags/rstats/][my weapon of choice]] for analysing data.
+I am experimenting with visualising Denote using the R language, which is [[https://lucidmanager.org/tags/rstats/][my weapon of choice]] for analysing and visualising data.
 
-The =denote-explore.R= file contains a first attempt with the D3 visualisation engine. The script automatically installs packages needed for this visualisation.
+The =denote-explore-network.R= file contains a first attempt to visualise the links between Denote files with the D3 visualisation engine. The script automatically installs packages needed for this visualisation.
 
-Open the R file and modify the =denote_directory= variable in line 17 to reflect the location of your notes.
+Open the R file and modify the =denote_directory= variable in line 17 to the location of your notes.
 
-- For Emacs to run this code, you need to install ESS ([[https://ess.r-project.org/][Emacs Speaks Statistics]]). Within Emacs, use =ess-eval-buffer= (=C-c C-b=) to evaluate the buffer.
-- If you don't uses ESS, then you can also run this script in a shell with =r denote-explore-network.R=.
+- For Emacs to run the R code, you need to install ESS ([[https://ess.r-project.org/][Emacs Speaks Statistics]]). Within Emacs, use =ess-eval-buffer= (=C-c C-b=) to evaluate the buffer.
+- If you don't uses ESS, then you can also run this script in a shell with ==Rscript denote-explore-network.R=.
 
-The script will install any required packages automatically.
+The script will install any required packages automatically if run for the fist time.
 
 This code reads and parses all Denote Org Mode files and saves a HTML file, and associated Javascript, in your home folder. Open the HTML file in your favourite browser and enjoy.
 
-The end goal is a [[https://shiny.rstudio.com/][Shiny application]] that lets the user visualise and explore the network by filtering tag.
+The end goal is a [[https://shiny.rstudio.com/][Shiny application]] that lets the user visualise and explore the network, filtering by tag(s).
 
 Ideally we need to let Emacs do most of the work, so we need some functions to store the Denote collection as a JSON.
 
