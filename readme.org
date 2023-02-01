@@ -79,6 +79,9 @@ Open the R file and modify the =denote_directory= variable in line 17 to the loc
 - For Emacs to run the R code, you need to install ESS ([[https://ess.r-project.org/][Emacs Speaks Statistics]]). Within Emacs, use =ess-eval-buffer= (=C-c C-b=) to evaluate the buffer.
 - If you don't uses ESS, then you can also run this script in a shell with ==Rscript denote-explore-network.R=.
 
+#+caption: Example network visualisation.
+[[file:denote-explore-network.png]]
+
 The script will install any required packages automatically if run for the fist time.
 
 This code reads and parses all Denote Org Mode files and saves a HTML file, and associated Javascript, in your home folder. Open the HTML file in your favourite browser and enjoy.
