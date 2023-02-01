@@ -77,7 +77,7 @@ The =denote-explore-network.R= file contains a first attempt to visualise the li
 Open the R file and modify the =denote_directory= variable in line 17 to the location of your notes.
 
 - For Emacs to run the R code, you need to install ESS ([[https://ess.r-project.org/][Emacs Speaks Statistics]]). Within Emacs, use =ess-eval-buffer= (=C-c C-b=) to evaluate the buffer.
-- If you don't uses ESS, then you can also run this script in a shell with ==Rscript denote-explore-network.R=.
+- If you don't uses ESS, then you can also run this script in a shell with =Rscript denote-explore-network.R=.
 
 #+caption: Example network visualisation.
 [[file:denote-explore-network.png]]
