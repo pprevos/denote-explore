@@ -4,7 +4,6 @@
 
 ;; Author: Peter Prevos <peter@prevos.net>
 ;; URL: https://github.com/pprevos/denote-extra/
-;; Version: 0.1
 ;; Package-Requires: ((emacs "28.2") (dash "2.19.1") (f "0.20.0"))
 
 ;; This file is NOT part of GNU Emacs.
@@ -60,8 +59,14 @@
   (save-some-buffers)
   (let ((notes (denote-directory-text-only-files)))
     (dolist (file notes)
-      (message "Fooled!")))
-  (message "All keywords ordered alphabetically"))
+      (let ((file-type (denote-filetype-heuristics file))
+	    (keywords (denote-retrieve-keywords-value file file-type)))
+	(when (not (equal keywords (denote-keywords-sort keywords)))
+	  (message file)
+	  )
+	))))
+
+  (message "All keywords ordered alphabetically")
 
 (provide 'denote-explore-qa)
 ;;; denote-explore-qa.el ends here

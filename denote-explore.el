@@ -26,8 +26,8 @@
 ;;
 ;; Collection of functions to explore Denote files:
 ;;
-;; 1. Statistics
-;; 2. Random walks
+;; 1. Statistics (count notes and keywords)
+;; 2. Random walks (follow linked files)
 ;; 3. Network diagrams (TODO)
 ;; 4. Quality Assurance
 
@@ -35,6 +35,7 @@
 
 (require 'denote-explore-stats)
 (require 'denote-explore-random)
+;;(require 'denote-explore-network)
 (require 'denote-explore-qa)
 
 (provide 'denote-explore)

@@ -3,15 +3,15 @@
 
 The [[https://protesilaos.com/emacs/denote][Denote package]] by Protesilaos (Prot) Stavropol provides extensive functionality to create, retrieve, manage and link notes in plain text, Markdown and Org Mode. The most redeeming qualities of this package are its filename convention and modular simplicity. Denote provides many entry points to extend functionality and use your computer the way you want to instead of the other way around.
 
-The =denote-explore= package provides some convenience functions to help you manage your collection of notes.
+The =denote-explore= package provides some convenience functions to help you manage your collection of notes. This package is still under development, so not everything quite yet works as expected.
 
 This package currently provides four types of interactive Emacs functions:
-1. Summary statistics: Count and visualise keywords and note types
-2. Random walks: Generate new ideas using serendipity
-3. Quality assurance: Maintain your note collection: Synchronise front matter and file names
-4. Network visualisation: In progress
+1. /Summary statistics/: Count and visualise keywords and note types
+2. /Random walks/: Generate new ideas using serendipity
+3. /Quality assurance/: Maintain your note collection: Synchronise front matter and file names
+4. /Network visualisation/: In progress
 
-This package distinguishes between Denote files and attachments. Denote files are either Org Mode, Markdown or Plan Text (those listed in =denote-file-types=). Any other files are considered attachments (other file types such as images, PDFs, media files and so on). 
+This package distinguishes between Denote files and attachments. Denote files are either Org Mode, Markdown or Plan Text (those listed in the =denote-file-types= variable). All other files are considered attachments, e.g. photographs, PDFs, media files and so on). 
 
 * Denote Statistics
 First, you might like to know how many Denote files you have written and how many keywords you use:
@@ -29,7 +29,7 @@ You can also visualise the most commonly used keywords and file types with a bar
 [[file:denote-keywords-barchart.png]]
 
 ** Add Statistics to Emacs Dashboard
-You can use these functions with the [[https://github.com/emacs-dashboard/emacs-dashboard][Emacs Dashboard]] by Rakan Al-Hneiti and others. The code snippet below adds a count of your notes and keywords to the bottom of your dashboard. This setup assumes you have [[https://github.com/domtronn/all-the-icons.el][all-the-icons]] installed.
+You can use these functions with the [[https://github.com/emacs-dashboard/emacs-dashboard][Emacs Dashboard]] by Rakan Al-Hneiti and others. The code snippet below adds a count of your notes and keywords to the bottom of your dashboard. 
 
 #+begin_src elisp :result none
   (defun dashboard-insert-denote-stats (list-size)
