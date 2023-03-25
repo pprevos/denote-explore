@@ -69,6 +69,8 @@ Furthermore, Denote relies heavily on keywords (file tags) to categorise items. 
 
 The =denote-stats-single-keywords= list keywords only used once. There are good reasons to have monad keywords, but it is good to have a function that reviews them.
 
+*Warning*: These functions are experimental. They will edit Denote files, so please only use on a test folder.
+
 * Visualise Networks
 I am experimenting with visualising Denote using the R language, which is [[https://lucidmanager.org/tags/rstats/][my weapon of choice]] for analysing and visualising data.
 
