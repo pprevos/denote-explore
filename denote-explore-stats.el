@@ -72,7 +72,7 @@ VAR and TITLE used for display."
         (lambda (a b) (> (cdr a) (cdr b)))))
 
 (defun denote-explore--extract-keywords ()
-  "Extract keywords from `denote-directory-files'."
+  "Extract all keywords from files in `denote-directory-files'."
   (mapcan #'denote-extract-keywords-from-path (denote-directory-files)))
 
 (defun denote-explore-keywords-barchart (n)

@@ -3,9 +3,10 @@
 
 The [[https://protesilaos.com/emacs/denote][Denote package]] by Protesilaos (Prot) Stavropol provides extensive functionality to create, retrieve, manage and link notes in plain text, Markdown and Org Mode. The most redeeming qualities of this package are its filename convention and modular simplicity. Denote provides many entry points to extend functionality and use your computer the way you want to instead of the other way around.
 
-The =denote-explore= package provides some convenience functions to help you manage your collection of notes. This package is still under development, so not everything quite yet works as expected.
+The =denote-explore= package provides some convenience functions to manage your file collection. This package is still under development, so not everything might work as expected.
 
 This package currently provides four types of interactive Emacs functions:
+
 1. /Summary statistics/: Count and visualise keywords and note types
 2. /Random walks/: Generate new ideas using serendipity
 3. /Quality assurance/: Maintain your note collection: Synchronise front matter and file names
@@ -13,20 +14,22 @@ This package currently provides four types of interactive Emacs functions:
 
 This package distinguishes between Denote files and attachments. Denote files are either Org Mode, Markdown or Plan Text (those listed in the =denote-file-types= variable). All other files are considered attachments, e.g. photographs, PDFs, media files and so on). 
 
-* Denote Statistics
-First, you might like to know how many Denote files you have written and how many keywords you use:
+* Summary Statistics
+After a day of working hard on your digital knowledge garden, you might like to know how many Denote files you have written and how many keywords you use. Two functions can help you answer these questions:
 
 1. =denote-explore-count-notes=: Count the number of notes and attachments. 
 2. =denote-explore-count-keywords=: Count the number of distinct keywords (file tags).
 
-You can also visualise the most commonly used keywords and file types with a bar chart. The visualisations for this package are provided by the built-in =chart.el= package by Eric M. Ludlam, a quaint tool to create bar charts in plain text. Two interactive are available to visualise keywords and extensions:
-
-1. =denote-explore-keywords-barchart=: Visualise the top /n/ keywords.
-2. =denote-explore-extensions-barchart=: Visualise the used file extensions for notes and attachments.
+You can also visualise the most commonly used keywords and file types with a bar chart. The visualisations for this package are provided by the built-in =chart.el= package by Eric M. Ludlam, a quaint tool to create bar charts in plain text. 
 
 #+caption: Example of a bar chart of top-20 keywords in the chart package.
 #+attr_org: :width 600
 [[file:denote-keywords-barchart.png]]
+
+Two interactive functions visualise keywords and extensions:
+
+1. =denote-explore-keywords-barchart=: Visualise the top /n/ keywords.
+2. =denote-explore-extensions-barchart=: Visualise the used file extensions for notes and attachments.
 
 ** Add Statistics to Emacs Dashboard
 You can use these functions with the [[https://github.com/emacs-dashboard/emacs-dashboard][Emacs Dashboard]] by Rakan Al-Hneiti and others. The code snippet below adds a count of your notes and keywords to the bottom of your dashboard. 
@@ -45,40 +48,38 @@ You can use these functions with the [[https://github.com/emacs-dashboard/emacs-
 
 If you like to change the location of the Denote statistics, then modify =dashboard-items= to your satisfaction. This is a simple example, a more sophisticated version with hyperlinks is in the making.
 
-* Take a Random Walk
-When asking creative people where they get their inspiration, the answer is often vague and even mystical. The honest answer is, more often than not, the connection of random bits of information.
+* Random Walks
+When asking creative people where they get their inspiration, the answer is often vague and even mystical. The honest answer is, more often than not, inspiration arises by connecting random bits of information.
 
-Serendipity provides a starting point for idea generation. Introducing random elements into the creative process can generate ideas you might not have thought otherwise. This can be especially useful when you're stuck in a rut and need help generating new ideas.
+Serendipity provides as such a starting point for idea generation. Introducing random elements into the creative process generates ideas you might not have thought otherwise. This can be especially useful when you're stuck in a rut and need help generating new ideas.
 
-Taking a random walk through your digital garden creates new connections in your brain. A random walk describes a succession of random steps. We can use this concept to discover new relationships in your digital garden. Another word for this technique is 'snowball sampling'.
+A random walk is a random sequence of events that follow each other. You can take a random walk by jumping to another note, either connected or unconnected to the current buffer. Another word for jumping to randomly linked notes is 'snowball sampling' as you are rolling a snowball of information.
 
-The package provides three functions to ingest some randomness into your work:
+The package provides three functions to inject some randomness into your work:
 
 1. =denote-explore-random-note=: Jump to a random note or attachment.
-2. =denote-explore-random-keyword=: Jump to a random note with the same tag as the current buffer (or any available tag when launched from non-Denote file or attachment buffer or when the current buffer has no keywords).
-3. =denote-explore-random-link=: Jump to a random linked note (forward or backwards).
+2. =denote-explore-random-keyword=: Jump to a random note or attachment with the same selected tag as the current buffer. When launched from a non-Denote buffer or a note without keywords, the user can select any keyword to jump to.
+3. =denote-explore-random-link=: Jump to a random linked note (either forward or backwards).
 
-The default state is that these functions jump to a Denote file. Adding the universal argument (=C-u=) excludes attachments in the options.
+The default state is that these functions jump to any Denote file. Adding the universal argument (=C-u=) includes attachments as candidates for a random jump.
 
 * Quality Assurance
 A potential weakness of Denote is that it stores metadata in both the filename and the front matter of the individual notes. The system thus relies on discipline by the author to keep both synchronised, with the front matter inside the file being the source of truth.
 
-Denote provides the =denote-rename-file-using-front-matter= function, which does what it says. However, it has to be run manually for each file. I am lazy and forgetful, so I need something more convenient. The =denote-explore-sync-metadata= function synchronises the front matter with the file name for all Denote files. It asks the user for confirmation before renaming a file.
+Denote provides the =denote-rename-file-using-front-matter= function, which does what it says. However, it has to be run manually for each file. I am lazy and forgetful, so I need something more convenient. The =denote-explore-sync-metadata= function synchronises the front matter with the file name for all Denote files. It asks the user for confirmation before renaming any file.
 
-Furthermore, Denote relies heavily on keywords (file tags) to categorise items. Ideally, each keyword should be used more than once. Otherwise, it is not much of a category. Single keywords (monads) can also happen due to typos, so occasionally checking your keyword assignments might be helpful.
+Furthermore, Denote relies heavily on keywords (file tags) to categorise items. Ideally, each keyword should be used more than once. Otherwise, it is not much of a category. Single keywords can also happen due to typos, so occasionally checking your keyword assignments might be helpful.
 
-The =denote-stats-single-keywords= list keywords only used once. There are good reasons to have monad keywords, but it is good to have a function that reviews them.
+The =denote-explore-single-keywords= list keywords only used once. There are good reasons to have single keywords, but it is good to have a function that reviews them to weed-out typos.
 
-*Warning*: These functions are experimental. They will edit Denote files, so please only use on a test folder.
-
-* Visualise Networks
+* Network Visualisation
 I am experimenting with visualising Denote using the R language, which is [[https://lucidmanager.org/tags/rstats/][my weapon of choice]] for analysing and visualising data.
 
-The =denote-explore-network.R= file contains a first attempt to visualise the links between Denote files with the D3 visualisation engine. The script automatically installs packages needed for this visualisation.
+The =denote-explore-network.R= file contains a first attempt to visualise the links between Denote files with the D3 visualisation engine. 
 
 Open the R file and modify the =denote_directory= variable in line 17 to the location of your notes.
 
-- For Emacs to run the R code, you need to install ESS ([[https://ess.r-project.org/][Emacs Speaks Statistics]]). Within Emacs, use =ess-eval-buffer= (=C-c C-b=) to evaluate the buffer.
+- For Emacs to run the R code, you need to install the R language and the ESS ([[https://ess.r-project.org/][Emacs Speaks Statistics]]) package. Within Emacs, use =ess-eval-buffer= (=C-c C-b=) to generate the network.
 - If you don't uses ESS, then you can also run this script in a shell with =Rscript denote-explore-network.R=.
 
 #+caption: Example network visualisation.
@@ -86,11 +87,11 @@ Open the R file and modify the =denote_directory= variable in line 17 to the loc
 
 The script will install any required packages automatically if run for the fist time.
 
-This code reads and parses all Denote Org Mode files and saves a HTML file, and associated Javascript, in your home folder. Open the HTML file in your favourite browser and enjoy.
+This code reads and parses all Denote Org Mode files and saves a HTML file, and associated JavaScript, in your home folder. Open the HTML file in your favourite browser and enjoy the fruits of your labour.
 
-The end goal is a [[https://shiny.rstudio.com/][Shiny application]] that lets the user visualise and explore the network, filtering by tag(s).
+The end goal is a [[https://shiny.rstudio.com/][Shiny application]] that lets the user visualise and explore their Denote network.
 
-Ideally we need to let Emacs do most of the work, so we need some functions to store the Denote collection as a JSON.
+Ideally we need to let Emacs do most of the work, so we need some functions to store the Denote collection as a JSON. Such functions would allow other developers to write visualisation code.
 
 I am also looking at a plain text method to visualise the network neighbourhood. The [[https://emacs.cafe/emacs/guest-post/2017/06/26/hierarchy.html][hierarchy package]] can display information in tree format, which might be useful to visualise the local neighbourhood of a Denote buffer, e.g. two links backwards and forwards. 
 

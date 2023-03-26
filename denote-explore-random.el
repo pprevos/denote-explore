@@ -43,9 +43,9 @@
 
 (defun denote-explore-random-note ()
   "Jump to a random denote or attachment.
-With universal argument the sample excludes attachments."
+With universal argument the sample includes attachments."
   (interactive)
-  (let* ((denotes (if (equal current-prefix-arg nil)
+  (let* ((denotes (if current-prefix-arg
 		      (denote-directory-files)
 		    (denote-directory-text-only-files)))
 	 (denotes-no-current (delete buffer-file-name denotes)))
@@ -118,7 +118,7 @@ With universal argument the sample includes attachments."
 		      alinks)))
 	(if (not (null links))
 	    (denote-explore--jump links)
-	  (user-error "No links in this buffer")))
+	  (user-error "No links in or to this buffer")))
   (user-error "Buffer is not a Denote file")))
 
 (provide 'denote-explore-random)
