@@ -3,7 +3,7 @@
 # Install required packages
 req_packages <- c("stringr","dplyr", "igraph", "networkD3", "htmlwidgets")
 for (i in req_packages) { #Installs packages if not yet installed
-  if(! i%in% row.names(installed.packages())) install.packages(i)
+  if(! i%in% row.names(installed.packages())) install.packages(i, repos = "http://cran.us.r-project.org")
 }
 
 ## Initialise libraries.
