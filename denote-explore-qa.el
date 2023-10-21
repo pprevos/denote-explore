@@ -30,19 +30,11 @@
 
 ;;; Code:
 
-(require 'denote-explore-stats)
-(require 'f)
+(require 'denote-explore)
 
-(defun denote-explore-single-keywords ()
-  "List all keywords only used once."
-  (interactive)
-  (let* ((keywords (denote-explore--table
-		    (denote-explore--extract-keywords)))
-	 (single (cl-remove-if
-		  (lambda (pair) (> (cdr pair) 1)) keywords)))
-    (message "Single keywords: %s"
-	     (mapconcat 'identity (mapcar #'car single) ", "))))
+;; Quality Assurance
 
+;;;###autoload
 (defun denote-explore-sync-metadata ()
   "Synchronise the filenames with the metadata for all Denote files."
   (interactive)
@@ -50,8 +42,22 @@
   ;; TODO add option to not confirm save
   (let ((notes (denote-directory-text-only-files)))
     (dolist (file notes)
+      (message file)
       (denote-rename-file-using-front-matter file)))
   (message "Integrity check completed"))
+
+;;;###autoload
+(defun denote-explore-single-keywords ()
+  "List Denote keywords only used once."
+  (interactive)
+  (let* ((keywords (denote-explore--count-keywords))
+	 (single (cl-remove-if
+		  (lambda (pair) (> (cdr pair) 1)) keywords)))
+    (message "Single keywords: %s"
+	     (mapconcat 'identity (mapcar #'car single) ", "))))
+
+
+
 
 (defun denote-explore-order-keywords ()
   "Order the keywords in all Denote files alphabetically."
