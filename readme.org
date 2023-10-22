@@ -55,20 +55,23 @@ The default state is that these functions jump to any Denote file. The universal
 * Network Visualisation
 I am experimenting with visualising Denote using the R language, which is [[https://lucidmanager.org/tags/rstats/][my weapon of choice]] for analysing and visualising data.
 
-The =denote-explore-network.R= script contains a first attempt to visualise the links between Denote files with the D3 visualisation engine. 
+The ~denotes-explore-network-r~ function an R script and opens the resulting HTML file in your system browser. You must install the R language on your system. R will install some required libraries when you run this code for the first time.
+
+R stored the network in =~/denote-network.html=. You can configure the filename of the output file with the ~denote-explore-network-filename~ variable.
 
 #+caption: Example network visualisation.
 [[file:denote-explore-network.png]]
 
-The ~denotes-explore-network-r~ function runs the R script and opens the resulting HTML file in your system browser. You must install the R language on your system for this to run. R will install some libraries when you run this code for the first time.
-
-The network is stored in =~/denote-network.html=, configurable only from within the R script.
+The =denote-explore-network.R= script contains a first rudimentary attempt to visualise the links between Denote files with the D3 visualisation engine. 
 
 - For Emacs to run the R code, you need to install the R language and the ESS ([[https://ess.r-project.org/][Emacs Speaks Statistics]]) package. Within Emacs, use ~ess-eval-buffer~ (=C-c C-b=) to generate the network and save an HTML file to disk.
-- If you don't use ESS, run this script in a shell with ~Rscript denote-explore-network.R~.
+- If you don't use ESS, run this script in a shell with ~Rscript denote-explore-network.R <denote-directory> <output-filename>~.
+  - The =<denote-drectory>= parameter is the location of your Denote files.
+  - The =<output-filename>= is the name of the output HTML file.
 
 This visualisation is only rudimentary, and I need some help from D3 experts to provide more functionality and a configurable visualisation.
 
+** Plain Text Visualisation
 I am also looking at a plain text method to visualise the network neighbourhood. The [[https://emacs.cafe/emacs/guest-post/2017/06/26/hierarchy.html][hierarchy package]] can display information in a tree format, which might be helpful to visualise the local community of a Denote buffer, e.g. two links backwards and forwards. 
 
 * Installation

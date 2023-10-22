@@ -236,23 +236,27 @@ LIST-SIZE is a dummy variable required by the dashboard package."
       (assq-delete-all 'denote dashboard-items)))
 
 ;; Visualise
+(defvar denote-explore-network-filename
+  (concat (file-name-as-directory (getenv "HOME")) "denote-network.html")
+  "Full path of the D3.js network output file.")
 
 (defun denote-explore-network-r ()
-  "Generate a d3 visualisation of the Denote files using R."
+  "Generate a D3.js visualisation of the Denote files using R.
+
+Requires the R software to be available.  When using the first time
+R will install required packages."
   (interactive)
-  (let ((d3-file (concat (file-name-as-directory
-			  (getenv "HOME")) "denote-network.html")))
-    (if (executable-find "Rscript")
-	(progn
-          (let ((exit-status
-		 (shell-command "Rscript denote-explore-network.R")))
-            (if (eq exit-status 0)
-		(progn
-                  (if (file-exists-p d3-file)
-                      (browse-url d3-file)
-                    (error "Network file does not exist")))
-              (user-error "Network generation unsuccessful")))
-	  (user-error "R not available on this system")))))
+  (unless (executable-find "Rscript")
+    (user-error "R unavailable on this system"))
+  (let* ((command (format "Rscript denote-explore-network.R %s %s"
+			  denote-directory
+			  denote-explore-network-filename))
+	 (exit-status (shell-command command)))
+    (cond ((eq exit-status 0)
+           (if (file-exists-p denote-explore-network-filename)
+               (browse-url denote-explore-network-filename)
+             (error "Network file does not exist")))
+          (t (user-error "Network generation unsuccessful")))))
 
 (provide 'denote-explore)
 ;;; denote-explore.el ends here

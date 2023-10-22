@@ -1,26 +1,38 @@
 #!/usr/bin/r
+args <- commandArgs(trailingOnly = TRUE)
+
+if (length(args) != 2)
+    stop("Need arguments for Denote directory and output filename.")
+
+# Locate files (Modify to suit your needs)
+denote_directory <- args[1]
+
+# Output file
+output_file <- args[2]
 
 # Install required packages
 req_packages <- c("stringr","dplyr", "igraph", "networkD3", "htmlwidgets")
+
 for (i in req_packages) { #Installs packages if not yet installed
-  if(! i%in% row.names(installed.packages())) install.packages(i, repos = "http://cran.us.r-project.org")
+    if (! i %in% row.names(installed.packages()))
+        install.packages(i, repos = "http://cran.us.r-project.org")
 }
 
 ## Initialise libraries.
 library(stringr)     # String manipulation
-library(dplyr)       # Data manipulation
-library(igraph)      # Network analysis
+library(dplyr, quietly = TRUE, warn.conflicts = FALSE)  # Data manipulation
+library(igraph, quietly = TRUE, warn.conflicts = FALSE) # Network analysis
 library(networkD3)   # Visualise networks with D3.js
-library(htmlwidgets) # Save webpage to disk
-
-# Locate files (Modify to suit your needs)
-denote_directory <- "~/Documents/notes"
+library(htmlwidgets, quietly = TRUE, warn.conflicts = FALSE) # Save webpage to disk
 
 ## List denote files
 denote_files <- list.files(denote_directory,
                            recursive = TRUE,
                            full.names = TRUE,
                            pattern = "[0-9]{8}T[0-9]{6}--.*__.*")
+
+if (length(denote_files) == 0)
+    stop("No Denote files found.")
 
 ## Create table of files from filenames
 denotes <- tibble(filename   = denote_files,
@@ -53,8 +65,8 @@ network <- network[!duplicated(network) | network$from == network$to, ]
 
 # Replace ids with names (remove links to attachments)
 network_names <- network %>%
-  left_join(denotes, by = c("from" = "identifier")) %>%
-  left_join(denotes, by = c("to" = "identifier")) %>%
+  left_join(text_denotes, by = c("from" = "identifier")) %>%
+  left_join(text_denotes, by = c("to" = "identifier")) %>%
   select(from = title.x, to = title.y) %>%
   filter(!is.na(to))
 
@@ -65,13 +77,21 @@ p <- simpleNetwork(network_names,
                    Source = "from", Target = "to",
                    linkDistance = 10,
                    charge = -900,
-                   fontSize = 40,
+                   fontSize = 20,
                    fontFamily = "sans",
                    linkColour = "#000000",
                    nodeColour = "dodgerblue",
-                   opacity = 1, 
+                   opacity = 1,
                    zoom = TRUE)
 
 # Save HTML and JS to disk
-saveWidget(p, file = paste0("~/denote-network.html"))
+saveWidget(p, file = output_file)
+
+
+
+
+
+
+
+
 
