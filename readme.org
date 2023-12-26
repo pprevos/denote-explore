@@ -41,6 +41,9 @@ New functionality since the previous version:
 - ~denote-explore-sync-metadata~: Synchronise the filenames with the metadata for all Denote files.
 
 * Future Development
+** Dashboard
+Need to figure out how to create hyperlinks from the dashboard to something useful.
+
 ** Managing Attachments
 I am working on a function to rename Denote attachments using EXIF metadata. 
 
