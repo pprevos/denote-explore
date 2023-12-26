@@ -1,97 +1,68 @@
 #!/usr/bin/r
 args <- commandArgs(trailingOnly = TRUE)
 
-if (length(args) != 2)
-    stop("Need arguments for Denote directory and output filename.")
+args <- c("~/.config/emacs/denote-edges.json",
+          "~/.config/emacs/denote-vertices.json",
+          "~/denote-network.html")
 
-# Locate files (Modify to suit your needs)
-denote_directory <- args[1]
+if (length(args) != 3)
+    stop("Need three arguments.")
 
-# Output file
-output_file <- args[2]
+# File locations
+edges_file <- args[1]
+vertices_file <- args[2]
+output_file <- args[3]
 
 # Install required packages
-req_packages <- c("stringr","dplyr", "igraph", "networkD3", "htmlwidgets")
+req_packages <- c("jsonlite", "tibble", "dplyr", "igraph",
+                  "tidyr", "networkD3", "htmlwidgets")
 
-for (i in req_packages) { #Installs packages if not yet installed
-    if (! i %in% row.names(installed.packages()))
-        install.packages(i, repos = "http://cran.us.r-project.org")
+for (package in req_packages) { #Installs packages if not yet installed
+    if (! package %in% row.names(installed.packages()))
+        install.packages(package, repos = "http://cran.us.r-project.org")
+    library(package, character.only = TRUE,
+            quietly = TRUE, warn.conflicts = FALSE)
 }
 
-## Initialise libraries.
-library(stringr)     # String manipulation
-library(dplyr, quietly = TRUE, warn.conflicts = FALSE)  # Data manipulation
-library(igraph, quietly = TRUE, warn.conflicts = FALSE) # Network analysis
-library(networkD3)   # Visualise networks with D3.js
-library(htmlwidgets, quietly = TRUE, warn.conflicts = FALSE) # Save webpage to disk
+# Read Data
+edges <- fromJSON(edges_file) %>%
+    enframe(name = "from", value = "to") %>%
+    mutate(to = unlist(to))
 
-## List denote files
-denote_files <- list.files(denote_directory,
-                           recursive = TRUE,
-                           full.names = TRUE,
-                           pattern = "[0-9]{8}T[0-9]{6}--.*__.*")
+vertices <- fromJSON(vertices_file) %>%
+    enframe(name = "id", value = "title") %>%
+    mutate(title = unlist(title))
 
-if (length(denote_files) == 0)
-    stop("No Denote files found.")
+edgelist <- vertices %>%
+  select(from = id) %>%
+  left_join(edges) %>%
+  left_join(vertices, by = c("from" = "id")) %>%
+  left_join(vertices, by = c("to" = "id")) %>%
+  select(title_from = title.x, title_to = title.y) %>% 
+  distinct()
 
-## Create table of files from filenames
-denotes <- tibble(filename   = denote_files,
-                  identifier = str_extract(filename, "[0-9]{8}T[0-9]{6}"),
-                  title      = str_extract(filename, "(?<=\\-\\-).*(?=__)"),
-                  tags       = str_extract(filename, "(?<=\\_\\_).*(?=\\.)"),
-                  filetype   = str_extract(filename, "\\..*$")) %>%
-  mutate(title = str_replace_all(title, "-", " "),
-         title = str_to_title(title))
+# Create a graph from the edgelist
+g <- graph_from_data_frame(d = filter(edgelist, !is.na(title_to)), directed = TRUE)
 
-# Read all text files to harvest links
-text_denotes <- filter(denotes, filetype %in% c(".org", ".md", ".txt"))
+# Isolated vertices
+all_vertices <- unique(edgelist$title_from)
+connected_vertices_from <- unique(edgelist$title_from[!is.na(edgelist$title_to)])
+connected_vertices_to <- unique(edgelist$title_to[!is.na(edgelist$title_to)])
+isolated_vertices <- setdiff(all_vertices, c(connected_vertices_from, connected_vertices_to))
+g <- add_vertices(g, length(isolated_vertices), name = isolated_vertices)
 
-links <- list()
+#plot(g, edge.arrow.size = 1)
 
-for (f in text_denotes$filename) {
-  l <- str_extract(readLines(f), "(?<=denote:)[0-9]{8}T[0-9]{6}")
-  if (any(!is.na(l)))
-    links[[f]] <- data.frame(
-      from = str_extract(f, "[0-9]{8}T[0-9]{6}"),
-      to = l[!is.na(l)])
-}
+wc <- cluster_walktrap(g)
+members <- membership(wc)
 
-# Collapse and clean list
-network <- bind_rows(links)
-row.names(network) <- NULL
+h <- igraph_to_networkD3(g, group = members)
 
-# Remove empty duplicates and self-referencing links
-network <- network[!duplicated(network) | network$from == network$to, ]
+forceNetwork(Links = h$links, Nodes = h$nodes, 
+             Source = 'source', Target = 'target', 
+             NodeID = 'name', Group = 'group',
+             opacity = 1, fontSize = 20) %>% 
+  saveNetwork(file = output_file)
 
-# Replace ids with names (remove links to attachments)
-network_names <- network %>%
-  left_join(text_denotes, by = c("from" = "identifier")) %>%
-  left_join(text_denotes, by = c("to" = "identifier")) %>%
-  select(from = title.x, to = title.y) %>%
-  filter(!is.na(to))
-
-# Create network and visualise
-
-p <- simpleNetwork(network_names,
-                   height="100px", width="100px",        
-                   Source = "from", Target = "to",
-                   linkDistance = 10,
-                   charge = -900,
-                   fontSize = 20,
-                   fontFamily = "sans",
-                   linkColour = "#000000",
-                   nodeColour = "dodgerblue",
-                   opacity = 1,
-                   zoom = TRUE)
-
-# Save HTML and JS to disk
-saveWidget(p, file = output_file)
-
-
-
-
-
-
-
-
-
+# (setq regex "_emacs")
+htmlwidgets::createWidget

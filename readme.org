@@ -1,83 +1,54 @@
-#+title:  Denote Explore: Statistics, Random Walks and Networks
+#+title:  Denote Explore: Explore your digital Denote garden
 #+author: Peter Prevos
 
-The [[https://protesilaos.com/emacs/denote][Denote package]] by Protesilaos (Prot) Stavropol provides extensive functionality to create, retrieve, manage and link notes in plain text, Markdown and Org Mode. The most redeeming qualities of this package are its filename convention and modular simplicity. The Denote package provides many entry points to extend functionality and use your computer how you want to instead of the other way around.
+The Denote-Explore package provides auxiliary functions to maintain and explore your collection of Denote files. Denote-Explore provides three groups of Emacs commands:
 
-The =denote-explore= package provides some convenience functions to manage your file collection. 
+1. /Summary statistics/: Count notes, attachments and keywords.
+2. /Random walks/: Generate new ideas using serendipity.
+3. /Janitor/: Manage your denote collection.
+4. /Visualisations/: Visualise your Denote network.
 
-This package currently provides three groups of interactive Emacs functions:
+This package exists because I started to move many files on my computer into Denote silos, leveraging the ingenious file naming convention. These functions helped me to add some structure to the organic chaos of my digital garden.
 
-1. /Summary statistics/: Count and visualise keywords and note types
-2. /Random walks/: Generate new ideas using serendipity
-3. /Network visualisation/: Visualise your Denote network of links
+Read the [[https://lucidmanager.org/productivity/denote-explore][denote-explore manual]] for a comprehensive explanation of all functionality.
 
-This package distinguishes between Denote files and attachments. Denote files are either Org Mode, Markdown or Plan Text. All other files are attachments, e.g., photographs, PDFs, media files, and any other binary and text files. 
-
-* Summary Statistics
-After a day of working hard on your digital knowledge garden, you should know how many Denote files you have written and the number of keywords you use. Two functions can help you answer these questions:
-
-1. =denote-explore-count-notes=: Count the number of notes and attachments. 
-2. =denote-explore-count-keywords=: Count the number of distinct keywords (file tags).
-
-These two functions display the result of the count in the minibuffer.
-
-You can also visualise the most commonly used keywords and file types. The built-in =chart.el= package by Eric M. Ludlam is a quaint tool to create bar charts in plain text. Two commands visualise the number of keywords and file types:
-
-1. =denote-explore-keywords-barchart=: Visualise the top /n/ keywords.
-2. =denote-explore-extensions-barchart=: Visualise used file extensions.
-
-#+caption: Example of a bar chart of top-twenty keywords in the chart package.
-#+attr_org: :width 600
-[[file:denote-keywords-barchart.png]]
-
-** Add Statistics to Emacs Dashboard
-You can also integrate these statistics with the [[https://github.com/emacs-dashboard/emacs-dashboard][Emacs Dashboard]] by Rakan Al-Hneiti and others.
-
-The ~denote-explore-activate-dashboard~ function adds a widget to your dashboard. It displays the number of notes, attachments, and unique keywords. 
-
-The ~denote-explore-deactivate-dashboard~ function removes these widgets from the dashboard.
-
-* Random Walks
-The answer is often vague and even mystical when asking creative people where they get their inspiration. The honest answer is, more often than not, inspiration arises by connecting random bits of information.
-
-Serendipity provides a starting point for idea generation. Introducing random elements into the creative process generates ideas you might not have thought otherwise. This can be especially useful when you're stuck in a rut and need help developing new ideas.
-
-A random walk is a random sequence of events that follow each other. You can take a random walk by jumping to another note, either connected or unconnected to the current buffer. Another word for jumping to randomly linked notes is 'snowball sampling', as if you are rolling a snowball of information.
-
-The package provides three functions to inject some randomness into your work:
-
-1. =denote-explore-random-note=: Jump to a random note or attachment.
-2. =denote-explore-random-keyword=: Jump to a random note or attachment with the same selected tag as the current buffer. The user can choose any keyword when launched from a non-Denote buffer or a note without keywords.
-3. =denote-explore-random-link=: Jump to a random linked note (either forward or backwards).
-
-The default state is that these functions jump to any Denote file. The universal argument (=C-u=) includes attachments as candidates for a random jump.
-
-* Network Visualisation
-I am experimenting with visualising Denote using the R language, which is [[https://lucidmanager.org/tags/rstats/][my weapon of choice]] for analysing and visualising data.
-
-The ~denotes-explore-network-r~ function an R script and opens the resulting HTML file in your system browser. You must install the R language on your system. R will install some required libraries when you run this code for the first time.
-
-R stored the network in =~/denote-network.html=. You can configure the filename of the output file with the ~denote-explore-network-filename~ variable.
-
-#+caption: Example network visualisation.
-[[file:denote-explore-network.png]]
-
-The =denote-explore-network.R= script contains a first rudimentary attempt to visualise the links between Denote files with the D3 visualisation engine. 
-
-- For Emacs to run the R code, you need to install the R language and the ESS ([[https://ess.r-project.org/][Emacs Speaks Statistics]]) package. Within Emacs, use ~ess-eval-buffer~ (=C-c C-b=) to generate the network and save an HTML file to disk.
-- If you don't use ESS, run this script in a shell with ~Rscript denote-explore-network.R <denote-directory> <output-filename>~.
-  - The =<denote-drectory>= parameter is the location of your Denote files.
-  - The =<output-filename>= is the name of the output HTML file.
-
-This visualisation is only rudimentary, and I need some help from D3 experts to provide more functionality and a configurable visualisation.
-
-** Plain Text Visualisation
-I am also looking at a plain text method to visualise the network neighbourhood. The [[https://emacs.cafe/emacs/guest-post/2017/06/26/hierarchy.html][hierarchy package]] can display information in a tree format, which might be helpful to visualise the local community of a Denote buffer, e.g. two links backwards and forwards. 
-
-* Installation
-Download or clone the files in this package and store them in your favourite location and activate it, e.g.:
+Download or clone the files in this package and store them in your favourite location and activate it with =use-package= or your favourite method.
 
 #+begin_src elisp
-  (add-to-list 'load-path "~/denote-explore/")
-  (require 'denote-explore)
+  (use-package denote-explore
+    :load-path
+    "~/Documents/projects/denote-explore/"
+    :config
+    ;; Add widget to dashboard
+    (require 'denote-explore-dashboard)
+    (denote-explore-dashboard-activate))
 #+end_src
+
+* Change Log
+** Version 1.0
+This version is a complete rewrite of the code to improve coding quality and compatibility with internal changes since Denote version 2.2.
+
+Also major changes to the network visualisation, which can now take a regular expression for partial networks. Most of the code is now undertaken in Emacs Lisp, which saves that Denote notes and attachment structures in JSON format.
+
+The functionality for a Dashboard widget has been moved to a separate file to not enforce the requirements for those users not seeking to implement the widget.
+
+New functionality since the previous version:
+- ~denote-explore-identify-duplicate-identifiers~: Provide a list of duplicate identifiers.
+- ~denote-explore-single-keywords~: Select a note or attachment with a keyword that is only used once.
+- ~denote-explore-zero-keywords~: Select a note or attachment without any keywords.
+- ~denote-explore-sort-keywords~: Order the keywords of all Denote notes and attachments alphabetically.
+- ~denote-explore-rename-keyword~: Rename or remove a keyword across the whole Denote collection.
+- ~denote-explore-sync-metadata~: Synchronise the filenames with the metadata for all Denote files.
+
+* Future Development
+** Managing Attachments
+I am working on a function to rename Denote attachments using EXIF metadata. 
+
+** Visualising Denote
+Ideally we replace all R code with Emacs Code. The R code does some data conversion and then applies it to a JavaScript template, which is something that we should be able to do without involving an external tool.
+
+The ideal situation I believe is that Emacs Lisp generates a hash table of the complete Denote network on command or after every mutation. We can then generate an HTML widget using the D3 JavaScript templates to visualise the data.
+
+I am hoping somebody with JavaScript experience can assist.
+
+I am also looking at a plain text method to perhaps visualise the network neighbourhood. The [[https://emacs.cafe/emacs/guest-post/2017/06/26/hierarchy.html][hierarchy package]] can display information in a tree format, which might be helpful to visualise the local community of a Denote buffer, e.g. two links backwards and forwards.
