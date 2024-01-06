@@ -4,8 +4,8 @@
 
 ;; Author: Peter Prevos <peter@prevos.net>
 ;; URL: https://github.com/pprevos/denote-extra/
-;; Version: 1.0
-;; Package-Requires: ((emacs "29.1") (denote "2.0.0") (f "0.20.0"))
+;; Version: 1.1
+;; Package-Requires: ((emacs "29.1") (denote "2.2.0") (f "0.20.0"))
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -62,14 +62,9 @@
   :group 'denote-explore
   :type 'string)
 
-(defvar denote-explore-script-call
-  (let ((script-dir (file-name-directory load-file-name)))
-    (format "Rscript %sdenote-explore-network.R %s %s %s"
-            script-dir
-            denote-explore-json-vertices-filename
-            denote-explore-json-edges-filename
-            denote-explore-network-filename))
-  "Command for calling R script.")
+(defvar denote-explore-load-directory
+  (file-name-directory load-file-name)
+  "Path of the denote-explore package.")
 
 ;; STATISTICS
 
@@ -206,7 +201,6 @@ With universal argument the sample includes attachments."
 	 (selected-keyword (completing-read "Select single keyword: "
 					    single-keywords)))
     (find-file (car (denote-directory-files (concat "_" selected-keyword))))))
-
 
 ;;;###autoload
 (defun denote-explore-zero-keywords ()
@@ -356,6 +350,14 @@ Saved to `denote-explore-json-vertices-filename' and
     (with-temp-file denote-explore-json-vertices-filename
       (insert (json-encode denote-vertices)))))
 
+(defun denote-explore--script-call ()
+  "Construct command for calling R script."
+  (format "Rscript %sdenote-explore-network.R %s %s %s"
+          denote-explore-load-directory
+          denote-explore-json-edges-filename
+          denote-explore-json-vertices-filename
+	  denote-explore-network-filename))
+
 ;;;###autoload
 (defun denote-explore-network-r (regex)
   "Generate a D3.js visualisation of Denote files matching REGEX.
@@ -367,10 +369,11 @@ first time, R will install required packages."
     (user-error "Rscript is unavailable on this system - install R"))
   (denote-explore-network-save-json regex)
   ;; Correctly binding variables in the let* form
-  (let ((exit-status (shell-command denote-explore-script-call)))
+  (let ((exit-status (shell-command (denote-explore--script-call))))
     (cond ((eq exit-status 0)
            (if (file-exists-p denote-explore-network-filename)
-               (browse-url denote-explore-network-filename)
+               (progn (message "Network generation successful.")
+		      (browse-url denote-explore-network-filename))
              (user-error "Network file does not exist")))
           (t (user-error "Network generation unsuccessful")))))
 

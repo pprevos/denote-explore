@@ -62,7 +62,4 @@ forceNetwork(Links = h$links, Nodes = h$nodes,
              Source = 'source', Target = 'target', 
              NodeID = 'name', Group = 'group',
              opacity = 1, fontSize = 20) %>% 
-  saveNetwork(file = output_file)
-
-# (setq regex "_emacs")
-htmlwidgets::createWidget
+    saveNetwork(file = output_file)
