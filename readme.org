@@ -12,9 +12,12 @@ This package exists because I started to move many files on my computer into Den
 
 Read the [[https://lucidmanager.org/productivity/denote-explore][denote-explore manual]] for a comprehensive explanation of all functionality.
 
-Download or clone the files in this package and store them in your favourite location and activate it with =use-package= or your favourite method.
+This package is not yet available on a package repository. You can install it directly from GitHub.
 
 #+begin_src elisp
+  (package-vc-install '(denote-explore
+                        :url "https://github.com/pprevos/denote-explore/"))
+
   (use-package denote-explore
     :load-path
     "~/Documents/projects/denote-explore/"
@@ -25,6 +28,9 @@ Download or clone the files in this package and store them in your favourite loc
 #+end_src
 
 * Change Log
+** Version 1.1
+- Added helper function to call R script for network visualisation
+
 ** Version 1.0
 This version is a complete rewrite of the code to improve coding quality and compatibility with internal changes since Denote version 2.2.
 
