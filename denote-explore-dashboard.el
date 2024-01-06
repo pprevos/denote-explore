@@ -4,8 +4,8 @@
 
 ;; Author: Peter Prevos <peter@prevos.net>
 ;; URL: https://github.com/pprevos/denote-extra/
-;; Version: 0.9
-;; Package-Requires: ((emacs "29.1") (denote 2.0.0) (dashboard "2.19.1"))
+;; Version: 1.1
+;; Package-Requires: ((emacs "29.1") (denote "2.0.0") (dashboard "2.19.1"))
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -75,4 +75,3 @@ LIST-SIZE is a dummy variable required by the dashboard package."
 (provide 'denote-explore-dashboard)
 
 ;;; denote-explore-dashboard.el ends here
-
