@@ -5,7 +5,7 @@
 ;; Author: Peter Prevos <peter@prevos.net>
 ;; URL: https://github.com/pprevos/denote-extra/
 ;; Version: 1.1
-;; Package-Requires: ((emacs "29.1") (denote "2.0.0") (dashboard "2.19.1"))
+;; Package-Requires: ((emacs "29.1") (dashboard "2.19.1"))
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -34,7 +34,6 @@
 (require 'dashboard nil t)
 (require 'all-the-icons nil t)
 
-;;;###autoload
 (defun denote-explore--dashboard (list-size)
   "Helper function to display Denote summary on the Emacs Dashboard.
 
@@ -52,15 +51,15 @@ LIST-SIZE is a dummy variable required by the dashboard package."
                          :height 1.0 :v-adjust 0.01)
                         "   ")))
     (insert "\n")
-    (insert (concat prefix (denote-explore-count-notes) "\n"))
-    (insert (concat prefix (denote-explore-count-keywords))))
+    (insert prefix (denote-explore-count-notes) "\n")
+    (insert prefix (denote-explore-count-keywords)))
   (dashboard-insert-shortcut 'denote "d" "Denote:"))
 
 ;;;###autoload
 (defun denote-explore-dashboard-activate ()
   "Add the Denote statistics to the Emacs dashboard."
   (interactive)
-  (add-to-list ' dashboard-item-generators
+  (add-to-list 'dashboard-item-generators
                '(denote . denote-explore--dashboard))
   (add-to-list 'dashboard-items '(denote) t)
   (add-to-list 'dashboard-item-shortcuts '(denote . "d")))

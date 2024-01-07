@@ -156,7 +156,7 @@ or keywords in the same order as the selection. Alternatively, use
 With universal argument the sample includes attachments."
   (interactive)
   (if-let* ((keyword-list (denote-explore--select-keywords))
-	    (keyword-regex (concat "_" (mapconcat 'identity keyword-list ".*_"))))
+	    (keyword-regex (concat "_" (mapconcat #'identity keyword-list ".*_"))))
       (if-let* ((denotes (denote-directory-files keyword-regex))
 		(sample (if current-prefix-arg
 			    denotes
@@ -181,8 +181,8 @@ With universal argument the sample includes attachments."
 		   (cl-remove-if-not
 		    (lambda (id)
 		      (member id (cdr (member id ids)))) ids))))
-      (message (format "Duplicate identifier(s): %s"
-		       (mapconcat (lambda (id) id) dups ", ")))
+      (message "Duplicate identifier(s): %s"
+		       (mapconcat (lambda (id) id) dups ", "))
     (message "No duplicate identifiers found")))
 
 (defun denote-explore--table (list)
@@ -315,7 +315,7 @@ VAR and TITLE used for display."
       ;; (denote-explore--retrieve-keywords file)
       ;; (denote-get-file-extension file)
       (mapcar vertices files)
-    (user-error (format "No Denote files found matching '%s'" regex))))
+    (user-error "No Denote files found matching '%s'" regex)))
 
 (defun denote-explore--extract-edges (regex)
   "Extract Denote network edges (Denote links) from files matching REGEX."
@@ -353,10 +353,10 @@ Saved to `denote-explore-json-vertices-filename' and
 (defun denote-explore--script-call ()
   "Construct command for calling R script."
   (format "Rscript %sdenote-explore-network.R %s %s %s"
-          denote-explore-load-directory
-          denote-explore-json-edges-filename
-          denote-explore-json-vertices-filename
-	  denote-explore-network-filename))
+          (shell-quote-argument denote-explore-load-directory)
+          (shell-quote-argument denote-explore-json-edges-filename)
+          (shell-quote-argument denote-explore-json-vertices-filename)
+	  (shell-quote-argument denote-explore-network-filename)))
 
 ;;;###autoload
 (defun denote-explore-network-r (regex)
