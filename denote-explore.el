@@ -335,7 +335,7 @@ VAR and TITLE used for display."
 			    (match-string 0 str)))
 			links)))
       (cl-mapcar 'cons from to)
-    (user-error "No matching Denote links found")))
+    nil))
 
 (defun denote-explore-network-save-json (regex)
   "Save the vertices and edges of the Denote network matching REGEX as JSON.
@@ -368,7 +368,6 @@ first time, R will install required packages."
   (unless (executable-find "Rscript")
     (user-error "Rscript is unavailable on this system - install R"))
   (denote-explore-network-save-json regex)
-  ;; Correctly binding variables in the let* form
   (let ((exit-status (shell-command (denote-explore--script-call))))
     (cond ((eq exit-status 0)
            (if (file-exists-p denote-explore-network-filename)
