@@ -1,9 +1,9 @@
 #!/usr/bin/r
 args <- commandArgs(trailingOnly = TRUE)
 
-args <- c("~/.config/emacs/denote-edges.json",
-          "~/.config/emacs/denote-vertices.json",
-          "~/denote-network.html")
+# args <- c("~/.config/emacs/denote-edges.json",
+#           "~/.config/emacs/denote-vertices.json",
+#           "~/denote-network.html")
 
 if (length(args) != 3)
     stop("Need three arguments.")
