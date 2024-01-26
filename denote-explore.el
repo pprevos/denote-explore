@@ -5,7 +5,7 @@
 ;; Author: Peter Prevos <peter@prevos.net>
 ;; URL: https://github.com/pprevos/denote-extra/
 ;; Version: 1.1
-;; Package-Requires: ((emacs "29.1") (denote "2.2.0") (f "0.20.0"))
+;; Package-Requires: ((emacs "29.1") (denote "2.2.4") (f "0.20.0"))
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -38,6 +38,7 @@
 (require 'dash)
 (require 'f)
 (require 'cl-lib)
+(require 'json)
 
 ;; Variables
 (defgroup denote-explore ()
@@ -227,8 +228,8 @@ With universal argument the sample includes attachments."
   (let ((denote-rename-no-confirm nil)
 	(notes (denote-directory-files)))
     (dolist (file notes)
-      (let ((file-type (denote-filetype-heuristics file))
-	    (keywords (denote-explore--retrieve-keywords file)))
+      (let ((keywords (denote-explore--retrieve-keywords file)))
+	(if )
 	(denote-rename-file file
 			    (denote-explore--retrieve-title file)
 			    (denote-keywords-sort
@@ -276,7 +277,7 @@ Set `denote-rename-buffer-mode' to ensure synchronised notes."
 
 ;; VISUALISATION
 
-(defun denote-explore--barchart (table n var title)
+(defun denote-explore--barchart (table var title &optional n)
   "Create a barchart from a frequency TABLE with top N entries.
 VAR and TITLE used for display."
   (chart-bar-quickie
@@ -285,24 +286,30 @@ VAR and TITLE used for display."
    (mapcar #'car table) var
    (mapcar #'cdr table) "Frequency" n))
 
+(mapconcat #'car table " ")
+
 ;;;###autoload
 (defun denote-explore-keywords-barchart (n)
   "Create a barchart with the top N most used Denote keywords."
   (interactive "nNumber of keywords: ")
-  (denote-explore--barchart (denote-explore--table
-			     (denote--inferred-keywords)) n
-			     "Keywords" "Denote Keywords"))
+  (denote-explore--barchart
+   (denote-explore--table
+    (denote--inferred-keywords)) "Keywords" "Denote Keywords" n))
 
 ;;;###autoload
 (defun denote-explore-extensions-barchart ()
-  "Visualise the number of Denote files and attachment."
+  "Visualise the to N Denote file and attachment types."
   (interactive)
-  (let (extlst)
+  (let (ext-list)
     (dolist (file (denote-directory-files))
-      (push (file-name-extension file) extlst))
+      (push (file-name-extension file) ext-list))
+    ;; Replace nil extensions with string
+    (setq ext-list (mapcar (lambda (extension)
+              (if (null extension)
+                  "nil" extension))
+            ext-list))
     (denote-explore--barchart
-     (denote-explore--table extlst)  nil
-     "Extensions" "Denote file extensions")))
+     (denote-explore--table ext-list) "Extensions" "Denote file extensions")))
 
 (defun denote-explore--extract-vertices (regex)
   "Extract Denote network vertices metadata from files matching REGEX."
