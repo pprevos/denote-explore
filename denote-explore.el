@@ -5,7 +5,7 @@
 ;; Author: Peter Prevos <peter@prevos.net>
 ;; URL: https://github.com/pprevos/denote-extra/
 ;; Version: 1.1
-;; Package-Requires: ((emacs "29.1") (denote "2.2.4") (f "0.20.0"))
+;; Package-Requires: ((emacs "29.1") (dash "2.19.1") (f "0.20.0") (denote "2.2.4"))
 
 ;; This file is NOT part of GNU Emacs.
 
