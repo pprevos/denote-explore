@@ -286,8 +286,6 @@ VAR and TITLE used for display."
    (mapcar #'car table) var
    (mapcar #'cdr table) "Frequency" n))
 
-(mapconcat #'car table " ")
-
 ;;;###autoload
 (defun denote-explore-keywords-barchart (n)
   "Create a barchart with the top N most used Denote keywords."
