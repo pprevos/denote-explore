@@ -5,7 +5,7 @@
 ;; Author: Peter Prevos <peter@prevos.net>
 ;; URL: https://github.com/pprevos/denote-extra/
 ;; Version: 1.1
-;; Package-Requires: ((emacs "29.1") (dash "2.19.1") (f "0.20.0") (denote "2.2.4"))
+;; Package-Requires: ((emacs "29.1") (dash 2.19.1) (denote "2.2.4"))
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -34,9 +34,8 @@
 ;;; Code:
 
 (require 'denote)
-(require 'chart)
 (require 'dash)
-(require 'f)
+(require 'chart)
 (require 'cl-lib)
 (require 'json)
 
@@ -229,7 +228,6 @@ With universal argument the sample includes attachments."
 	(notes (denote-directory-files)))
     (dolist (file notes)
       (let ((keywords (denote-explore--retrieve-keywords file)))
-	(if )
 	(denote-rename-file file
 			    (denote-explore--retrieve-title file)
 			    (denote-keywords-sort
