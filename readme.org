@@ -12,24 +12,22 @@ This package exists because I started to move many files on my computer into Den
 
 Read the [[https://lucidmanager.org/productivity/denote-explore][denote-explore manual]] for a comprehensive explanation of all functionality.
 
-This package is not yet available on a package repository. You can install it directly from GitHub.
+This package is available on MELPA.
+
+#+begin_src elisp
+  (use-package denote-explore)
+#+end_src
+
+Alternatively, you can use the most recent development from GitHub:
 
 #+begin_src elisp
   (package-vc-install '(denote-explore
                         :url "https://github.com/pprevos/denote-explore/"))
-
-  (use-package denote-explore
-    :load-path
-    "~/Documents/projects/denote-explore/"
-    :config
-    ;; Add widget to dashboard
-    (require 'denote-explore-dashboard)
-    (denote-explore-dashboard-activate))
 #+end_src
 
 * Change Log
 ** Version 1.1
-- Added helper function to call R script for network visualisation
+Added helper function to call R script for network visualisation
 
 ** Version 1.0
 This version is a complete rewrite of the code to improve coding quality and compatibility with internal changes since Denote version 2.2.
@@ -48,16 +46,12 @@ New functionality since the previous version:
 
 * Future Development
 ** Dashboard
-Need to figure out how to create hyperlinks from the dashboard to something useful.
+Create a Denote widget for the Emacs Dashboard.
 
 ** Managing Attachments
-I am working on a function to rename Denote attachments using EXIF metadata. 
+I am working on a set of functions to rename Denote attachments using EXIF metadata. 
 
 ** Visualising Denote
-Ideally we replace all R code with Emacs Code. The R code does some data conversion and then applies it to a JavaScript template, which is something that we should be able to do without involving an external tool.
+The current network visualisation uses the R language as a detour to generate a HTML file with associated JavaScript code. I am slowly working my way to not have to use R, but I first need to learn more JavaScript and the D3 visualisation language.
 
-The ideal situation I believe is that Emacs Lisp generates a hash table of the complete Denote network on command or after every mutation. We can then generate an HTML widget using the D3 JavaScript templates to visualise the data.
-
-I am hoping somebody with JavaScript experience can assist.
-
-I am also looking at a plain text method to perhaps visualise the network neighbourhood. The [[https://emacs.cafe/emacs/guest-post/2017/06/26/hierarchy.html][hierarchy package]] can display information in a tree format, which might be helpful to visualise the local community of a Denote buffer, e.g. two links backwards and forwards.
+Perhaps we can use a plain text method to perhaps visualise the network neighbourhood. The [[https://emacs.cafe/emacs/guest-post/2017/06/26/hierarchy.html][hierarchy package]] can display information in a tree format, which might be helpful to visualise the local community of a Denote buffer, e.g. two links backwards and forwards.
