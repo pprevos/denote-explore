@@ -4,7 +4,7 @@
 
 ;; Author: Peter Prevos <peter@prevos.net>
 ;; URL: https://github.com/pprevos/denote-extra/
-;; Version: 1.1
+;; Version: 1.2
 ;; Package-Requires: ((emacs "29.1") (dash "2.19.1") (denote "2.2.4"))
 
 ;; This file is NOT part of GNU Emacs.
@@ -24,7 +24,7 @@
 
 ;;; Commentary:
 ;;
-;; Explore Denote functionality:
+;; explore Denote functionality:
 ;;
 ;; 1. Statistics (count notes and keywords)
 ;; 2. Random walks through your notes
@@ -171,19 +171,28 @@ With universal argument the sample includes attachments."
 ;; JANITOR
 
 ;;;###autoload
-(defun denote-explore-identify-duplicate-identifiers ()
-  "Provide a list of duplicate identifiers."
-  (interactive)
-  (if-let* ((notes (denote-directory-files))
-	    (ids (mapcar #'denote-retrieve-filename-identifier
-			 (denote-directory-files)))
-	    (dups (delete-dups
-		   (cl-remove-if-not
-		    (lambda (id)
-		      (member id (cdr (member id ids)))) ids))))
-      (message "Duplicate identifier(s): %s"
-		       (mapconcat (lambda (id) id) dups ", "))
-    (message "No duplicate identifiers found")))
+(defun denote-explore-identify-duplicate-notes (&optional filenames)
+  "Identify duplicate Denote IDs or FILENAMES.
+  If FILENAMES is non-nil, check for filename duplicates instead of Denote IDs."
+  (interactive "P")
+  (let* ((denote-files (denote-directory-files))
+         (candidates (if filenames
+                         (mapcar (lambda (path)
+                                   (file-name-nondirectory path))
+                                 denote-files)
+                       (mapcar #'denote-retrieve-filename-identifier denote-files)))
+         (tally (denote-explore--table candidates))
+         (duplicates (mapcar #'car (cl-remove-if-not
+                                    (lambda (note) (> (cdr note) 1)) tally))))
+    (if duplicates
+        (message "Duplicate identifier(s): %s" (mapconcat 'identity duplicates ", "))
+      (message "No duplicate identifiers found"))))
+
+(defalias 'denote-explore-identify-duplicate-identifiers
+  'denote-explore-identify-duplicate-notes)
+
+(make-obsolete 'denote-explore-identify-duplicate-identifiers
+	       'denote-explore-identify-duplicate-notes "Version 1.2")
 
 (defun denote-explore--table (list)
   "Generate an ordered frequency table from a LIST."
@@ -217,7 +226,7 @@ With universal argument the sample includes attachments."
   "Retrieve the title from a Denote FILE or an attachment."
   (if (denote-file-is-note-p file)
       (denote-retrieve-title-value file (denote-filetype-heuristics file))
-    (denote-retrieve-filename-title file)))
+    (denote-desluggify-title (denote-retrieve-filename-title file))))
 
 ;;;###autoload
 (defun denote-explore-sort-keywords ()
