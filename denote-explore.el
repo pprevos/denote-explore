@@ -57,6 +57,18 @@ Created upon generating the network when it does not yet exist"
   :group 'denote-explore
   :type 'string)
 
+(defcustom denote-explore-network-dot-filename
+  (expand-file-name "denote-network.gv" denote-explore-network-directory)
+  "Filename of the GraphViz file for Denote vertices (notes) and edges (links)."
+  :group 'denote-explore
+  :type 'string)
+
+(defcustom denote-explore-network-svg-filename
+  (expand-file-name "denote-network.svg" denote-explore-network-directory)
+  "Filename of the Denote network SVG file."
+  :group 'denote-explore
+  :type 'string)
+
 (defcustom denote-explore-network-filename
   (expand-file-name "denote-network.html" denote-explore-network-directory)
   "Filename and path of the HTML network visualisation files."
@@ -129,10 +141,11 @@ With universal argument the sample includes links to attachments."
 
 (defun denote-explore--retrieve-keywords (file)
   "Retrieve keywords from Denote FILE or attachment."
-  (let* ((filetype (denote-filetype-heuristics file))
-	 (keywords (if (denote-file-is-note-p file)
-		       (denote-retrieve-keywords-value file filetype)
-		     (string-split (denote-retrieve-filename-keywords file) "_"))))
+  (when-let* ((keywords (denote-retrieve-filename-keywords file))
+	      (filetype (denote-filetype-heuristics file))
+	      (keywords (if (denote-file-is-note-p file)
+			    (denote-retrieve-keywords-value file filetype)
+			  (string-split  "_"))))
     (if (equal (car keywords) "") nil keywords)))
 
 (defun denote-explore--select-keywords ()
@@ -385,7 +398,7 @@ VAR and TITLE used for display."
           (push link filtered-links))))
     (nreverse filtered-links)))
 
-(defun denote-explore--network-extract-structure (files)
+(defun denote-explore--network-generate (files)
   "Generate Denote network structure from FILES."
   (let* ((file-nodes (mapcar #'denote-extract-id-from-string files))
 	 (edges-alist (denote-explore--network-filter-links
@@ -401,12 +414,12 @@ VAR and TITLE used for display."
 
 Saved to `denote-explore-network-json-filename'."
   (interactive "MEnter regex (empty string for all notes): ")
-  (let ((files (denote-directory-files regex)))
-      (when (not (file-exists-p denote-explore-network-directory))
+  (when (not (file-exists-p denote-explore-network-directory))
     (make-directory denote-explore-network-directory))
+  (let ((files (denote-directory-files regex)))
     (with-temp-file denote-explore-network-json-filename
       (insert (json-encode
-	       (denote-explore--network-extract-structure files)))
+	       (denote-explore--network-generate files)))
       (json-pretty-print-buffer))))
 
 (defun denote-explore--script-call ()
@@ -435,6 +448,83 @@ first time, R will install required packages."
           (t (user-error "Network generation unsuccessful")))))
 
 ;;; GraphViz visualisation
+(defun denote-explore--network-dot-encode (network)
+  "Convert a Denote NETWORK association list to a GraphViz dot file."
+  (let* (;; Graph settings
+	(front-matter (concat "strict digraph G {\n"
+			    "layout=neato;\n"
+			    "forcelabels=true;\n"
+			    "overlap=scale;\n"
+			    "sep=\"+50\";\n"
+			    "nodesep=1;\n"
+			    "node[label=\"\" style=filled fillcolor=lightblue "
+			    "color=lightblue shape=circle width=1 fontsize=48];\n"
+			    "edge[arrowsize=3 color=dodgerblue4];\n"))
+	;; Extract nodes and edges
+        (nodes (cdr (assoc 'nodes network)))
+	(edges (cdr (assoc 'links network))))
+    ;; Append node definitions
+    (setq dot-nodes nil)
+    (dolist (node nodes)
+      ;; TODO: Why is the id a list?
+      (let* ((id (car (cdr (assoc 'id node))))
+	     (name (cdr (assoc 'name node)))
+	     (tags-list (cdr (assoc 'keywords node)))
+	     (tags (mapconcat 'identity tags-list ", "))
+	     (type (let ((note-type (cdr (assoc 'type node))))
+		     (if (equal note-type "note") "lightblue" "dodgerblue4"))))
+	(setq dot-nodes (concat dot-nodes
+				(format "    \"%s\" [xlabel=\"%s\" tooltip=\"ID: %s\\nTitle: %s\\nKeywords: %s\" fillcolor=%s];\n"
+					id name id name tags type)))))
+    ;; Append edge definitions
+    (setq dot-edges nil)
+    (dolist (edge edges)
+      (let ((source (cdr (assoc 'from edge)))
+	    (target (cdr (assoc 'to edge))))
+	(setq dot-edges (concat dot-edges
+				(format "    \"%s\" -> \"%s\";\n" source target)))))
+    (concat front-matter dot-nodes dot-edges "}\n")))
+
+;;;###autoload
+(defun denote-explore-network-save-dot (regex)
+  "Save the Denote files and links matching REGEX as a GraphViz dot file.
+Stored in `denote-explore-network-dot-filename'."
+  (interactive "MEnter regex (empty string for all notes): ")
+  (when (not (file-exists-p denote-explore-network-directory))
+    (make-directory denote-explore-network-directory))
+  (let ((files (denote-directory-files regex)))
+    (with-temp-file denote-explore-network-dot-filename
+      (insert (denote-explore--network-dot-encode
+	       (denote-explore--network-generate files))))))
+
+(defun denote-explore--network-dot-script-call ()
+  "Construct command for calling GraphViz dot script.
+Pre-processing with gvpr to calculate node sizes."
+  (format "gvpr -c -f  %stest/graphviz.gvpr %s | neato -Tsvg > %s"
+	  (shell-quote-argument denote-explore-load-directory)
+          (shell-quote-argument denote-explore-network-dot-filename)
+	  (shell-quote-argument denote-explore-network-svg-filename)))
+
+;;;###autoload
+(defun denote-explore-network-graphviz (regex)
+  "Generate a GraphViz (dot) visualisation of Denote files matching REGEX.
+Requires the GraphViz software (https://graphviz.org/)."
+  ;; TODO: Add clustering
+  (interactive "MEnter regex (empty string for all notes): ")
+  (unless (executable-find "dot")
+    (user-error "GraphViz is unavailable"))
+  (denote-explore-network-save-dot regex)
+  (let ((exit-status (shell-command (denote-explore--network-dot-script-call)))
+	(n-nodes (length (denote-directory-files regex))))
+    (cond ((eq exit-status 0)
+           (if (file-exists-p denote-explore-network-svg-filename)
+               (progn (message "Generated network with %s nodes" n-nodes)
+		      ;; TODO: Enforce browser use (wrap in html?)
+		      (browse-url-default-browser
+		       (concat "file://"
+			       denote-explore-network-svg-filename)))
+             (user-error "Network file does not exist")))
+          (t (user-error "Network generation unsuccessful")))))
 
 (provide 'denote-explore)
 ;;; denote-explore.el ends here
