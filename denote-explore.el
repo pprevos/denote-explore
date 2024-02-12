@@ -173,19 +173,22 @@ With universal argument the sample includes attachments."
 ;;;###autoload
 (defun denote-explore-identify-duplicate-notes (&optional filenames)
   "Identify duplicate Denote IDs or FILENAMES.
-  If FILENAMES is non-nil, check for filename duplicates instead of Denote IDs."
+If FILENAMES is non-nil, check filename duplicates, if nil, check Denote IDs.
+Using the FILENAMES option excludes exported Denote files."
   (interactive "P")
   (let* ((denote-files (denote-directory-files))
          (candidates (if filenames
                          (mapcar (lambda (path)
                                    (file-name-nondirectory path))
                                  denote-files)
-                       (mapcar #'denote-retrieve-filename-identifier denote-files)))
+                       (mapcar #'denote-retrieve-filename-identifier
+                               denote-files)))
          (tally (denote-explore--table candidates))
          (duplicates (mapcar #'car (cl-remove-if-not
                                     (lambda (note) (> (cdr note) 1)) tally))))
     (if duplicates
-        (message "Duplicate identifier(s): %s" (mapconcat 'identity duplicates ", "))
+        (message "Duplicate identifier(s): %s"
+		 (mapconcat 'identity duplicates ", "))
       (message "No duplicate identifiers found"))))
 
 (defalias 'denote-explore-identify-duplicate-identifiers

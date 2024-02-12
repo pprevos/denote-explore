@@ -26,8 +26,13 @@ Alternatively, you can use the most recent development from GitHub:
 #+end_src
 
 * Change Log
+** Version 1.2
+- Removed =pandoc= dependency in network generation
+- The ~denote-explore-identify-duplicate-identifiers~ is replaced by ~denote-explore-identify-duplicate-notes~. This new version either detects duplicate identifiers, or duplicate file names (using the universal argument). Comparing duplicate filenames ignores any duplicate identifiers caused by exporting Org mode files.
+
 ** Version 1.1
-Added helper function to call R script for network visualisation
+- Added helper function to call R script for network visualisation
+- Added to MELPA
 
 ** Version 1.0
 This version is a complete rewrite of the code to improve coding quality and compatibility with internal changes since Denote version 2.2.
@@ -52,6 +57,8 @@ Create a Denote widget for the Emacs Dashboard.
 I am working on a set of functions to rename Denote attachments using EXIF metadata. 
 
 ** Visualising Denote
-The current network visualisation uses the R language as a detour to generate a HTML file with associated JavaScript code. I am slowly working my way to not have to use R, but I first need to learn more JavaScript and the D3 visualisation language.
+The current network visualisation uses the [[https://christophergandrud.github.io/networkD3/][networkD3 package]] of the R language as a detour to generate a HTML file with associated JavaScript code. I am slowly working my way to not have to use R, but I first need to learn more JavaScript and the [[https://d3js.org/][D3 visualisation language]].
+
+Alternatively, I am working on using [[https://graphviz.org/][GraphViz]] to generate CSV files with force-directed layout. 
 
 Perhaps we can use a plain text method to perhaps visualise the network neighbourhood. The [[https://emacs.cafe/emacs/guest-post/2017/06/26/hierarchy.html][hierarchy package]] can display information in a tree format, which might be helpful to visualise the local community of a Denote buffer, e.g. two links backwards and forwards.
