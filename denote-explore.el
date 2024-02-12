@@ -500,7 +500,7 @@ Stored in `denote-explore-network-dot-filename'."
 (defun denote-explore--network-dot-script-call ()
   "Construct command for calling GraphViz dot script.
 Pre-processing with gvpr to calculate node sizes."
-  (format "gvpr -c -f  %stest/graphviz.gvpr %s | neato -Tsvg > %s"
+  (format "gvpr -c -f  %sgraphviz.gvpr %s | neato -Tsvg > %s"
 	  (shell-quote-argument denote-explore-load-directory)
           (shell-quote-argument denote-explore-network-dot-filename)
 	  (shell-quote-argument denote-explore-network-svg-filename)))

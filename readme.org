@@ -30,7 +30,7 @@ Alternatively, you can use the most recent development from GitHub:
 - Added [[https://graphviz.org/][GraphViZ visualisation]] option (=denote-explore-network-graphviz=) and command to save metadata as GraphViz file.
 - Using a single JSON file that can be used in either R or Python
 - Refactoring code to optimise network generation
-- Fixed bug in =denote-explore--retrieve-title=.
+- Fixed bugs in =denote-explore--retrieve-title= and =denote-explore--retrieve-keywords=.
 
 ** Version 1.2
 - Removed =pandoc= dependency in network generation
