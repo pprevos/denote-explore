@@ -1,9 +1,0 @@
-// Change node size relative to its degree
-// https://stackoverflow.com/questions/70754398/graphviz-directed-graph-circle-size-depends-of-degree
-N{
-  if (hasAttr($, "shape") && $.shape=="circle"){
-     // added 1 to width so nodes with degree==0 will not have rad==0
-     // change if all nodes are connected
-     $.width=sqrt(1.+$.degree);
-  }
-}
