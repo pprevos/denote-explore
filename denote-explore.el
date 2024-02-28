@@ -71,7 +71,7 @@ File type defined with `denote-explore-network-format'."
   :type '(choice
 	  (const :tag "GraphViz (Dot)" graphviz)
 	  (const :tag "D3 JavaScript (JSON)" d3.js)
-	  (const :tag "Graph Exchange XML Format (GEXF))" gexf)))
+	  (const :tag "Graph Exchange XML Format (GEXF)" gexf)))
 
 (defcustom denote-explore-network-keywords-ignore '("bib")
   "List of keywords to be ignored in the keywords graph."
@@ -295,7 +295,7 @@ exported Denote files from duplicate-detection."
 
 ;;;###autoload
 (defun denote-explore-zero-keywords ()
-  "Select a note or attachment that has no keywords."
+  "Select a note or attachment without keywords."
   (interactive)
   (let* ((with-keyword-regex "--\\([[:alnum:][:nonascii:]-]*_\\)")
 	 (keywords (denote-directory-files with-keyword-regex))
@@ -389,7 +389,7 @@ VAR and TITLE used for display."
 
 ;;;###autoload
 (defun denote-explore-extensions-barchart ()
-  "Visualise the to N Denote file and attachment types."
+  "Visualise the Denote file and attachment types."
   (interactive)
   (let (ext-list)
     (dolist (file (denote-directory-files))
@@ -495,6 +495,7 @@ of a file."
 (defun denote-explore--network-community ()
   "Generate network community association list for note matching regex.
 Links to notes outside the search area are pruned."
+  ;; TODO: How to enable this function to work interactively and as code?
   (interactive)
   (if-let* ((regex (read-from-minibuffer
 		    "Enter search term / regex (empty string for all notes):"))
@@ -663,7 +664,7 @@ Uses the ID of the current Denote buffer or user selects via completion menu."
              (type (cdr (assoc 'type node)))
 	     (width (sqrt (+ degree 1))))
 	(push (format (concat "%S [xlabel=%S tooltip=\"ID: %s\\nTitle: "
-			      "%s\\nKeywords: %s\\nType: %s\\nDegree: %s\""
+			      "%s\\nKeywords: %s\\nType: %s\\nDegree: %s\" "
 			      "width=%s %s]\n")
                       id label id name tags type degree width core) dot-content)))
     ;; Edges
@@ -734,7 +735,7 @@ Uses the ID of the current Denote buffer or user selects via completion menu."
     (when (not (file-exists-p denote-explore-network-directory))
       (make-directory denote-explore-network-directory))
     (with-temp-file file-name (funcall convert-fn graph))
-      (message "graph data saved to %s" file-name)))
+      (message "Graph data saved to %s" file-name)))
 
 ;; Visualise network
 
@@ -746,6 +747,7 @@ Output is saved to the `denote-explore-network-directory'."
 	      (script-call (format "dot %s -Tsvg > %s"
 				   (shell-quote-argument gv-file)
 				   (shell-quote-argument svg-file))))
+	 (message script-call)
     	 (delete-file svg-file)
 	 (setq exit-status (shell-command script-call))
 	 (if (eq exit-status 0)
@@ -804,5 +806,20 @@ Output is saved to the `denote-explore-network-directory'."
     (denote-explore--network-save graph)
     (denote-explore-network-view)))
 
+(defun denote-explore-isolated-files ()
+  "Identify Denote note files without any links or backlinks."
+  (interactive)
+  (let* ((files (denote-directory-files nil nil t))
+	 (all-ids (mapcar #'denote-retrieve-filename-identifier files))
+	 (edges (denote-explore--network-extract-edges files))
+	 (linked-ids (denote-explore--network-extract-unique-nodes edges))
+	 (isolated-ids (seq-remove (lambda (id) (member id linked-ids))
+					all-ids))
+	 (regex (mapconcat (lambda (item)
+			     (concat "\\b" item "\\b")) isolated-ids "\\|"))
+	 (isolated-files (seq-filter (lambda (item)
+				       (string-match regex item)) files)))
+    (find-file (completing-read "Select file with zero keywords: "
+				isolated-files))))
 (provide 'denote-explore)
 ;;; denote-explore.el ends here
