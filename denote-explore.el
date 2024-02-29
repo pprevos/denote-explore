@@ -92,6 +92,17 @@ Defines graph and layout properties and default edge and node attributes."
   :package-version '(denote-explore . "1.3")
   :type '(repeat string))
 
+(defcustom denote-explore-network-graphviz-filetype
+  "svg"
+  "Output file type for Denote network files.
+Use SVG or PDF for best results.
+Read GraphViz documentation for other output formats."
+  :group 'denote-explore
+  :package-version '(denote-explore . "1.4")
+  :type '(choice
+	  (const :tag "Scalable Vector Graphics (SVG)" "svg")
+	  (const :tag "Portable Document Format (PDF)" "pdf")))
+
 (make-obsolete-variable 'denote-explore-json-vertices-filename
 			'denote-explore-network-filename "1.3")
 
@@ -744,14 +755,16 @@ Uses the ID of the current Denote buffer or user selects via completion menu."
 
 (defun denote-explore--network-display-graphviz (gv-file)
   "Convert GraphViz GV-FILE to an SVG file and display in external application.
-
-Output is saved to the `denote-explore-network-directory'."
-  (let* ((svg-file (concat (file-name-sans-extension gv-file) ".svg"))
-	 (script-call (format "dot %s -Tsvg -o %s"
-			      (shell-quote-argument gv-file)
-			      (shell-quote-argument svg-file))))
+Output is saved to the `denote-explore-network-directory' in the
+`denote-explore-network-graphviz-filetype' file format."
+  (let* ((file-type denote-explore-network-graphviz-filetype)
+	 (out-file (concat (file-name-sans-extension gv-file) "." file-type))
+	 (script-call (format "dot %s -T%s -o %s"
+				   (shell-quote-argument gv-file)
+				   file-type
+				   (shell-quote-argument out-file))))
     (message script-call)
-    (delete-file svg-file)
+    (delete-file out-file)
     (setq exit-status (shell-command script-call))
     (if (eq exit-status 0)
 	(if (file-exists-p svg-file)
