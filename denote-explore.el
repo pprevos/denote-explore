@@ -84,7 +84,8 @@ File type defined with `denote-explore-network-format'."
     "size=20"
     "ratio=compress"
     "overlap=scale"
-    "node[label=\"\" style=filled color=lightskyblue fillcolor=lightskyblue3 shape=circle fontsize=80 fontcolor=gray fontname = \"Helvetica,Arial,sans-serif\"]"
+    "sep=1"
+    "node[label=\"\" style=filled color=lightskyblue fillcolor=lightskyblue3 shape=circle fontsize=40 fontcolor=gray90 fontname = \"Helvetica, Arial,sans-serif\"]"
     "edge[arrowsize=3 color=gray10]")
   "List of strings for the header of a GraphViz DOT file.
 Defines graph and layout properties and default edge and node attributes."
@@ -209,29 +210,30 @@ With universal argument the sample includes links to attachments."
   "Retrieve alphabetised list of keywords from Denote FILE or attachment.
 Uses front matter for notes and the filename for attachments."
   (let* ((filetype (denote-filetype-heuristics file))
-	 (keywords (if (denote-file-is-note-p file)
-		       (denote-retrieve-keywords-value file filetype)
-		     (denote-retrieve-filename-keywords file))))
-    ;; Corrections
-    (when (equal keywords "") (setq keywords nil))
-    (when (stringp keywords) (setq keywords (string-split  keywords "_")))
-    ;; Alphabetise
-    (sort keywords 'string<)))
+         (raw-keywords (if (denote-file-is-note-p file)
+                           (denote-retrieve-keywords-value file filetype)
+                         (denote-retrieve-filename-keywords file)))
+         (keywords (cond ((or (null raw-keywords) (equal raw-keywords "")) nil)
+                         ((stringp raw-keywords) (split-string raw-keywords "_"))
+                         (t raw-keywords))))
+    (when keywords (sort keywords 'string<))))
 
 (defun denote-explore--select-keywords ()
-  "Select Denote keyword(s).
-
+  "Select Denote keyword(s) for random jump.
 - Use \"*\" to select all listed keywords.
 - If no keyword is defined in the current buffer, then choose from all
   available keywords."
-  (if-let* ((file (buffer-file-name))
-	    (buffer-keywords (denote-explore--retrieve-keywords file))
-	    (keywords (if (> (length buffer-keywords) 1)
-			  (delete-dups (sort (completing-read-multiple
-					      "Select keyword: " buffer-keywords)
-					     #'string<))
-			buffer-keywords)))
-      (if (string= (car keywords) "*") buffer-keywords keywords)))
+  (let* ((file (buffer-file-name))
+	 (raw-keywords (denote-explore--retrieve-keywords file))
+	 (buffer-keywords (if (null raw-keywords)
+			      (denote-keywords)
+			    raw-keywords))
+	 (keywords (if (> (length buffer-keywords) 1)
+		       (delete-dups (sort (completing-read-multiple
+					   "Select keyword(s) (* selects all available keywords): " buffer-keywords)
+					  #'string<))
+		     buffer-keywords)))
+    (if (string= (car keywords) "*") buffer-keywords keywords)))
 
 ;;;###autoload
 (defun denote-explore-random-keyword ()
@@ -672,15 +674,16 @@ Uses the ID of the current Denote buffer or user selects via completion menu."
 	     (core (if (equal nb-core id) "fillcolor=darkorchid" ""))
              (name (cdr (assoc 'name node)))
 	     (degree (cdr (assoc 'degree node)))
-	     (label (if (> degree 2) name ""))
+	     (label (if (or (> degree 2) (equal nb-core id)) name ""))
              (tags (mapconcat 'identity (cdr (assoc 'keywords node)) ", "))
              (type (cdr (assoc 'type node)))
 	     (width (sqrt (+ degree 1)))
-	     (file (cdr (assoc 'filename node))))
+	     (file-name (cdr (assoc 'filename node))))
 	(push (format (concat "%S [xlabel=%S tooltip=\"ID: %s\\nTitle: "
 			      "%s\\nKeywords: %s\\nType: %s\\nDegree: %s\" "
-			      "width=%s %s url=\"%s\"]\n")
-                      id label id name tags type degree width core file) dot-content)))
+			      "width=%s %s URL=\"%s\"]\n")
+                      id label id name tags type degree width core file-name)
+	      dot-content)))
     ;; Edges
     (dolist (edge edges)
       (let* ((source (cdr (assoc 'source edge)))
