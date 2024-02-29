@@ -262,6 +262,10 @@ With universal argument the sample includes attachments."
     (user-error "No keywords found")))
 
 ;; JANITOR
+(defun denote-explore--table (list)
+  "Generate an ordered frequency table from a LIST."
+  (sort (-frequencies list)
+        (lambda (a b) (> (cdr a) (cdr b)))))
 
 ;;;###autoload
 (defun denote-explore-identify-duplicate-notes (&optional filenames)
@@ -273,11 +277,8 @@ exported Denote files from duplicate-detection."
   (interactive "P")
   (let* ((denote-files (denote-directory-files))
          (candidates (if filenames
-                         (mapcar (lambda (path)
-                                   (file-name-nondirectory path))
-                                 denote-files)
-                       (mapcar #'denote-retrieve-filename-identifier
-                               denote-files)))
+                         (mapcar (lambda (path) (file-name-nondirectory path)) denote-files)
+                       (mapcar #'denote-retrieve-filename-identifier denote-files)))
          (tally (denote-explore--table candidates))
          (duplicates (mapcar #'car (cl-remove-if-not
                                     (lambda (note)
@@ -289,11 +290,6 @@ exported Denote files from duplicate-detection."
 
 (make-obsolete 'denote-explore-identify-duplicate-identifiers
 	       'denote-explore-identify-duplicate-notes "Version 1.2")
-
-(defun denote-explore--table (list)
-  "Generate an ordered frequency table from a LIST."
-  (sort (-frequencies list)
-        (lambda (a b) (> (cdr a) (cdr b)))))
 
 ;;;###autoload
 (defun denote-explore-single-keywords ()
@@ -322,8 +318,7 @@ exported Denote files from duplicate-detection."
   "Retrieve the title from a Denote FILE or an attachment."
   (when (file-exists-p file)
     (if (denote-file-is-note-p file)
-	(denote-retrieve-title-value
-	 file (denote-filetype-heuristics file))
+	(denote-retrieve-title-value file (denote-filetype-heuristics file))
       (denote-retrieve-filename-title file))))
 
 ;;;###autoload
@@ -453,12 +448,14 @@ VAR and TITLE used for display."
   "Extract metadata for note or attachment with FILE."
   (when (file-exists-p file)
     (let ((id (denote-retrieve-filename-identifier file))
+	  (signature (denote-retrieve-filename-signature file))
 	  (name (denote-explore--retrieve-title file))
 	  (keywords (denote-retrieve-filename-keywords file))
 	  (type (file-name-extension file)))
       ;; TODO: Add filename for linking?
       (setq keywords (if keywords (string-split keywords "_") ""))
-      `((id . ,id) (name . ,name) (keywords . ,keywords) (type . ,type) (filename . ,file)))))
+      `((id . ,id) (signature . ,signature)(name . ,name)
+	(keywords . ,keywords) (type . ,type) (filename . ,file)))))
 
 (defun denote-explore--network-prune-edges (nodes edges)
   "Select EDGES (links) where both source and target are part of NODES.
