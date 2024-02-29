@@ -767,9 +767,9 @@ Output is saved to the `denote-explore-network-directory' in the
     (delete-file out-file)
     (setq exit-status (shell-command script-call))
     (if (eq exit-status 0)
-	(if (file-exists-p svg-file)
-	    (browse-url-default-browser svg-file)
-	  (user-error "No SVG file found"))
+	(if (file-exists-p out-file)
+	    (browse-url-default-browser out-file)
+	  (user-error "No output file produced"))
       (user-error "Graphic generation unsuccessful"))))
 
 (defun denote-explore--network-display-json (json-file)
