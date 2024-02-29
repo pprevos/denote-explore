@@ -1,10 +1,10 @@
-;; denote-explore.el --- Explore Denote files -*- lexical-binding: t -*-
+;;; denote-explore.el --- Explore Denote files -*- lexical-binding: t -*-
 
-;; Copyright (C) 2024 Peter Prevos
+;; Copyright (C) 2023-2024 Peter Prevos
 
 ;; Author: Peter Prevos <peter@prevos.net>
 ;; URL: https://github.com/pprevos/denote-extra/
-;; Version: 1.3
+;; Version: 1.4
 ;; Package-Requires: ((emacs "29.1") (denote "2.2.4") (dash "2.19.1"))
 
 ;; This file is NOT part of GNU Emacs.
@@ -82,6 +82,7 @@ File type defined with `denote-explore-network-format'."
 (defcustom denote-explore-network-graphviz-header
   '("layout=neato"
     "size=20"
+    "ratio=compress"
     "overlap=scale"
     "node[label=\"\" style=filled color=lightskyblue fillcolor=lightskyblue3 shape=circle fontsize=80 fontcolor=gray fontname = \"Helvetica,Arial,sans-serif\"]"
     "edge[arrowsize=3 color=gray10]")
@@ -199,7 +200,7 @@ Uses front matter for notes and the filename for attachments."
   (let* ((filetype (denote-filetype-heuristics file))
 	 (keywords (if (denote-file-is-note-p file)
 		       (denote-retrieve-keywords-value file filetype)
-		       (denote-retrieve-filename-keywords file))))
+		     (denote-retrieve-filename-keywords file))))
     ;; Corrections
     (when (equal keywords "") (setq keywords nil))
     (when (stringp keywords) (setq keywords (string-split  keywords "_")))
@@ -321,7 +322,7 @@ exported Denote files from duplicate-detection."
 	(notes (denote-directory-files)))
     (dolist (file notes)
       (let ((keywords (denote-explore--retrieve-keywords file)))
-	 (denote-rename-file file
+	(denote-rename-file file
 	 		    (denote-retrieve-filename-title file)
 	 		    (denote-keywords-sort
 	 		     (if (equal (car keywords) "") nil keywords))
@@ -396,15 +397,15 @@ VAR and TITLE used for display."
       (push (file-name-extension file) ext-list))
     ;; Replace nil extensions with string
     (setq ext-list (mapcar (lambda (extension)
-              (if (null extension)
-                  "nil" extension))
-            ext-list))
+			     (if (null extension)
+				 "nil" extension))
+			   ext-list))
     (denote-explore--barchart
      (denote-explore--table ext-list) "Extensions" "Denote file extensions")))
 
-;; VISUALISE LINK NETWORKS
+;; DEFINE GRAPHS
 
-;;; Community: Regular Expression
+;;; Community graph
 
 (defun denote-explore--network-zip-alists (source target)
   "Zip two lists into a list of alists, pairing SOURCE and TARGET."
@@ -442,8 +443,9 @@ VAR and TITLE used for display."
 	  (name (denote-explore--retrieve-title file))
 	  (keywords (denote-retrieve-filename-keywords file))
 	  (type (file-name-extension file)))
+      ;; TODO: Add filename for linking?
       (setq keywords (if keywords (string-split keywords "_") ""))
-      `((id . ,id) (name . ,name) (keywords . ,keywords) (type . ,type)))))
+      `((id . ,id) (name . ,name) (keywords . ,keywords) (type . ,type) (filename . ,file)))))
 
 (defun denote-explore--network-prune-edges (nodes edges)
   "Select EDGES (links) where both source and target are part of NODES.
@@ -510,7 +512,7 @@ Links to notes outside the search area are pruned."
       `((meta . ,meta-alist) (nodes . ,nodes-alist) (edges . ,edges-alist))
     (user-error "No Denote files or (back)links found for %s" regex)))
 
-;;; keywords
+;;; keywords graph
 
 (defun denote-explore--network-keywords-extract (files)
   "Convert keywords from FILES to a list.
@@ -563,9 +565,9 @@ In a complete graph (network), all  nodes are connected to each other."
 	 ;; Remove nodes with degree < 1 (denote-explore-single-keywords)
 	 (all-keywords (denote-keywords))
 	 (select-keywords (seq-remove
-				(lambda (node)
-				  (member node denote-explore-network-keywords-ignore))
-				all-keywords))
+			   (lambda (node)
+			     (member node denote-explore-network-keywords-ignore))
+			   all-keywords))
 	 (nodes (mapcar
 		 (lambda (keyword)
 		   (list (cons 'id keyword)
@@ -574,7 +576,7 @@ In a complete graph (network), all  nodes are connected to each other."
 	 (meta-alist `((directed . nil) (type . "Keywords"))))
     `((meta . ,meta-alist) (nodes . ,nodes-alist) (edges . ,edges-alist))))
 
-;; Neighbourhood
+;;; Neighbourhood Graph
 
 (defun denote-explore--network-find-edges (id edges)
   "Find edges matching ID as source or target node among alist of EDGES."
@@ -635,7 +637,7 @@ Uses the ID of the current Denote buffer or user selects via completion menu."
       `((meta . ,meta-alist) (nodes . ,nodes-alist) (edges . ,edges-alist))
     (user-error "No network neighbourhood found")))
 
-;; SAVE GRAPH
+;;; SAVE GRAPH
 
 (defun denote-explore--network-encode-json (graph)
   "Encode a Denote GRAPH object to JSON and insert in a file."
@@ -662,11 +664,12 @@ Uses the ID of the current Denote buffer or user selects via completion menu."
 	     (label (if (> degree 2) name ""))
              (tags (mapconcat 'identity (cdr (assoc 'keywords node)) ", "))
              (type (cdr (assoc 'type node)))
-	     (width (sqrt (+ degree 1))))
+	     (width (sqrt (+ degree 1)))
+	     (file (cdr (assoc 'filename node))))
 	(push (format (concat "%S [xlabel=%S tooltip=\"ID: %s\\nTitle: "
 			      "%s\\nKeywords: %s\\nType: %s\\nDegree: %s\" "
-			      "width=%s %s]\n")
-                      id label id name tags type degree width core) dot-content)))
+			      "width=%s %s url=\"%s\"]\n")
+                      id label id name tags type degree width core file) dot-content)))
     ;; Edges
     (dolist (edge edges)
       (let* ((source (cdr (assoc 'source edge)))
@@ -685,8 +688,8 @@ Uses the ID of the current Denote buffer or user selects via completion menu."
 (defun denote-explore--network-escape-xml (name)
   "Escape special XML characters in node NAME."
   (replace-regexp-in-string "&" "&amp;"
-    (replace-regexp-in-string "<" "&lt;"
-      (replace-regexp-in-string ">" "&gt;" name))))
+			    (replace-regexp-in-string "<" "&lt;"
+						      (replace-regexp-in-string ">" "&gt;" name))))
 
 (defun denote-explore--network-encode-gexf (graph)
   "Encode a Denote GRAPH object to GEXF and insert in a file."
@@ -735,31 +738,32 @@ Uses the ID of the current Denote buffer or user selects via completion menu."
     (when (not (file-exists-p denote-explore-network-directory))
       (make-directory denote-explore-network-directory))
     (with-temp-file file-name (funcall convert-fn graph))
-      (message "Graph data saved to %s" file-name)))
+    (message "Graph data saved to %s" file-name)))
 
-;; Visualise network
+;;; Visualise network
 
 (defun denote-explore--network-display-graphviz (gv-file)
   "Convert GraphViz GV-FILE to an SVG file and display in external application.
 
 Output is saved to the `denote-explore-network-directory'."
-       (let* ((svg-file (concat (file-name-sans-extension gv-file) ".svg"))
-	      (script-call (format "dot %s -Tsvg > %s"
-				   (shell-quote-argument gv-file)
-				   (shell-quote-argument svg-file))))
-	 (message script-call)
-    	 (delete-file svg-file)
-	 (setq exit-status (shell-command script-call))
-	 (if (eq exit-status 0)
-	     (if (file-exists-p svg-file)
-		 (browse-url svg-file)
-	       (user-error "No SVG file found"))
-	   (user-error "Graphic generation unsuccessful"))))
+  (let* ((svg-file (concat (file-name-sans-extension gv-file) ".svg"))
+	 (script-call (format "dot %s -Tsvg -o %s"
+			      (shell-quote-argument gv-file)
+			      (shell-quote-argument svg-file))))
+    (message script-call)
+    (delete-file svg-file)
+    (setq exit-status (shell-command script-call))
+    (if (eq exit-status 0)
+	(if (file-exists-p svg-file)
+	    (browse-url-default-browser svg-file)
+	  (user-error "No SVG file found"))
+      (user-error "Graphic generation unsuccessful"))))
 
 (defun denote-explore--network-display-json (json-file)
   "Convert GraphViz JSON-FILE to an HTML file and display in external browser.
-
-Output is saved to the `denote-explore-network-directory'."
+Output is saved to `denote-explore-network-directory'.
+This functionality currently requires a working version of the R language."
+  ;; TODO: Develop D3.js template to negate the need for R.
   (let* ((html-file (concat (file-name-sans-extension json-file) ".html"))
 	 (script-call (format "Rscript %sdenote-explore-network.R %s"
 			      (shell-quote-argument denote-explore-load-directory)
@@ -781,8 +785,8 @@ Output is saved to the `denote-explore-network-directory'."
 	 (display-fn (plist-get (cdr format) :display))
 	 (ext (plist-get (cdr format) :file-extension))
 	 (graph-file (expand-file-name
-		   (concat denote-explore-network-filename ext)
-		   denote-explore-network-directory)))
+		      (concat denote-explore-network-filename ext)
+		      denote-explore-network-directory)))
     (when display-fn
       (funcall display-fn graph-file))))
 
@@ -806,7 +810,8 @@ Output is saved to the `denote-explore-network-directory'."
     (denote-explore--network-save graph)
     (denote-explore-network-view)))
 
-(defun denote-explore-isolated-files ()
+;;;###autoload
+(defun denote-explore-isolated-notes ()
   "Identify Denote note files without any links or backlinks."
   (interactive)
   (let* ((files (denote-directory-files nil nil t))
@@ -814,12 +819,13 @@ Output is saved to the `denote-explore-network-directory'."
 	 (edges (denote-explore--network-extract-edges files))
 	 (linked-ids (denote-explore--network-extract-unique-nodes edges))
 	 (isolated-ids (seq-remove (lambda (id) (member id linked-ids))
-					all-ids))
+				   all-ids))
 	 (regex (mapconcat (lambda (item)
 			     (concat "\\b" item "\\b")) isolated-ids "\\|"))
 	 (isolated-files (seq-filter (lambda (item)
 				       (string-match regex item)) files)))
     (find-file (completing-read "Select file with zero keywords: "
 				isolated-files))))
+
 (provide 'denote-explore)
 ;;; denote-explore.el ends here
