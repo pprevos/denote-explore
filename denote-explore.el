@@ -85,10 +85,13 @@ File type defined with `denote-explore-network-format'."
     "ratio=compress"
     "overlap=scale"
     "sep=1"
-    "node[label=\"\" style=filled color=lightskyblue fillcolor=lightskyblue3 shape=circle fontsize=40 fontcolor=gray90 fontname = \"Helvetica, Arial,sans-serif\"]"
+    "node[label=\"\" style=filled color=lightskyblue fillcolor=lightskyblue3
+shape=circle fontsize=80 fontcolor=gray10 fontname = \"Helvetica, Arial,sans-serif\"]"
     "edge[arrowsize=3 color=gray10]")
   "List of strings for the header of a GraphViz DOT file.
-Defines graph and layout properties and default edge and node attributes."
+Defines graph and layout properties and default edge and node attributes.
+Properties for specific edges and nodes, as defined in the
+`denote-explore--network-encode-graphviz' function override these settings."
   :group 'denote-explore
   :package-version '(denote-explore . "1.3")
   :type '(repeat string))
@@ -104,17 +107,21 @@ Read GraphViz documentation for other output formats."
 	  (const :tag "Scalable Vector Graphics (SVG)" "svg")
 	  (const :tag "Portable Document Format (PDF)" "pdf")))
 
-(make-obsolete-variable 'denote-explore-json-vertices-filename
-			'denote-explore-network-filename "1.3")
+(define-obsolete-variable-alias
+  'denote-explore-json-vertices-filename
+  'denote-explore-network-filename "1.3")
 
-(make-obsolete-variable 'denote-explore-json-edges-filename
-			'denote-explore-network-filename "1.3")
+(define-obsolete-variable-alias
+  'denote-explore-json-edges-filename
+  'denote-explore-network-filename "1.3")
 
-(make-obsolete 'denote-explore--extract-vertices
-	       'denote-explore--network-extract-node "1.3")
+(define-obsolete-variable-alias
+  'denote-explore--extract-vertices
+  'denote-explore--network-extract-node "1.3")
 
-(make-obsolete 'denote-explore-network-r
-	       'denote-explore-network "1.3")
+(define-obsolete-variable-alias
+  'denote-explore-network-r
+  'denote-explore-network "1.3")
 
 (defvar denote-explore-network-graph-formats
   `((graphviz
@@ -153,7 +160,16 @@ PROPERTY-LIST is a plist that consists of two elements:
   (file-name-directory load-file-name)
   "Path of the denote-explore package required to start R script.")
 
-;; STATISTICS
+(defvar denote-explore-network-previous
+  '()
+  "Store the previous network configuration for fast reproduction.
+Parameters to define the previous network, e.g.:
+- '(keywords)
+- '(neighbourhood \"20240101t084408\" 3)
+- '(community \"_regex\")")
+
+;;; STATISTICS
+;; Count number of notes, attachments and keywords
 
 ;;;###autoload
 (defun denote-explore-count-notes ()
@@ -171,7 +187,10 @@ A text file is defined by `denote-file-types', anything else is an attachment."
   (interactive)
   (message "%s distinct keywords" (length (denote-keywords))))
 
-;; RANDOM WALKS
+;;; RANDOM WALKS
+;; Jump to a random note, random linked note or random note with selected tag(s).
+;; With universal argument the sample includes links to attachments.
+
 (defun denote-explore--jump (denote-sample)
   "Jump to a random note in the DENOTE-SAMPLE file list.
 Used in `denote-explore-random-*' functions."
@@ -250,18 +269,16 @@ With universal argument the sample includes attachments."
   (interactive)
   (if-let* ((keyword-list (denote-explore--select-keywords))
 	    (keyword-regex (concat "_" (mapconcat #'identity keyword-list ".*_"))))
-      (if-let* ((denotes (denote-directory-files keyword-regex))
-		(sample (if current-prefix-arg
-			    denotes
-			  (seq-filter #'denote-file-is-note-p denotes)))
-		(clean-sample (cl-remove-if
-			       (lambda (string)
-				 (string= (buffer-file-name) string)) sample)))
-	  (denote-explore--jump clean-sample)
+      (if-let* ((sample (if current-prefix-arg
+			    (denote-directory-files keyword-regex t nil)
+			  (denote-directory-files keyword-regex t t))))
+	  (denote-explore--jump sample)
 	(user-error "No matching Denote file found"))
     (user-error "No keywords found")))
 
-;; JANITOR
+;;; JANITOR
+;; The Janitor provides various functions to maintain a Denote file collection.
+
 (defun denote-explore--table (list)
   "Generate an ordered frequency table from a LIST."
   (sort (-frequencies list)
@@ -340,27 +357,28 @@ exported Denote files from duplicate-detection."
 ;;;###autoload
 (defun denote-explore-rename-keyword ()
   "Rename or remove a keyword across the whole Denote collection.
-
-The first selected existing keyword is renamed or removed.
+When selecting more then one existing keyword, all will be renamed.
 Use empty string as new keyword to remove the selection."
   (interactive)
   (save-some-buffers)
   (let* ((denote-rename-no-confirm nil)
-	 (old-keyword (car (denote-keywords-prompt)))
+	 (denote-sort-keywords t)
+	 (selected (denote-keywords-prompt "Keyword to rename"))
+	 (keywords (mapcar (lambda (keyword) (concat "_" keyword)) selected))
 	 (new-keyword (read-from-minibuffer "New keyword: "))
-	 (notes (denote-directory-files (concat "_" old-keyword))))
+	 (notes (denote-directory-files
+		 (mapconcat #'identity (sort keywords 'string<) "\\|"))))
     (dolist (file notes)
       (let* ((current-keywords (denote-explore--retrieve-keywords file))
 	     (keywords (if (equal new-keyword "")
 			   (remove old-keyword current-keywords)
-			 (mapcar (lambda (kwd)
-				   (if (equal kwd old-keyword)
-				       new-keyword kwd))
+			 (mapcar (lambda (keyword)
+				   (if (member keyword selected) new-keyword keyword))
 				 current-keywords))))
-	(denote-rename-file file
-			    (denote-explore--retrieve-title file)
-			    (if (equal keywords nil) "" keywords)
-			    (denote-retrieve-filename-signature file))))))
+	     (denote-rename-file file
+				 (denote-explore--retrieve-title file)
+				 (if (equal keywords nil) "" keywords)
+				 (denote-retrieve-filename-signature file))))))
 
 ;;;###autoload
 (defun denote-explore-sync-metadata ()
@@ -452,7 +470,6 @@ VAR and TITLE used for display."
 	  (name (denote-explore--retrieve-title file))
 	  (keywords (denote-retrieve-filename-keywords file))
 	  (type (file-name-extension file)))
-      ;; TODO: Add filename for linking?
       (setq keywords (if keywords (string-split keywords "_") ""))
       `((id . ,id) (signature . ,signature)(name . ,name)
 	(keywords . ,keywords) (type . ,type) (filename . ,file)))))
@@ -489,7 +506,8 @@ Prunes any edges that link to outside the community."
                (target (nth 1 parts)))
           (push (list (cons 'source source)
                       (cons 'target target)
-                      (cons 'weight weight)) final-result))))))
+                      (cons 'weight weight))
+		final-result))))))
 
 (defun denote-explore--network-degree (nodes edges)
   "Calculate the degree of nodes in a network graph NODES and EDGES.
@@ -504,14 +522,10 @@ of a file."
                   (setq degree (+ degree 1))))
 	      (append node (list (cons 'degree degree))))) nodes))
 
-(defun denote-explore--network-community ()
-  "Generate network community association list for note matching regex.
+(defun denote-explore--network-community-graph (regex)
+  "Generate network community association list for note matching REGEX.
 Links to notes outside the search area are pruned."
-  ;; TODO: How to enable this function to work interactively and as code?
-  (interactive)
-  (if-let* ((regex (read-from-minibuffer
-		    "Enter search term / regex (empty string for all notes):"))
-	    (files (denote-directory-files regex))
+  (if-let* ((files (denote-directory-files regex))
 	    (ids (mapcar #'denote-extract-id-from-string files))
 	    (edges (denote-explore--network-extract-edges files))
 	    (edges-pruned (denote-explore--network-prune-edges ids edges))
@@ -521,6 +535,13 @@ Links to notes outside the search area are pruned."
 	    (meta-alist `((directed . t) (type . ,(format "Community '%s'" regex)))))
       `((meta . ,meta-alist) (nodes . ,nodes-alist) (edges . ,edges-alist))
     (user-error "No Denote files or (back)links found for %s" regex)))
+
+(defun denote-explore--network-community ()
+  "Define inputs for a network community and generate graph."
+  (let ((regex (read-from-minibuffer
+		"Enter search term / regex (empty string for all notes):")))
+    (setq denote-explore-network-previous `("community" ,regex))
+    (denote-explore--network-community-graph regex)))
 
 ;;; keywords graph
 
@@ -623,7 +644,7 @@ In a complete graph (network), all  nodes are connected to each other."
 (defun denote-explore--network-neighbourhood ()
   "Generate Denote graph object from the neighbourhood of ID at DEPTH links.
 Uses the ID of the current Denote buffer or user selects via completion menu."
-  ;;; TODO: Update so that it can also be run as dynamic org block
+  ;; TODO: use https://github.com/alphapapa/org-graph-view/tree/master
   (if-let* ((buffer (or (buffer-file-name) ""))
 	    (file-name (if (denote-file-is-note-p buffer)
 			   buffer
@@ -698,9 +719,11 @@ Uses the ID of the current Denote buffer or user selects via completion menu."
 
 (defun denote-explore--network-escape-xml (name)
   "Escape special XML characters in node NAME."
-  (replace-regexp-in-string "&" "&amp;"
-			    (replace-regexp-in-string "<" "&lt;"
-						      (replace-regexp-in-string ">" "&gt;" name))))
+  (replace-regexp-in-string
+   "&" "&amp;"
+   (replace-regexp-in-string
+    "<" "&lt;"
+    (replace-regexp-in-string ">" "&gt;" name))))
 
 (defun denote-explore--network-encode-gexf (graph)
   "Encode a Denote GRAPH object to GEXF and insert in a file."
@@ -710,9 +733,9 @@ Uses the ID of the current Denote buffer or user selects via completion menu."
 	 (lastmod (format-time-string "%F"))
 	 (gexf-header `("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
 			"<gexf xmlns=\"http://gexf.net/1.3\" "
-			"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
-			"xsi:schemaLocation=\"http://gexf.net/1.3 "
-			"http://gexf.net/1.3/gexf.xsd\" version=\"1.3\">\n"
+			"  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
+			"  xsi:schemaLocation=\"http://gexf.net/1.3 "
+			"  http://gexf.net/1.3/gexf.xsd\" version=\"1.3\">\n"
 			"<meta lastmodifieddate=\"" ,lastmod "\">\n"
 			"<creator>Emacs Denote-Explore package</creator>\n"
 			"<description>A network of Denote files</description>\n"
@@ -720,7 +743,6 @@ Uses the ID of the current Denote buffer or user selects via completion menu."
 			"<graph defaultedgetype=\"" ,type "\">\n"
 			"<nodes>\n"))
 	 (gexf-lines '()))
-    ;; Nodes
     (dolist (node nodes)
       (let* ((id (cdr (assoc 'id node)))
              (name (cdr (assoc 'name node)))
@@ -760,15 +782,15 @@ Output is saved to the `denote-explore-network-directory' in the
   (let* ((file-type denote-explore-network-graphviz-filetype)
 	 (out-file (concat (file-name-sans-extension gv-file) "." file-type))
 	 (script-call (format "dot %s -T%s -o %s"
-				   (shell-quote-argument gv-file)
-				   file-type
-				   (shell-quote-argument out-file))))
+			      (shell-quote-argument gv-file)
+			      file-type
+			      (shell-quote-argument out-file))))
     (message script-call)
     (delete-file out-file)
     (setq exit-status (shell-command script-call))
     (if (eq exit-status 0)
 	(if (file-exists-p out-file)
-	    (browse-url-default-browser out-file)
+	    (browse-url-default-browser out-file nil)
 	  (user-error "No output file produced"))
       (user-error "Graphic generation unsuccessful"))))
 
@@ -786,15 +808,19 @@ This functionality currently requires a working version of the R language."
     (setq exit-status (shell-command script-call))
     (if (eq exit-status 0)
 	(if (file-exists-p html-file)
-	    (browse-url html-file)
+	    ;; TODO: Open in the same browser tab
+	    (browse-url-default-browser html-file nil)
 	  (user-error "No output file found"))
       (user-error "Graphic generation unsuccessful"))))
 
+;; TODO: Recreate previous graph
 (defun denote-explore-network-view ()
-  "View the most recent Denote graph with external software."
+  "Recreate the most recent Denote graph with external software."
   (interactive)
-  (let* ((format (assoc denote-explore-network-format
+  (let* ((graph-type denote-explore-network-previous)
+	 (format (assoc denote-explore-network-format
 			denote-explore-network-graph-formats))
+	 
 	 (display-fn (plist-get (cdr format) :display))
 	 (ext (plist-get (cdr format) :file-extension))
 	 (graph-file (expand-file-name
@@ -812,12 +838,11 @@ This functionality currently requires a working version of the R language."
 - Neighbourhood: Generate a network of notes from a parent at depth.
   Depth = 1 shows linked notes; depth 2 all notes linked to linked notes etc.
 - Keywords: Generate network of keywords.  Each note with two or more keywords
-  forms a complete graph, which are subsequently merged and weighted into an
-  undirected graph."
+  forms a complete graph, which are merged into a weighted undirected graph."
   (interactive)
   (let* ((options (mapcar #'car denote-explore-graph-types))
-	 (type (completing-read "Network type?" options))
-	 (config (assoc type denote-explore-graph-types))
+	 (graph-type (completing-read "Network type?" options))
+	 (config (assoc graph-type denote-explore-graph-types))
 	 (generate-fn (plist-get (cdr config) :generate))
 	 (graph (funcall generate-fn)))
     (denote-explore--network-save graph)
