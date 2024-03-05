@@ -387,7 +387,9 @@ Use empty string as new keyword to remove the selection."
 Set `denote-rename-buffer-mode' to ensure synchronised notes."
   (interactive)
   (save-some-buffers)
-  (let ((notes (denote-directory-files nil nil t)))
+  (let ((denote-rename-no-confirm nil)
+	(denote-sort-keywords t)
+	(notes (denote-directory-files nil nil t)))
     (dolist (file notes)
       (message file)
       (denote-rename-file-using-front-matter file)))
