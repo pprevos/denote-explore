@@ -149,9 +149,11 @@ PROPERTY-LIST is a plist that consists of two elements:
 
 (defvar denote-explore-graph-types
   `(("Community"
-     :generate denote-explore--network-community)
+     :generate denote-explore--network-community
+     :regenerate denote-explore--network-community-graph)
     ("Neighbourhood"
-     :generate denote-explore--network-neighbourhood)
+     :generate denote-explore--network-neighbourhood
+     :regenerate denote-explore--network-neighbourhood-graph)
     ("Keywords"
      :generate denote-explore--network-keywords))
   "List of possible network types and their generation functions.")
@@ -357,7 +359,7 @@ exported Denote files from duplicate-detection."
 ;;;###autoload
 (defun denote-explore-rename-keyword ()
   "Rename or remove a keyword across the whole Denote collection.
-When selecting more then one existing keyword, all will be renamed.
+When selecting more then one existing keyword, all selections are renamed.
 Use empty string as new keyword to remove the selection."
   (interactive)
   (save-some-buffers)
@@ -371,7 +373,7 @@ Use empty string as new keyword to remove the selection."
     (dolist (file notes)
       (let* ((current-keywords (denote-explore--retrieve-keywords file))
 	     (keywords (if (equal new-keyword "")
-			   (remove old-keyword current-keywords)
+			   (cl-set-difference current-keywords selected :test 'string=)
 			 (mapcar (lambda (keyword)
 				   (if (member keyword selected) new-keyword keyword))
 				 current-keywords))))
@@ -395,9 +397,10 @@ Set `denote-rename-buffer-mode' to ensure synchronised notes."
       (denote-rename-file-using-front-matter file)))
   (message "Integrity check completed"))
 
-;; VISUALISATION
+;;; VISUALISATION
 
-;;; Bar charts
+;; Bar charts
+;; Leverages the built-in chart package for plain text visualisation.
 
 (defun denote-explore--barchart (table var title &optional n)
   "Create a barchart from a frequency TABLE with top N entries.
@@ -431,9 +434,34 @@ VAR and TITLE used for display."
     (denote-explore--barchart
      (denote-explore--table ext-list) "Extensions" "Denote file extensions")))
 
-;; DEFINE GRAPHS
+(defun denote-explore--network-sum-degrees (nodes)
+  "Sum the degrees in NODES, producing a new alist with degree counts."
+  (let ((degree-sums ()))
+    (dolist (entry nodes degree-sums)
+      (let* ((degree (cdr (assoc 'degree entry)))
+             (current-count (cdr (assoc degree degree-sums))))
+        (if current-count
+            (setcdr (assoc degree degree-sums) (1+ current-count))
+          (push (cons degree 1) degree-sums))))
+    (sort degree-sums (lambda (a b) (< (car a) (car b))))))
 
-;;; Community graph
+(defun denote-explore-degree-barchart ()
+  "Visualise the number of degrees for each node in the Denote network."
+  (interactive)
+  (message "Analysing Denote network.")
+  (let* ((graph (denote-explore--network-community-graph ""))
+	 (nodes (cdr (assoc 'nodes graph)))
+	 (degrees (denote-explore--network-sum-degrees nodes))
+	 (txt-degrees (mapcar (lambda (pair)
+				(cons (number-to-string (car pair)) (cdr pair)))
+			      degrees)))
+    (denote-explore--barchart txt-degrees "Degree" "Node degree distribution")))
+
+;;; DEFINE GRAPHS
+;; Define various graph types as an association list
+;; 
+
+;; Community graph
 
 (defun denote-explore--network-zip-alists (source target)
   "Zip two lists into a list of alists, pairing SOURCE and TARGET."
@@ -542,7 +570,7 @@ Links to notes outside the search area are pruned."
   "Define inputs for a network community and generate graph."
   (let ((regex (read-from-minibuffer
 		"Enter search term / regex (empty string for all notes):")))
-    (setq denote-explore-network-previous `("community" ,regex))
+    (setq denote-explore-network-previous `("Community" ,regex))
     (denote-explore--network-community-graph regex)))
 
 ;;; keywords graph
@@ -644,17 +672,22 @@ In a complete graph (network), all  nodes are connected to each other."
 			 (denote-explore--network-extract-unique-nodes edges))))))
 
 (defun denote-explore--network-neighbourhood ()
-  "Generate Denote graph object from the neighbourhood of ID at DEPTH links.
+  "Obtain inputs to define neighbourhood graph.
 Uses the ID of the current Denote buffer or user selects via completion menu."
+  (let*  ((buffer (or (buffer-file-name) ""))
+	  (file-name (if (denote-file-is-note-p buffer)
+			 buffer
+		       (completing-read "Select Denote source file:"
+					(denote-directory-files nil t t))))
+	  (depth (string-to-number (read-from-minibuffer "Search depth: ")))
+	  (id (denote-retrieve-filename-identifier file-name)))
+    (denote-explore--network-neighbourhood-graph id depth)))
+
+(defun denote-explore--network-neighbourhood-graph (id depth)
+  "Generate Denote graph object from the neighbourhood of ID at DEPTH links."
   ;; TODO: use https://github.com/alphapapa/org-graph-view/tree/master
-  (if-let* ((buffer (or (buffer-file-name) ""))
-	    (file-name (if (denote-file-is-note-p buffer)
-			   buffer
-			 (completing-read "Select Denote source file:"
-					  (denote-directory-files nil t t))))
-	    (depth (string-to-number (read-from-minibuffer "Search depth: ")))
-	    (id (denote-retrieve-filename-identifier file-name))
-	    (denote-text-files (denote-directory-files nil nil t))
+  ;; https://www.reddit.com/r/emacs/comments/1b7w4wy/comment/ktp5oxm/?context=3
+  (if-let* ((denote-text-files (denote-directory-files nil nil t))
 	    (denote-edges (denote-explore--network-extract-edges denote-text-files))
 	    (edges (denote-explore--network-neighbourhood-edges id depth denote-edges))
 	    (edges-alist (denote-explore--network-count-edges edges))
@@ -810,12 +843,10 @@ This functionality currently requires a working version of the R language."
     (setq exit-status (shell-command script-call))
     (if (eq exit-status 0)
 	(if (file-exists-p html-file)
-	    ;; TODO: Open in the same browser tab
 	    (browse-url-default-browser html-file nil)
 	  (user-error "No output file found"))
       (user-error "Graphic generation unsuccessful"))))
 
-;; TODO: Recreate previous graph
 (defun denote-explore-network-view ()
   "Recreate the most recent Denote graph with external software."
   (interactive)
@@ -837,10 +868,31 @@ This functionality currently requires a working version of the R language."
 
 - Community: Network of notes matching a regular expression.
   Links to notes not matching the regular expression are pruned.
-- Neighbourhood: Generate a network of notes from a parent at depth.
+- Neighbourhood: Generate a network of notes from a parent at a given depth.
   Depth = 1 shows linked notes; depth 2 all notes linked to linked notes etc.
 - Keywords: Generate network of keywords.  Each note with two or more keywords
-  forms a complete graph, which are merged into a weighted undirected graph."
+  forms a complete graph, which are merged into a weighted undirected graph.
+
+The code generates a nested association list that holds all relevant metadata
+for the selected graph:
+
+- Meta data e.g.: `((directed . t) (type . \"Keywords\"))'
+- Association list of nodes and their degrees, e.g.:
+  `(((id . \"20210104T194405\") (name . \"Platonic Solids\") (keywords \"math\"'
+  `\"geometry\") (type . \"org\") (degree . 4)) ...)'.
+  In the context of Denote, the degree of a node is the unweighted sum of links
+  and backlinks from and to a note.
+- Association list of edges and their weights, e.g.:
+  `(((source . \"20220529T190246\") (target . \"20201229T143000\")'
+  `(weight . 1)) ...)'.
+  The weight of an edge indicates the number of time it occurs in the graph.
+
+The list is passed on to an encoding function to create the desired format.
+In the last step, a visualisation function displays the graph in the external
+web browser.
+
+The `denote-explore-network-graph-formats' variable contains a list of functions
+to encode and display each graph format."
   (interactive)
   (let* ((options (mapcar #'car denote-explore-graph-types))
 	 (graph-type (completing-read "Network type?" options))
@@ -850,20 +902,34 @@ This functionality currently requires a working version of the R language."
     (denote-explore--network-save graph)
     (denote-explore-network-view)))
 
+(defun denote-explore-network-regenerate ()
+  "Recreate the most recent Denote graph with external software."
+  (interactive)
+  (let* ((graph-type (car denote-explore-network-previous))
+	 (query (car (cdr denote-explore-network-previous)))
+	 (config (assoc graph-type denote-explore-graph-types))
+	 (regenerate-fn (plist-get (cdr config) :regenerate))
+	 (graph (funcall regenerate-fn query)))
+      (denote-explore--network-save graph)
+      (denote-explore-network-view)))
+
 ;;;###autoload
 (defun denote-explore-isolated-notes ()
-  "Identify Denote note files without any links or backlinks."
+  "Identify Denote note files without any links or backlinks.
+Using the universal argument includes attachments."
   (interactive)
-  (let* ((files (denote-directory-files nil nil t))
+  (let* ((files (denote-directory-files nil nil current-prefix-arg))
 	 (all-ids (mapcar #'denote-retrieve-filename-identifier files))
 	 (edges (denote-explore--network-extract-edges files))
 	 (linked-ids (denote-explore--network-extract-unique-nodes edges))
 	 (isolated-ids (seq-remove (lambda (id) (member id linked-ids))
 				   all-ids))
 	 (regex (mapconcat (lambda (item)
-			     (concat "\\b" item "\\b")) isolated-ids "\\|"))
+			     (concat "\\b" item "\\b"))
+			   isolated-ids "\\|"))
 	 (isolated-files (seq-filter (lambda (item)
-				       (string-match regex item)) files)))
+				       (string-match regex item))
+				     files)))
     (find-file (completing-read "Select file with zero keywords: "
 				isolated-files))))
 
