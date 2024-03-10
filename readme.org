@@ -3,24 +3,32 @@
 
 The Denote-Explore package provides auxiliary functions to maintain and explore your collection of Denote files. Denote-Explore provides three groups of Emacs commands:
 
-1. /Summary statistics/: Count notes, attachments and keywords.
+1. /Summary statistics/: Count and visualise notes, attachments and keywords.
 2. /Random walks/: Generate new ideas using serendipity.
 3. /Janitor/: Manage your denote collection.
-4. /Visualisations/: Visualise your Denote network (statistics and network graphs).
+4. /Visualisations/: Visualise your Denote network  as a network graph.
 
 This package exists because I started to move many files on my computer into Denote silos, leveraging the ingenious file naming convention and associated functionality. These functions helped me to add some structure to the organic chaos of my digital garden.
 
 Read the [[https://lucidmanager.org/productivity/denote-explore][denote-explore manual]] for a comprehensive explanation of all functionality.
 
-This package is available on MELPA and is easily installed with the ~use-package~ macro. The configuration below sets all available variables. The first two variables define where graph files are stored, sans extension. If the directory does not yet exist, then the package creates it when required. The third variable defines the output format and as such the file extensions. Possible options are =graphviz=, =json= and =gexf=.
+This package is available on MELPA and is easily installed with the ~use-package~ macro.
+
+The configuration below sets all available variables. The first two variables define where graph files are stored, sans extension. If the directory does not yet exist, then the package creates it when required. The third variable defines the output format and as such the file extensions. Possible options are [[https://graphviz.org/][graphviz]], [[https://d3js.org/][D3.js]] (JSON) and [[https://gexf.net/][GEXF]].
+
+You will need to install GraphViz and/or the R language to visualise Denote graphs.
 
 #+begin_src elisp :results none
   (use-package denote-explore
     :custom
-    (denote-explore-network-directory "~Documents/notes/graphs/")
+    (denote-explore-network-directory "~/documents/notes/graphs/")
     (denote-explore-network-filename "denote-network")
-    (denote-explore-network-format 'graphviz))
+    (denote-explore-network-format 'graphviz)
+    (denote-explore-network-graphviz-filetype "svg")
+    (denote-explore-network-keywords-ignore '("bib")))
 #+end_src
+
+The ~denote-explore-network-graphviz-header~ variable defines the layout and general aesthetics of GraphViz output.
 
 Alternatively, you can install it directly from GitHub:
 
@@ -32,8 +40,22 @@ Alternatively, you can install it directly from GitHub:
 #+end_src
 
 * Change Log
+** Version 1.4
++ Network visualisation
+  - SVG output includes links to source file.
+  - Configure [[https://graphviz.org/docs/outputs/][GraphViz output format]] with ~denote-explore-network-graphviz-filetype~ (SVG (default) or PDF advised). 
+  - Improved scaling of GraphViz graphics.
+  - ~denote-explore-network-regenerate~ recreates the previous graph
++ New functions:
+  - ~denote-explore-isolated-notes~ to select Denote files without any links or backlinks.
+  - ~denote-explore-degree-barchart~ draws the distribution of total number of (back)links per file ([[https://en.wikipedia.org/wiki/Degree_distribution][Degree distribution - Wikipedia]]).
++ Updated functions:
+  - ~denote-explore-rename-keyword~ allows renaming more than one keyword to a new version.
+  - ~denote-explore-sync-metadata~ enforces renaming confirmation.
++ Minor bug fixes.
+
 ** Version 1.3
-- Complete rewrite of the graph visualisation functionality. Now includes three formats (JavaScript, GraphViz and GEXF) and three graph types (notes that match a regular expression, note neighbourhood and keyword graph). Refer to the manual for details.
+- Complete rewrite of the graph visualisation functionality. Now includes three formats (JavaScript, GraphViz and GEXF) and three graph types (notes that match a regular expression, note neighbourhood and keyword graph). Refer to the [[https://lucidmanager.org/productivity/denote-explore/][Denote Explore manual]] for details.
 - Fixed bugs in =denote-explore--retrieve-title= and =denote-explore--retrieve-keywords=.
 - Enhanced function and variable documentation.
 
@@ -43,7 +65,7 @@ Alternatively, you can install it directly from GitHub:
 
 ** Version 1.1
 - Added helper function to call R script for network visualisation.
-- =denote-explore-dashboard.el=deprecated.
+- =denote-explore-dashboard.el= deprecated.
 - Added to MELPA.
 
 ** Version 1.0
@@ -63,15 +85,17 @@ New functionality since the previous version:
 
 * Future Development
 ** Dashboard
-Create a Denote widget for the Emacs Dashboard with links to statistics.
+- [ ] Create a Denote widget for the Emacs Dashboard with links to statistics.
 
 ** Managing Attachments
-Functions to rename Denote attachments using EXIF metadata. 
+- [ ] Functions to rename Denote attachments using EXIF metadata. 
 
 ** Visualising Denote
-- [[https://orgmode.org/manual/Dynamic-Blocks.html][Dynamic org mode blocks]] to visualise the neighbourhood of a node
-- Store the Denote metadata in a [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Hash-Tables.html][hash table]] that is updated after every modification to a Denote file for more efficient visualisation.
-- The current network visualisation uses the [[https://christophergandrud.github.io/networkD3/][networkD3 package]] of the R language as a detour to generate a HTML file with associated JavaScript code. I am slowly working my way to not have to use R, but I first need to learn more JavaScript and the [[https://d3js.org/][D3 visualisation language]].
-- Some fine-tuning in GraphViz, especially scaling for large or very small graphs.
-- Perhaps we can use a plain text method to perhaps visualise the network neighbourhood. The [[https://emacs.cafe/emacs/guest-post/2017/06/26/hierarchy.html][hierarchy package]] can display information in a tree format, which might be helpful to visualise the local community of a Denote buffer, e.g. two links backwards and forwards.
-- Perhaps a plain text time series graph of the creation of new notes could be interesting
+- [ ] [[https://orgmode.org/manual/Dynamic-Blocks.html][Dynamic org mode blocks]] to visualise the neighbourhood of a node
+- [ ] [[https://graphviz.org/pdf/cluster.1.pdf][Community detection]] in GraphViz versions?
+- [ ] Visualise signatures ([[https://zettelkasten.de/introduction/2020-08-13_folgezettel-sequence.png][example]])
+- [ ] Store the Denote metadata in a [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Hash-Tables.html][hash table]] that is updated after every modification to a Denote file for more efficient visualisation.
+- [ ] The current network visualisation uses the [[https://christophergandrud.github.io/networkD3/][networkD3 package]] of the R language as a detour to generate a HTML file with associated JavaScript code. I am slowly working my way to not have to use R, but I first need to learn more JavaScript and the [[https://d3js.org/][D3 visualisation language]].
+- [ ] Scaling GraphViz text size based on number of nodes
+- [ ] Use a plain text method to perhaps visualise the network neighbourhood. The [[https://github.com/DamienCassou/hierarchy][hierarchy package]] can display information in a tree format, which might be helpful to visualise the local community of a Denote buffer, e.g. two links backwards and forwards.
+- [ ] Plain text time series graph of the creation of new notes.
