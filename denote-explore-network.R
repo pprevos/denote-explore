@@ -48,7 +48,7 @@ connected_vertices_to <- unique(edgelist$name_to[!is.na(edgelist$name_to)])
 isolated_vertices <- setdiff(all_vertices, c(connected_vertices_from, connected_vertices_to))
 g <- add_vertices(g, length(isolated_vertices), name = isolated_vertices)
 
-# plot(g, edge.arrow.size = 1)
+# plot(g, edge.arrow.size = 1, vertex.size = 0)
 
 wc <- cluster_walktrap(g)
 members <- membership(wc)
