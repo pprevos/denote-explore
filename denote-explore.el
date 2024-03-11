@@ -224,21 +224,20 @@ With universal argument, the sample includes attachments."
   "Jump to a random linked note (forward or backward).
 With universal argument the sample includes links to attachments."
   (interactive)
-  (if (denote-file-is-note-p (buffer-file-name))
-      (let* ((forward-links (denote-link-return-links))
+  (let* ((forward-links (denote-link-return-links))
 	     (back-links (denote-link-return-backlinks))
 	     (all-links (append forward-links back-links))
 	     (links (if current-prefix-arg
 			all-links
 		      (seq-filter #'denote-file-is-note-p all-links))))
 	(if links (denote-explore--jump links)
-	  (user-error "No links in or to this buffer")))
-    (user-error "Buffer is not a Denote file")))
+	  (user-error "Not a Denote file or no (back)links in or to this buffer"))))
 
 (defun denote-explore--retrieve-keywords (file)
   "Retrieve alphabetised list of keywords from Denote FILE or attachment.
 Uses front matter for notes and the filename for attachments."
-  (let* ((filetype (denote-filetype-heuristics file))
+  (let* ((file (when (eq file nil) ""))
+	 (filetype (denote-filetype-heuristics file))
          (raw-keywords (if (denote-file-is-note-p file)
                            (denote-retrieve-keywords-value file filetype)
                          (denote-retrieve-filename-keywords file)))
