@@ -82,6 +82,12 @@ File type defined with `denote-explore-network-format'."
   :package-version '(denote-explore . "1.3")
   :type 'list)
 
+(defcustom denote-explore-network-regex-ignore '()
+  "Regular expression of notes ignored in neighbourhood and community graphs."
+  :group 'denote-explore
+  :package-version '(denote-explore . "1.5")
+  :type 'list)
+
 (defcustom denote-explore-network-graphviz-header
   '("layout=neato"
     "size=20"
@@ -578,7 +584,9 @@ of a file."
 (defun denote-explore--network-community-graph (regex)
   "Generate network community association list for note matching REGEX.
 Links to notes outside the search area are pruned."
-  (if-let* ((files (denote-directory-files regex))
+  (if-let* ((ignore (denote-directory-files denote-explore-network-regex-ignore))
+	    (regex-files (denote-directory-files regex))
+	    (files (cl-set-difference regex-files ignore :test 'string=))
 	    (ids (mapcar #'denote-extract-id-from-string files))
 	    (edges (denote-explore--network-extract-edges files))
 	    (edges-pruned (denote-explore--network-prune-edges ids edges))
@@ -709,6 +717,10 @@ Uses the ID of the current Denote buffer or user selects via completion menu."
     (setq denote-explore-network-previous `("Neighbourhood" (,id ,depth)))
     (denote-explore--network-neighbourhood-graph `(,id ,depth))))
 
+
+	    (regex-files (denote-directory-files regex))
+
+
 (defun denote-explore--network-neighbourhood-graph (id-depth)
   "Generate Denote graph object from the neighbourhood with ID-DEPTH.
 ID-DEPTH is a list containing the starting ID and the DEPTH of the links."
@@ -716,8 +728,10 @@ ID-DEPTH is a list containing the starting ID and the DEPTH of the links."
   ;;       https://www.reddit.com/r/emacs/comments/1b7w4wy/comment/ktp5oxm/?context=3
   (if-let* ((id (car id-depth))
 	    (depth (nth 1 id-depth))
-	    (denote-text-files (denote-directory-files nil nil t))
-	    (denote-edges (denote-explore--network-extract-edges denote-text-files))
+	    (ignore (denote-directory-files denote-explore-network-regex-ignore))
+	    (all-text-files (denote-directory-files nil nil t))
+	    (text-files (cl-set-difference all-text-files ignore :test 'string=))
+	    (denote-edges (denote-explore--network-extract-edges text-files))
 	    (edges (denote-explore--network-neighbourhood-edges id depth denote-edges))
 	    (edges-alist (denote-explore--network-count-edges edges))
 	    (ids (denote-explore--network-extract-unique-nodes edges-alist))
