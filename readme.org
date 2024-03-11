@@ -21,10 +21,13 @@ You will need to install GraphViz and/or the R language to visualise Denote grap
 #+begin_src elisp :results none
   (use-package denote-explore
     :custom
+    ;; Location of graph files
     (denote-explore-network-directory "~/documents/notes/graphs/")
     (denote-explore-network-filename "denote-network")
+    ;; Output format
     (denote-explore-network-format 'graphviz)
     (denote-explore-network-graphviz-filetype "svg")
+    ;; Exlude keywords or regex
     (denote-explore-network-keywords-ignore '("bib")))
 #+end_src
 
@@ -40,6 +43,10 @@ Alternatively, you can install it directly from GitHub:
 #+end_src
 
 * Change Log
+** Version 1.4.1
+- Fixed bugs with random links and keywords from nil file-name
+- New variable ~denote-explore-network-regex-ignore~ to ignore files matching a regular expression when creating neighbourhood or community graphs.
+
 ** Version 1.4
 + Network visualisation
   - SVG output includes links to source file.
@@ -55,7 +62,7 @@ Alternatively, you can install it directly from GitHub:
 + Minor bug fixes.
 
 ** Version 1.3
-- Complete rewrite of the graph visualisation functionality. Now includes three formats (JavaScript, GraphViz and GEXF) and three graph types (notes that match a regular expression, note neighbourhood and keyword graph). Refer to the [[https://lucidmanager.org/productivity/denote-explore/][Denote Explore manual]] for details.
+- Complete rewrite of the graph visualisation functionality. Now includes three formats (JavaScript, GraphViz and GEXF) and three graph types (notes that match a regular expression, note neighbourhood and keyword graph).
 - Fixed bugs in =denote-explore--retrieve-title= and =denote-explore--retrieve-keywords=.
 - Enhanced function and variable documentation.
 
