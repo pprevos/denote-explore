@@ -82,6 +82,12 @@ File type defined with `denote-explore-network-format'."
   :package-version '(denote-explore . "1.3")
   :type 'list)
 
+(defcustom denote-explore-network-regex-ignore '()
+  "Regular expression of notes ignored in neighbourhood and community graphs."
+  :group 'denote-explore
+  :package-version '(denote-explore . "1.5")
+  :type 'list)
+
 (defcustom denote-explore-network-graphviz-header
   '("layout=neato"
     "size=20"
@@ -218,21 +224,20 @@ With universal argument, the sample includes attachments."
   "Jump to a random linked note (forward or backward).
 With universal argument the sample includes links to attachments."
   (interactive)
-  (if (denote-file-is-note-p (buffer-file-name))
-      (let* ((forward-links (denote-link-return-links))
+  (let* ((forward-links (denote-link-return-links))
 	     (back-links (denote-link-return-backlinks))
 	     (all-links (append forward-links back-links))
 	     (links (if current-prefix-arg
 			all-links
 		      (seq-filter #'denote-file-is-note-p all-links))))
 	(if links (denote-explore--jump links)
-	  (user-error "No links in or to this buffer")))
-    (user-error "Buffer is not a Denote file")))
+	  (user-error "Not a Denote file or no (back)links in or to this buffer"))))
 
 (defun denote-explore--retrieve-keywords (file)
   "Retrieve alphabetised list of keywords from Denote FILE or attachment.
 Uses front matter for notes and the filename for attachments."
-  (let* ((filetype (denote-filetype-heuristics file))
+  (let* ((file (if (eq file nil) "" file))
+	 (filetype (denote-filetype-heuristics file))
          (raw-keywords (if (denote-file-is-note-p file)
                            (denote-retrieve-keywords-value file filetype)
                          (denote-retrieve-filename-keywords file)))
@@ -360,7 +365,7 @@ exported Denote files from duplicate-detection."
 
 ;;;###autoload
 (defun denote-explore-rename-keyword ()
-  "Rename or remove a keyword across the whole Denote collection.
+  "Rename or remove keyword(s) across the whole Denote collection.
 When selecting more then one existing keyword, all selections are renamed.
 Use empty string as new keyword to remove the selection."
   (interactive)
@@ -381,7 +386,7 @@ Use empty string as new keyword to remove the selection."
 				 current-keywords))))
 	     (denote-rename-file file
 				 (denote-explore--retrieve-title file)
-				 (if (equal keywords nil) "" new-keywords)
+				 (if (equal new-keywords nil) "" new-keywords)
 				 (denote-retrieve-filename-signature file))))))
 
 ;;;###autoload
@@ -575,10 +580,21 @@ of a file."
                   (setq degree (+ degree 1))))
 	      (append node (list (cons 'degree degree))))) nodes))
 
+(defun denote-explore--network-filter-files (files)
+  "Remove files matching `denote-explore-network-regex-ignore' from Denote FILES.
+Removes selected files from neighbourhood or community visualisation."
+  (let ((ignore (if denote-explore-network-regex-ignore
+			(denote-directory-files denote-explore-network-regex-ignore)
+		  nil)))
+    (cl-set-difference files ignore :test 'string=)))
+
 (defun denote-explore--network-community-graph (regex)
+  ;; TODO: (denote-explore--network-community-graph "_asm\\|_ews") works,
+  ;; but not when entered in minibuffer
   "Generate network community association list for note matching REGEX.
 Links to notes outside the search area are pruned."
-  (if-let* ((files (denote-directory-files regex))
+  (if-let* ((files (denote-explore--network-filter-files
+		    (denote-directory-files regex)))
 	    (ids (mapcar #'denote-extract-id-from-string files))
 	    (edges (denote-explore--network-extract-edges files))
 	    (edges-pruned (denote-explore--network-prune-edges ids edges))
@@ -592,8 +608,10 @@ Links to notes outside the search area are pruned."
 (defun denote-explore--network-community ()
   "Define inputs for a network community and generate graph."
   (let ((regex (read-from-minibuffer
-		"Enter search term / regex (empty string for all notes):")))
+		"Enter search term / regular expression (empty string for all notes):")))
+    ;; Set regeneration parameters
     (setq denote-explore-network-previous `("Community" ,regex))
+    (message regex)
     (denote-explore--network-community-graph regex)))
 
 ;;; keywords graph
@@ -709,6 +727,7 @@ Uses the ID of the current Denote buffer or user selects via completion menu."
     (setq denote-explore-network-previous `("Neighbourhood" (,id ,depth)))
     (denote-explore--network-neighbourhood-graph `(,id ,depth))))
 
+
 (defun denote-explore--network-neighbourhood-graph (id-depth)
   "Generate Denote graph object from the neighbourhood with ID-DEPTH.
 ID-DEPTH is a list containing the starting ID and the DEPTH of the links."
@@ -716,8 +735,9 @@ ID-DEPTH is a list containing the starting ID and the DEPTH of the links."
   ;;       https://www.reddit.com/r/emacs/comments/1b7w4wy/comment/ktp5oxm/?context=3
   (if-let* ((id (car id-depth))
 	    (depth (nth 1 id-depth))
-	    (denote-text-files (denote-directory-files nil nil t))
-	    (denote-edges (denote-explore--network-extract-edges denote-text-files))
+	    (text-files (denote-explore--network-filter-files
+			 (denote-directory-files nil nil t)))
+	    (denote-edges (denote-explore--network-extract-edges text-files))
 	    (edges (denote-explore--network-neighbourhood-edges id depth denote-edges))
 	    (edges-alist (denote-explore--network-count-edges edges))
 	    (ids (denote-explore--network-extract-unique-nodes edges-alist))
