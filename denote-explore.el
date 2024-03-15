@@ -4,7 +4,7 @@
 
 ;; Author: Peter Prevos <peter@prevos.net>
 ;; URL: https://github.com/pprevos/denote-extra/
-;; Version: 1.4
+;; Version: 1.4.1
 ;; Package-Requires: ((emacs "29.1") (denote "2.2.4") (dash "2.19.1"))
 
 ;; This file is NOT part of GNU Emacs.
@@ -41,8 +41,25 @@
 (require 'chart)
 (require 'cl-lib)
 (require 'json)
+(require 'browse-url)
 
 ;; Variables
+(define-obsolete-variable-alias
+  'denote-explore-json-vertices-filename
+  'denote-explore-network-filename "1.3")
+
+(define-obsolete-variable-alias
+  'denote-explore-json-edges-filename
+  'denote-explore-network-filename "1.3")
+
+(define-obsolete-variable-alias
+  'denote-explore--extract-vertices
+  'denote-explore--network-extract-node "1.3")
+
+(define-obsolete-variable-alias
+  'denote-explore-network-r
+  'denote-explore-network "1.3")
+
 (defgroup denote-explore ()
   "Explore and visualise Denote file collections."
   :prefix "denote-explore-"
@@ -115,22 +132,6 @@ Read GraphViz documentation for other output formats."
   :type '(choice
 	  (const :tag "Scalable Vector Graphics (SVG)" "svg")
 	  (const :tag "Portable Document Format (PDF)" "pdf")))
-
-(define-obsolete-variable-alias
-  'denote-explore-json-vertices-filename
-  'denote-explore-network-filename "1.3")
-
-(define-obsolete-variable-alias
-  'denote-explore-json-edges-filename
-  'denote-explore-network-filename "1.3")
-
-(define-obsolete-variable-alias
-  'denote-explore--extract-vertices
-  'denote-explore--network-extract-node "1.3")
-
-(define-obsolete-variable-alias
-  'denote-explore-network-r
-  'denote-explore-network "1.3")
 
 (defvar denote-explore-network-graph-formats
   `((graphviz
@@ -649,7 +650,7 @@ In a complete graph (network), all  nodes are connected to each other."
     (car network)))
 
 (defun denote-explore--network-extract-unique-nodes (edges)
-  "Extract all unique 'source' and 'target' nodes from EDGES."
+  "Extract all unique `source' and `target' nodes from EDGES."
   (let ((nodes '()))
     (dolist (edge edges)
       (dolist (key '(source target))
@@ -702,7 +703,8 @@ DUMMY variable is always nil."
 (defun denote-explore--network-neighbourhood-edges (id depth search-space)
   "Search for all edges originating from ID to DEPTH within SEARCH-SPACE."
   (let ((current-ids (list id))
-	(edges '()))
+	(edges '())
+	(new-edges '()))
     (dotimes (_ depth edges)
       (setq new-edges (apply #'append
 			     (mapcar (lambda (id)
@@ -898,11 +900,8 @@ This functionality currently requires a working version of the R language."
 
 (defun denote-explore-network-view ()
   "Recreate the most recent Denote graph with external software."
-  (interactive)
-  (let* ((graph-type denote-explore-network-previous)
-	 (format (assoc denote-explore-network-format
+  (let* ((format (assoc denote-explore-network-format
 			denote-explore-network-graph-formats))
-	 
 	 (display-fn (plist-get (cdr format) :display))
 	 (ext (plist-get (cdr format) :file-extension))
 	 (graph-file (expand-file-name
@@ -957,13 +956,14 @@ to encode and display each graph format."
 (defun denote-explore-network-regenerate ()
   "Recreate the most recent Denote graph with external software."
   (interactive)
-  (let* ((graph-type (car denote-explore-network-previous))
+  (if-let* ((graph-type (car denote-explore-network-previous))
 	 (query (car (cdr denote-explore-network-previous)))
 	 (config (assoc graph-type denote-explore-graph-types))
 	 (regenerate-fn (plist-get (cdr config) :regenerate))
 	 (graph (funcall regenerate-fn query)))
-      (denote-explore--network-save graph)
-      (denote-explore-network-view)))
+      (progn (denote-explore--network-save graph)
+	     (denote-explore-network-view))
+    (message "No previous network defined")))
 
 (provide 'denote-explore)
 ;;; denote-explore.el ends here
