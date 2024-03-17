@@ -43,6 +43,15 @@ Alternatively, you can install it directly from GitHub:
 #+end_src
 
 * Change Log
+** Version 1.4.2
+- Geneal code refactoring with assistance from Prot
+- Added ability to filter keywords network by minimum weight of edges
+- Added ability for free text in ~denote-explore-network-graphviz-filetype~
+- GEXF format now includes the total degree for each node
+- Enforced consistency with use of universal argument (its use will include attachments)
+- ~denote-explore--retrieve-title~ deprecated. Now using Denote function.
+- Updated manual with clarifications
+
 ** Version 1.4.1
 - Fixed bugs with random links and keywords from nil file-name
 - New variable ~denote-explore-network-regex-ignore~ to ignore files matching a regular expression when creating neighbourhood or community graphs.
@@ -91,14 +100,14 @@ New functionality since the previous version:
 - ~denote-explore-sync-metadata~: Synchronise the filenames with the metadata for all Denote files.
 
 * Future Development
-** Dashboard
 - [ ] Create a Denote widget for the Emacs Dashboard with links to statistics.
-
-** Managing Attachments
-- [ ] Functions to rename Denote attachments using EXIF metadata. 
+- [ ] Functions to rename Denote attachments using EXIF metadata.
+- [ ] Jump to random note within a time frame
+- [ ] Ring of previously-generated networks instead of overwriting ~denote-explore-network-previous~
 
 ** Visualising Denote
 - [ ] [[https://orgmode.org/manual/Dynamic-Blocks.html][Dynamic org mode blocks]] to visualise the neighbourhood of a node
+- [ ] Use [[https://github.com/alphapapa/org-graph-view/][org-graph-view]] for live neighbourhood view of the current buffer
 - [ ] [[https://graphviz.org/pdf/cluster.1.pdf][Community detection]] in GraphViz versions?
 - [ ] Visualise signatures ([[https://zettelkasten.de/introduction/2020-08-13_folgezettel-sequence.png][example]])
 - [ ] Store the Denote metadata in a [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Hash-Tables.html][hash table]] that is updated after every modification to a Denote file for more efficient visualisation.
