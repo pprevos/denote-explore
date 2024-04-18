@@ -24,7 +24,10 @@
 
 ;;; Commentary:
 ;;
-;; Denote-Explore functionality:
+;; Denote-Explore provides functionality to explore, maintain and visualise
+;; your collection fo Denote file.
+;; 
+;; Functionality:
 ;;
 ;; 1. Statistics: count and visualise notes and keywords
 ;; 2. Random walks: aces notes with serendipitous discovery
@@ -382,13 +385,13 @@ Use empty string as new keyword to remove the selection."
 				       (if (member keyword selected) new-keyword keyword))
 				     current-keywords))))
 	(denote-rename-file file
-			    (denote--retrieve-title-or-filename
+			    (denote-retrieve-title-or-filename
 			     file (denote-filetype-heuristics file))
 			    (if (equal new-keywords nil) "" new-keywords)
 			    (denote-retrieve-filename-signature file))))))
 
 (define-obsolete-function-alias 'denote-explore--retrieve-title
-  'denote--retrieve-title-or-filename "1.4.2")
+  'denote-retrieve-title-or-filename "1.4.2")
 
 ;;;###autoload
 (defun denote-explore-sync-metadata ()
@@ -520,7 +523,7 @@ Using the universal argument includes attachments."
   (when (file-exists-p file)
     (let ((id (denote-retrieve-filename-identifier file))
 	  (signature (denote-retrieve-filename-signature file))
-	  (name (denote--retrieve-title-or-filename
+	  (name (denote-retrieve-title-or-filename
 		 file (denote-filetype-heuristics file)))
 	  (keywords (denote-retrieve-filename-keywords file))
 	  (type (file-name-extension file)))
