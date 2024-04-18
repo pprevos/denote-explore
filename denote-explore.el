@@ -4,8 +4,8 @@
 
 ;; Author: Peter Prevos <peter@prevos.net>
 ;; URL: https://github.com/pprevos/denote-explore/
-;; Version: 1.4.2
-;; Package-Requires: ((emacs "29.1") (denote "2.2.4") (dash "2.19.1"))
+;; Version: 1.4.3
+;; Package-Requires: ((emacs "29.1") (denote "2.3.5") (dash "2.19.1"))
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -47,21 +47,6 @@
 (require 'browse-url)
 
 ;; Variables
-(define-obsolete-variable-alias
-  'denote-explore-json-vertices-filename
-  'denote-explore-network-filename "1.3")
-
-(define-obsolete-variable-alias
-  'denote-explore-json-edges-filename
-  'denote-explore-network-filename "1.3")
-
-(define-obsolete-variable-alias
-  'denote-explore--extract-vertices
-  'denote-explore--network-extract-node "1.3")
-
-(define-obsolete-variable-alias
-  'denote-explore-network-r
-  'denote-explore-network "1.3")
 
 (defgroup denote-explore ()
   "Explore and visualise Denote file collections."
@@ -85,6 +70,14 @@ File type defined with `denote-explore-network-format'."
   :group 'denote-explore
   :package-version '(denote-explore . "1.3")
   :type 'string)
+
+(define-obsolete-variable-alias
+  'denote-explore-json-vertices-filename
+  'denote-explore-network-filename "1.3")
+
+(define-obsolete-variable-alias
+  'denote-explore-json-edges-filename
+  'denote-explore-network-filename "1.3")
 
 (defcustom denote-explore-network-format
   'graphviz
@@ -321,8 +314,10 @@ exported Denote files from duplicate-detection."
     (if duplicates (message "Duplicates: %s" (mapconcat 'identity duplicates ", "))
       (message "No duplicates found"))))
 
-(make-obsolete 'denote-explore-identify-duplicate-identifiers
-	       'denote-explore-identify-duplicate-notes "Version 1.2")
+(define-obsolete-function-alias
+  'denote-explore-identify-duplicate-identifiers
+  'denote-explore-identify-duplicate-notes
+  "1.2")
 
 ;;;###autoload
 (defun denote-explore-single-keywords ()
@@ -390,8 +385,10 @@ Use empty string as new keyword to remove the selection."
 			    (if (equal new-keywords nil) "" new-keywords)
 			    (denote-retrieve-filename-signature file))))))
 
-(define-obsolete-function-alias 'denote-explore--retrieve-title
-  'denote-retrieve-title-or-filename "1.4.2")
+(define-obsolete-function-alias
+  'denote-explore--retrieve-title
+  'denote-retrieve-title-or-filename
+  "1.4.2")
 
 ;;;###autoload
 (defun denote-explore-sync-metadata ()
@@ -517,6 +514,11 @@ Using the universal argument includes attachments."
 			 (when (string-match denote-id-regexp str)
 			   (match-string 0 str))) links)))
     (denote-explore--network-zip-alists source target)))
+
+(define-obsolete-function-alias
+  'denote-explore--extract-vertices
+  'denote-explore--network-extract-node
+  "1.2")
 
 (defun denote-explore--network-extract-node (file)
   "Extract metadata for note or attachment FILE."
@@ -912,7 +914,7 @@ This functionality currently requires a working version of the R language."
       (user-error "Graphic generation unsuccessful"))))
 
 (defun denote-explore-network-view ()
-  "Recreate the most recent Denote graph with external software."
+  "Recreate the most recently generated Denote graph with external software."
   (let* ((format (assoc denote-explore-network-format
 			denote-explore-network-graph-formats))
 	 (display-fn (plist-get (cdr format) :display))
@@ -965,6 +967,10 @@ to encode and display each graph format."
 	 (graph (funcall generate-fn)))
     (denote-explore--network-save graph)
     (denote-explore-network-view)))
+
+(define-obsolete-function-alias
+  'denote-explore-network-r
+  'denote-explore-network "1.3")
 
 (defun denote-explore-network-regenerate ()
   "Recreate the most recent Denote graph with external software."
