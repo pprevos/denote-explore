@@ -648,7 +648,6 @@ In a complete graph (network), all  nodes are connected to each other."
 
 (defun denote-explore-network-keywords ()
   "Enter a positive integer for a minimum weight and generate a keywords graph."
-  (interactive)
   (let ((min-weight (read-number "Enter min-weight (integer > 0): " 1)))
     (while (<= min-weight 0)
       (setq min-weight (read-number "Invalid input. Enter an integer > 0: " 1)))
