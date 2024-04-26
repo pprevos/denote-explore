@@ -1,14 +1,14 @@
 ;;; denote-explore.el --- Explore Denote files -*- lexical-binding: t -*-
-
+;;
 ;; Copyright (C) 2023-2024 Peter Prevos
-
+;;
 ;; Author: Peter Prevos <peter@prevos.net>
 ;; URL: https://github.com/pprevos/denote-explore/
 ;; Version: 1.5
 ;; Package-Requires: ((emacs "29.1") (denote "2.3.5") (dash "2.19.1"))
-
+;;
 ;; This file is NOT part of GNU Emacs.
-
+;;
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation, either version 3 of the License, or
@@ -21,7 +21,7 @@
 ;;
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
+;;
 ;;; Commentary:
 ;;
 ;; Denote-Explore provides functionality to explore, maintain and visualise
@@ -33,10 +33,9 @@
 ;; 2. Random walks: aces notes with serendipitous discovery
 ;; 3. Janitor: Maintenance on you Denote collection
 ;; 3. Network diagrams: visualise the structure of your notes
-
-;; The Denote-Explore manual:
-;; https://lucidmanager.org/productivity/denote-explore/
-
+;;
+;; The Denote-Explore manual is in info-mode `C-h R denote-explore`
+;;
 ;;; Code:
 
 (require 'denote)
