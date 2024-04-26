@@ -953,6 +953,10 @@ This list is passed on to an encoding function to generate the desired graph
 format.  In the last step, a visualisation function displays the graph in the
 external web browser.
 
+The parameters for the generated graph are stored in
+`denote-explore-network-previous`, which is used to renegerate the same graph
+after making changes to notes with `denote-explore-network-regenerate`.
+
 The `denote-explore-graph-types' variable stores the functions required to
 generate and regenerate graphs.
 
