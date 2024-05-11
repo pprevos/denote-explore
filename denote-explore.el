@@ -92,13 +92,14 @@ File type defined with `denote-explore-network-format'."
   "List of keywords to be ignored in the keywords graph."
   :group 'denote-explore
   :package-version '(denote-explore . "1.3")
-  :type 'list)
+  :type '(repeat (string :tag "Keyword")))
 
 (defcustom denote-explore-network-regex-ignore '()
   "Regular expression for notes ignored in neighbourhood and community graphs."
   :group 'denote-explore
   :package-version '(denote-explore . "1.4")
-  :type 'list)
+  :type '(choice (const :tag "No Ignore Regexp" nil)
+                 (regexp :tag "Ignore using Regexp")))
 
 (defcustom denote-explore-network-graphviz-header
   '("layout=neato"
