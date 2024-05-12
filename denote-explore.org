@@ -258,11 +258,19 @@ This package is available through MELPA. The configuration below customises all 
      ("C-c n e l" . denote-explore-random-link)
      ("C-c n e k" . denote-explore-random-keyword)
      ;; Denote Janitor
+<<<<<<< HEAD
      ("C-c n e d" . denote-explore-identify-duplicate-notes)
      ("C-c n e z" . denote-explore-zero-keywords)
      ("C-c n e s" . denote-explore-single-keywords)
      ("C-c n e o" . denote-explore-sort-keywords)
      ("C-c n e r" . denote-explore-rename-keywords)
+=======
+     ("C-c w e d" . denote-explore-identify-duplicate-notes)
+     ("C-c w e z" . denote-explore-zero-keywords)
+     ("C-c w e s" . denote-explore-single-keywords)
+     ("C-c w e o" . denote-explore-sort-keywords)
+     ("C-c w e R" . denote-explore-rename-keywords)
+>>>>>>> ebcd697587dde8972cc5419446ee3de2edf035c3
      ;; Visualise denote
      ("C-c n e n" . denote-explore-network)
      ("C-c n e v" . denote-explore-network-regenerate)
