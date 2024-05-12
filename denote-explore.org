@@ -1,14 +1,13 @@
 #+title: Exploring Your Ideas With the Denote-Explore Package
-#+date: [2024-04-24 Wed]
 
-The Denote package by Protesilaos (Prot) Stavrou provides extensive functionality to create, retrieve, manage and link files in plain text, Markdown and Org Mode. The most redeeming qualities of this package are its filename convention and modular simplicity. You can also use the package to access other file types, such as PDFs or multimedia files (attachments). This way, Denote becomes a fully-featured file-management system. 
+The Denote package by Protesilaos (Prot) Stavrou provides extensive functionality to create, retrieve, manage and link files in plain text, Markdown and Org Mode. The most redeeming qualities of this package are its filename convention and modular simplicity. You can also use the package to access other file types, such as PDFs or multimedia files (attachments). This way, Denote becomes a fully-featured personal knowledge management system. 
 
 The Denote-Explore package came into existence as my collection of Denote files grew. I created some auxiliary functions to manage and explore my burgeoning collection of Denote files, which I eventually packaged together. The package provides four types of commands:
 
-1. /Summary statistics/: Count notes, attachments and keywords.
-2. /Random walks/: Generate new ideas using serendipity.
-3. /Janitor/: Maintain your denote collection.
-4. /Visualisations/: Visualise your Denote files as a network.
+1. Summary statistics: Count notes, attachments and keywords.
+2. Random walks: Generate new ideas using serendipity.
+3. Janitor: Maintain your denote collection.
+4. Visualisations: Visualise your Denote files as a network.
 
 * Summary Statistics
 This Denote-Explore package distinguishes between Denote files (notes) and attachments. Denote files are either Org Mode, Markdown, or Plain Text. All other files, such as photographs, PDFs, media files, LaTeX, and HTML, are attachments.
@@ -20,7 +19,7 @@ After a day of working hard on your digital knowledge garden, you might like to 
 
 These functions are informative, but a graph says more than a thousand numbers. The built-in =chart.el= package by Eric M. Ludlam is a quaint tool for creating bar charts in a plain text buffer. Two commands are available in Denote-Explore to visualise basic statistics: 
 
-1. ~denote-explore-keywords-barchart~: Visualise the top /n/ keywords.
+1. ~denote-explore-keywords-barchart~: Visualise the top n keywords.
 2. ~denote-explore-extensions-barchart~: Visualise used file extensions.
 
 * Random Walks
@@ -38,7 +37,9 @@ The default state is that these three functions jump to any Denote text file (pl
 
 Jumping to a randomly linked file only works when the current buffer is a Denote file. A warning appears when the current buffer is an isolated note (no links or backlinks available).
 
-When jumping to a random file with selected keywords, you can choose between one or more keywords from the current buffer, or you can override the completion options with free text. When the current buffer only has one keyword, the section process is skipped. When the current buffer is not a Denote file, you can choose any available keyword(s) in your Denote collection. The asterisk symbol =*= selects all keywords in the completion list. Please note that jumping to a random note with multiple keywords only works when the ~denote-sort-keywords~ is enabled or when the selected keywords are in the same order as in the target file. The following section explains how you can alphabetise your keywords using the Janitor.
+When jumping to a random file with selected keywords, you can choose between one or more keywords from the current buffer, or you can override the completion options with free text. When the current buffer only has one keyword, the section process is skipped. When the current buffer is not a Denote file, you can choose any available keyword(s) in your Denote collection. The asterisk symbol =*= selects all keywords in the completion list.
+
+Please note that jumping to a random note with multiple keywords only works when the ~denote-sort-keywords~ is enabled or when the selected keywords are in the same order as in the target file. The following section explains how you can alphabetise your keywords using the Janitor.
 
 * Denote-Explore Janitor
 After using Denote for a while, you might need a janitor to keep your collection organised. A janitor is a member of the maintenance and cleaning staff for buildings. Their primary responsibility is to ensure cleanliness, orderliness, and sanitation, so this role is also perfect to apply to your Denote files. The Denote-Explore package provides a series of commands to assist with cleaning, ordering and sanitising your files.
@@ -113,7 +114,7 @@ To generate a community graph, use ~denote-explore-network~, choose community an
 
 The ~denote-explore-network-regenerate~ command recreates the current graph with the same parameters, which is useful when changing the structure of your notes and you like to see the result visualised.
 
-The ~denote-explore-network-regex-ignore~ variable lets you define a regular expression of notes to ignore in your visualisations. For example, if you create meta notes with long lists of dynamic links and they have the =_meta= keyword, then you could exclude this set of nodes by setting this variable to "=_meta=".
+The ~denote-explore-network-regex-ignore~ variable lets you define a regular expression of notes to ignore in your visualisations. For example, if you create meta notes with long lists of dynamic links and they have the =_meta= keyword, then you could exclude this set of nodes by setting this variable to "_meta".
 
 ** Note Neighbourhood
 The neighbourhood of a note consists of all files linked to it at one or more steps deep. The algorithm selects members of the graph from linked and backlinked notes. This visualisation effectively creates the possible paths you can follow with the ~denote-explore-random-link~ function discussed in the Random Walks session above.
@@ -162,7 +163,7 @@ In this example there are three notes, two with two keywords and one with three 
 
 The union of these three networks forms the keyword network for this collection of notes. The example generates the following keyword network.
 
-#+begin_export ascii
+#+begin_example
 ┌─────┐ ┌─────┐                                
 │_kwd1├─┤_kwd2│                                
 └─┬───┘ └───┬─┘                                
@@ -170,7 +171,7 @@ The union of these three networks forms the keyword network for this collection 
   │ ┌─────┐ │  ┌─────┐                         
   └─┤_kwd3├─┴──┤_kwd4│                         
     └─────┘    └─────┘                         
-#+end_export
+#+end_example
 
 When generating this graph, you will need to enter a minimum edge weight for the graph. The graph then will only show those keywords that are at least /n/ times associated with each other. The default is one, which can generate a rather large graph.
 
@@ -236,7 +237,7 @@ Your Denote network is unlikely to be a fully connected graph. In a connected gr
 The number of links and backlinks in a file (in mathematical terms, edges connected to a node) is the degree of a node. The degree distribution of a network is the probability distribution of these degrees over the whole network. The ~denote-explore-degree-barchart~ function uses the built-in chart package to display a simple bar chart of the frequency of degrees. This function might take a few seconds to run, depending on the number of notes in your system. Evaluating this function with the universal argument =C-u= excludes attachments from the analysis.
 
 * Installation and Package Configuration
-This package is available through MELPA. The configuration below customises all available variables and binds the interactive functions using the /Emacs Writing Studio/ =C-c w= prefix key and =e= for Denote-Explore. You should modify this configuration to suit your needs, as one person's sensible defaults are another person's nightmare.
+This package is available through MELPA. The configuration below customises all available variables and binds the command on top of the =C-c n= prefix suggested in the Denote manual. You should modify this configuration to suit your needs, as one person's sensible defaults are another person's nightmare.
 
 #+begin_src elisp
   (use-package denote-explore
@@ -245,26 +246,27 @@ This package is available through MELPA. The configuration below customises all 
     (denote-explore-network-directory "<folder>")
     (denote-explore-network-filename "<filename?")
     (denote-explore-network-format 'graphviz)
+    (denote-explore-network-graphviz-filetype 'svg)
     :bind
     (;; Statistics
-     ("C-c w e c" . denote-explore-count-notes)
-     ("C-c w e C" . denote-explore-count-keywords)
-     ("C-c w e b" . denote-explore-keywords-barchart)
-     ("C-c w e x" . denote-explore-extensions-barchart)
+     ("C-c n e c" . denote-explore-count-notes)
+     ("C-c n e C" . denote-explore-count-keywords)
+     ("C-c n e b" . denote-explore-keywords-barchart)
+     ("C-c n e x" . denote-explore-extensions-barchart)
      ;; Random walks
-     ("C-c w e r" . denote-explore-random-note)
-     ("C-c w e l" . denote-explore-random-link)
-     ("C-c w e k" . denote-explore-random-keyword)
+     ("C-c n e r" . denote-explore-random-note)
+     ("C-c n e l" . denote-explore-random-link)
+     ("C-c n e k" . denote-explore-random-keyword)
      ;; Denote Janitor
-     ("C-c w e d" . denote-explore-identify-duplicate-notes)
-     ("C-c w e z" . denote-explore-zero-keywords)
-     ("C-c w e s" . denote-explore-single-keywords)
-     ("C-c w e o" . denote-explore-sort-keywords)
-     ("C-c w e r" . denote-explore-rename-keywords)
+     ("C-c n e d" . denote-explore-identify-duplicate-notes)
+     ("C-c n e z" . denote-explore-zero-keywords)
+     ("C-c n e s" . denote-explore-single-keywords)
+     ("C-c n e o" . denote-explore-sort-keywords)
+     ("C-c n e r" . denote-explore-rename-keywords)
      ;; Visualise denote
-     ("C-c w e n" . denote-explore-network)
-     ("C-c w e v" . denote-explore-network-regenerate)
-     ("C-c w e D" . denote-explore-degree-barchart)))
+     ("C-c n e n" . denote-explore-network)
+     ("C-c n e v" . denote-explore-network-regenerate)
+     ("C-c n e D" . denote-explore-degree-barchart)))
 #+end_src
 
 You can also use the most recent development version directly from GitHub (Emacs 29.1 or higher):
