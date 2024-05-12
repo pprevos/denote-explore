@@ -46,10 +46,8 @@
 (require 'browse-url)
 
 ;; Variables
-
 (defgroup denote-explore ()
   "Explore and visualise Denote file collections."
-  :prefix "denote-explore-"
   :group 'files
   :link '(url-link :tag "Homepage" "https://github.com/pprevos/denote-explore"))
 
