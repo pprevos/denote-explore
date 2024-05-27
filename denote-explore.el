@@ -579,6 +579,18 @@ of a file."
                   (setq degree (+ degree 1))))
 	      (append node (list (cons 'degree degree))))) nodes))
 
+(defun denote-explore--network-backlinks (nodes edges)
+"Calculate the number of backlinks for each node in a network graph NODES and
+EDGES."
+  (mapcar (lambda (node)
+            (let ((node-id (cdr (assoc 'id node)))
+                  (backlinks 0))
+              (dolist (edge edges)
+                (when (string= node-id (cdr (assoc 'target edge)))
+                  (setq backlinks (+ backlinks (cdr (assoc 'weight edge))))))
+              (append node (list (cons 'backlinks backlinks)))))
+        nodes))
+
 (defun denote-explore--network-filter-files (files)
   "Remove files matching `denote-explore-network-regex-ignore' from Denote FILES.
 Removes selected files from neighbourhood or community visualisation."
@@ -597,7 +609,8 @@ Links to notes outside the search area are pruned."
 	    (edges-pruned (denote-explore--network-prune-edges ids edges))
 	    (edges-alist (denote-explore--network-count-edges edges-pruned))
 	    (nodes (mapcar #'denote-explore--network-extract-node files))
-	    (nodes-alist (denote-explore--network-degree nodes edges-alist))
+	    (nodes-alist-1 (denote-explore--network-degree nodes edges-alist))
+	    (nodes-alist (denote-explore--network-backlinks nodes-alist-1 edges-alist))
 	    (meta-alist `((directed . t) (type . ,(format "Community '%s'" regex)))))
       `((meta . ,meta-alist) (nodes . ,nodes-alist) (edges . ,edges-alist))
     (user-error "No Denote files or (back)links found for %s" regex)))
