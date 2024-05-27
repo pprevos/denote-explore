@@ -465,6 +465,22 @@ VAR and TITLE used for display."
     (denote-explore--barchart txt-degrees "Degree" "Node degree distribution")))
 
 ;;;###autoload
+(defun denote-explore-backlinks-barchart (n)
+  "Visualise the number of backlinks for each node in the Denote network."
+  (interactive "nNumber of nodes: ")
+  (message "Analysing Denote network.")
+  (let* ((graph (denote-explore-network-community-graph ""))
+	     (nodes (cdr (assoc 'nodes graph)))
+         (backlinks (mapcar (lambda (node)
+                              (cons
+                               (cdr (assq 'name node))
+                               (cdr (assq 'backlinks node))))
+                            nodes)))
+    (sort backlinks (lambda (a b)
+                      (> (cdr a) (cdr b))))
+    (denote-explore--barchart backlinks "Backlinks" "Node backlinks distribution" n)))
+
+;;;###autoload
 (defun denote-explore-isolated-notes (&optional include-attachments)
   "Identify Denote files without (back)links and optionally INCLUDE-ATTACHMENTS.
 Using the universal argument includes attachments."
