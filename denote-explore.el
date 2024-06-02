@@ -298,31 +298,35 @@ With universal argument the sample includes attachments."
 
 If FILENAMES is nil, check Denote IDs, otherwise use complete file names.
 Using the FILENAMES option (or using the universal argument) excludes
-exported Denote files from duplicate-detection."
-  ;; TODO: Instead of comparing files, remove all files with non-denote extensions
+exported Denote files from duplicate-detection.
+
+Duplicate files are displayed in a temporary buffer with links to the suspected duplicates."
   (interactive "P")
-  (let* ((denote-files (denote-directory-files nil nil t))
+  (let* ((denote-files (denote-directory-files))
          (candidates (if filenames
-                         (mapcar (lambda (path) (file-name-nondirectory path)) denote-files)
-                       (mapcar #'denote-retrieve-filename-identifier denote-files)))
+                         (mapcar (lambda (path)
+				   (file-name-nondirectory path))
+				 denote-files)
+                       (mapcar #'denote-retrieve-filename-identifier
+			       denote-files)))
          (tally (denote-explore--table candidates))
          (duplicates (mapcar #'car (cl-remove-if-not
                                     (lambda (note)
-				      (> (cdr note) 1)) tally))))
+				      (> (cdr note) 1))
+				    tally))))
     (if (not duplicates)
         (message "No duplicates found")
       (with-current-buffer-window "*denote-duplicates*" nil nil
         (erase-buffer)
-        (insert "The following Note IDs and associated notes may be duplicates.\n")
+        (insert "The following IDs and associated files may be duplicates.\n")
         (dolist (id duplicates)
           (insert (format "\n* Note ID [[denote:%s]]\n\n" id))
           (dolist (filename (denote-directory-files-matching-regexp id))
-            (insert (format " - [[denote:%s][%s]]\n"
+            (insert (format " - [[file:%s][%s]]\n"
                             filename
                             (funcall denote-link-description-function filename)))))
         (org-mode)
-        (read-only-mode))
-      (message "Duplicates: %s" (mapconcat 'identity duplicates ", ")))))
+        (read-only-mode)))))
 
 (define-obsolete-function-alias
   'denote-explore-identify-duplicate-identifiers

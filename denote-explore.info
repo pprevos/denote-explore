@@ -180,12 +180,14 @@ files, as the exported files have the same file name but a different
 extension.
 
    The ‘denote-explore-identify-duplicate-notes’ command lists all
-duplicate identifiers in the minibuffer.  Open the ‘*Messages*’ buffer
-to copy the identifiers and correct the relevant files.  Be careful when
-changing the identifier of a Denote file, as it can destroy the
-integrity of your links, so please ensure that the file you rename does
-not have any links pointing to it.  You can use the ‘denote-find-link’
-and ‘denote-find-backlink’ commands to check a file for links.
+duplicate identifiers in a temporary buffer.  The temporary buffer
+includes links to the suspected duplicate notes and attachments.
+
+   Be careful when changing the identifier of a Denote file, as it can
+destroy the integrity of your links, so please ensure that the file you
+rename does not have any links pointing to it.  You can use the
+‘denote-find-link’ and ‘denote-find-backlink’ commands to check a file
+for links.
 
    Using this command with the universal argument (‘C-u’), looks for
 duplicated filenames instead of identifiers.  This option thus ignores
@@ -749,21 +751,21 @@ Node: Summary Statistics1765
 Node: Random Walks2974
 Node: Denote-Explore Janitor5278
 Node: Duplicate notes5977
-Node: Isolated Notes7843
-Node: Managing Keywords8666
-Node: Synchronising Meta Data10751
-Node: Visualise Denote11428
-Node: Community of Notes13583
-Node: Note Neighbourhood15483
-Node: Keyword Network18046
-Node: Network Layout and Presentation21036
-Node: GraphViz23151
-Node: D3js25502
-Node: Graph Exchange XML Format26709
-Node: Analysing the Denote Network27723
-Node: Installation and Package Configuration29629
-Node: Acknowledgements32109
-Node: License32587
+Node: Isolated Notes7847
+Node: Managing Keywords8670
+Node: Synchronising Meta Data10755
+Node: Visualise Denote11432
+Node: Community of Notes13587
+Node: Note Neighbourhood15487
+Node: Keyword Network18050
+Node: Network Layout and Presentation21040
+Node: GraphViz23155
+Node: D3js25506
+Node: Graph Exchange XML Format26713
+Node: Analysing the Denote Network27727
+Node: Installation and Package Configuration29633
+Node: Acknowledgements32113
+Node: License32591
 
 End Tag Table
 

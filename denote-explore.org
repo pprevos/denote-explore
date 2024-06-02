@@ -51,7 +51,9 @@ Besides my Denote-generated notes, I have historical attachments in my collectio
 
 Adding the Denote identifier manually introduces a risk of duplication. Duplicates can also arise when exporting Denote Org mode files, as the exported files have the same file name but a different extension.
 
-The ~denote-explore-identify-duplicate-notes~ command lists all duplicate identifiers in the minibuffer. Open the =*Messages*= buffer to copy the identifiers and correct the relevant files. Be careful when changing the identifier of a Denote file, as it can destroy the integrity of your links, so please ensure that the file you rename does not have any links pointing to it. You can use the ~denote-find-link~ and ~denote-find-backlink~ commands to check a file for links.
+The ~denote-explore-identify-duplicate-notes~ command lists all duplicate identifiers in a temporary buffer. The temporary buffer includes links to the suspected duplicate notes and attachments.
+
+Be careful when changing the identifier of a Denote file, as it can destroy the integrity of your links, so please ensure that the file you rename does not have any links pointing to it. You can use the ~denote-find-link~ and ~denote-find-backlink~ commands to check a file for links.
 
 Using this command with the universal argument (=C-u=), looks for duplicated filenames instead of identifiers. This option thus ignores any duplicated identifiers created when exporting Denote Org mode files.
 
