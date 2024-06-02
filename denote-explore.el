@@ -301,7 +301,7 @@ Using the FILENAMES option (or using the universal argument) excludes
 exported Denote files from duplicate-detection."
   ;; TODO: Instead of comparing files, remove all files with non-denote extensions
   (interactive "P")
-  (let* ((denote-files (denote-directory-files))
+  (let* ((denote-files (denote-directory-files nil nil t))
          (candidates (if filenames
                          (mapcar (lambda (path) (file-name-nondirectory path)) denote-files)
                        (mapcar #'denote-retrieve-filename-identifier denote-files)))
@@ -309,8 +309,20 @@ exported Denote files from duplicate-detection."
          (duplicates (mapcar #'car (cl-remove-if-not
                                     (lambda (note)
 				      (> (cdr note) 1)) tally))))
-    (if duplicates (message "Duplicates: %s" (mapconcat 'identity duplicates ", "))
-      (message "No duplicates found"))))
+    (if (not duplicates)
+        (message "No duplicates found")
+      (with-current-buffer-window "*denote-duplicates*" nil nil
+        (erase-buffer)
+        (insert "The following Note IDs and associated notes may be duplicates.\n")
+        (dolist (id duplicates)
+          (insert (format "\n* Note ID [[denote:%s]]\n\n" id))
+          (dolist (filename (denote-directory-files-matching-regexp id))
+            (insert (format " - [[denote:%s][%s]]\n"
+                            filename
+                            (funcall denote-link-description-function filename)))))
+        (org-mode)
+        (read-only-mode))
+      (message "Duplicates: %s" (mapconcat 'identity duplicates ", ")))))
 
 (define-obsolete-function-alias
   'denote-explore-identify-duplicate-identifiers
