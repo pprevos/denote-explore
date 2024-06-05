@@ -376,29 +376,28 @@ suspected duplicate files."
 ;;;###autoload
 (defun denote-explore-rename-keyword ()
   "Rename or remove keyword(s) across the whole Denote collection.
-When selecting more then one existing keyword, all selections are renamed.
+When selecting more than one existing keyword, all selections are renamed.
 Use empty string as new keyword to remove the selection."
   (interactive)
   (save-some-buffers)
   (let* ((denote-rename-no-confirm nil)
-	 (denote-sort-keywords t)
-	 (selected (denote-keywords-prompt "Keyword to rename"))
-	 (new-keyword (read-from-minibuffer "New keyword: "))
-	 (_keywords (mapcar (lambda (keyword) (concat "_" keyword)) selected))
-	 (notes (denote-directory-files
-		 (mapconcat #'identity (sort _keywords 'string<) "\\|"))))
+         (denote-sort-keywords t)
+         (selected (denote-keywords-prompt "Keyword to rename"))
+         (new-keyword (read-from-minibuffer "New keyword: "))
+         (keywords-pattern (mapconcat (lambda (keyword) (concat "_" keyword)) selected "\\|"))
+         (notes (denote-directory-files keywords-pattern)))
     (dolist (file notes)
       (let* ((current-keywords (denote-explore--retrieve-keywords file))
-	     (new-keywords (if (equal new-keyword "")
-			       (cl-set-difference current-keywords selected :test 'string=)
-			     (mapcar (lambda (keyword)
-				       (if (member keyword selected) new-keyword keyword))
-				     current-keywords))))
-	(denote-rename-file file
-			    (denote-retrieve-title-or-filename
-			     file (denote-filetype-heuristics file))
-			    (if (equal new-keywords nil) "" new-keywords)
-			    (denote-retrieve-filename-signature file))))))
+             (new-keywords (if (equal new-keyword "")
+                               (cl-set-difference current-keywords selected :test 'string=)
+                             (mapcar (lambda (keyword)
+                                       (if (member keyword selected) new-keyword keyword))
+                                     current-keywords))))
+        (denote-rename-file file
+                            (denote-retrieve-title-or-filename
+                             file (denote-filetype-heuristics file))
+                            (if (equal new-keywords nil) "" new-keywords)
+                            (denote-retrieve-filename-signature file))))))
 
 (define-obsolete-function-alias
   'denote-explore--retrieve-title
