@@ -670,7 +670,7 @@ In a complete graph (network), all  nodes are connected to each other."
 
 (defun denote-explore--network-keywords-flatten-edges (edges)
   "Flatten list of network EDGES."
-  (let (edges-alist '())
+  (let ((edges-alist '()))
     (dolist (sublist edges)
       (dolist (edge sublist)
 	(push edge edges-alist)))
