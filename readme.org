@@ -43,6 +43,18 @@ Alternatively, you can install it directly from GitHub:
 #+end_src
 
 * Change Log
+** Version 1.5.1
+- Fixed various compilation errors.
+- Enhanced output for ~denote-explore-identify-duplicate-notes~
+- Update customization types for note ignore variables
+- Updated ~defgroup~ definition and ~defcustom~ types
+
+** Version 1.5
+- Published Info mode manual
+- Clarified obsolete variables and functions
+- ~denote-explore-network-keywords~ no longer interactive
+- Updates to Denote functions
+
 ** Version 1.4.2
 - Geneal code refactoring with assistance from Prot
 - Added ability to filter keywords network by minimum weight of edges
