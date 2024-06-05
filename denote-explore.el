@@ -59,6 +59,14 @@ Created upon generating the network when it does not yet exist"
   :package-version '(denote-explore . "1.3")
   :type 'string)
 
+(define-obsolete-variable-alias
+  'denote-explore-json-vertices-filename
+  'denote-explore-network-filename "1.3")
+
+(define-obsolete-variable-alias
+  'denote-explore-json-edges-filename
+  'denote-explore-network-filename "1.3")
+
 (defcustom denote-explore-network-filename
   "denote-network"
   "Base filename sans extension for Denote explore network files.
@@ -67,14 +75,6 @@ File type defined with `denote-explore-network-format'."
   :group 'denote-explore
   :package-version '(denote-explore . "1.3")
   :type 'string)
-
-(define-obsolete-variable-alias
-  'denote-explore-json-vertices-filename
-  'denote-explore-network-filename "1.3")
-
-(define-obsolete-variable-alias
-  'denote-explore-json-edges-filename
-  'denote-explore-network-filename "1.3")
 
 (defcustom denote-explore-network-format
   'graphviz
