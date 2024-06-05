@@ -300,7 +300,8 @@ If FILENAMES is nil, check Denote IDs, otherwise use complete file names.
 Using the FILENAMES option (or using the universal argument) excludes
 exported Denote files from duplicate-detection.
 
-Duplicate files are displayed in a temporary buffer with links to the suspected duplicates."
+Duplicate files are displayed in a temporary buffer with links to the
+suspected duplicate files."
   (interactive "P")
   (let* ((denote-files (denote-directory-files))
          (candidates (if filenames
@@ -321,7 +322,7 @@ Duplicate files are displayed in a temporary buffer with links to the suspected 
         (insert "The following IDs and associated files may be duplicates.\n")
         (dolist (id duplicates)
           (insert (format "\n* Note ID [[denote:%s]]\n\n" id))
-          (dolist (filename (denote-directory-files-matching-regexp id))
+          (dolist (filename (denote-directory-files id))
             (insert (format " - [[file:%s][%s]]\n"
                             filename
                             (funcall denote-link-description-function filename)))))
