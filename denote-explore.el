@@ -4,7 +4,7 @@
 ;;
 ;; Author: Peter Prevos <peter@prevos.net>
 ;; URL: https://github.com/pprevos/denote-explore/
-;; Version: 1.5
+;; Version: 1.5.1
 ;; Package-Requires: ((emacs "29.1") (denote "2.3.5") (dash "2.19.1"))
 ;;
 ;; This file is NOT part of GNU Emacs.
@@ -898,7 +898,8 @@ Output is saved to the `denote-explore-network-directory' in the
 	 (script-call (format "dot %s -T%s -o %s"
 			      (shell-quote-argument gv-file)
 			      file-type
-			      (shell-quote-argument out-file))))
+			      (shell-quote-argument out-file)))
+	 (exit-status))
     (message script-call)
     (delete-file out-file)
     (setq exit-status (shell-command script-call))
@@ -916,7 +917,8 @@ This functionality currently requires a working version of the R language."
   (let* ((html-file (concat (file-name-sans-extension json-file) ".html"))
 	 (script-call (format "Rscript %sdenote-explore-network.R %s"
 			      (shell-quote-argument denote-explore-load-directory)
-			      (shell-quote-argument json-file))))
+			      (shell-quote-argument json-file)))
+	 (exit-status))
     (message script-call)
     (delete-file html-file)
     (setq exit-status (shell-command script-call))
