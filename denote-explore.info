@@ -4,8 +4,8 @@ denote-explore.texi.
 
 File: denote-explore.info,  Node: Top,  Next: Summary Statistics,  Up: (dir)
 
-Exploring Your Ideas With the Denote-Explore Package
-****************************************************
+Denote Explore: Explore your Denote digital garden
+**************************************************
 
 The Denote package by Protesilaos (Prot) Stavrou provides extensive
 functionality to create, retrieve, manage and link files in plain text,
@@ -638,20 +638,28 @@ attachments.
 connected graph, there is a path from any point to any other point.
 Within the context of Denote, this means that all files have at least
 one link or backlink.  Your network will most likely have isolated nodes
-(files without any (back) links) and islands of connected notes.  The
+(files without any (back)links) and islands of connected notes.  The
 previously discussed ‘denote-explore-isolated-notes’ function lists all
 files without any links and backlinks to and from the note in the
 minibuffer.
 
    The number of links and backlinks in a file (in mathematical terms,
-edges connected to a node) is the degree of a node.  The degree
+edges connected to a node) is the total degree of a node.  The degree
 distribution of a network is the probability distribution of these
 degrees over the whole network.  The ‘denote-explore-degree-barchart’
 function uses the built-in chart package to display a simple bar chart
-of the frequency of degrees.  This function might take a few seconds to
-run, depending on the number of notes in your system.  Evaluating this
-function with the universal argument ‘C-u’ excludes attachments from the
-analysis.
+of the frequency of the total degree.  This function might take a few
+seconds to run, depending on the number of notes in your system.
+Evaluating this function with the universal argument ‘C-u’ excludes
+attachments from the analysis.
+
+   The importance of a note is directly related to the number of notes
+that link to it, the number of backlinks.  The
+‘denote-explore-backlinks-barchart’ function visualises the number of
+backlinks in the top-n files in a horizontal barchart, ordered by the
+number of backlinks.  This function asks for the number of nodes to
+visualise and analyses the complete network of Denote files and
+attachments, which can take a few seconds.
 
 
 File: denote-explore.info,  Node: Installation and Package Configuration,  Next: Acknowledgements,  Prev: Visualise Denote,  Up: Top
@@ -718,8 +726,8 @@ File: denote-explore.info,  Node: Acknowledgements,  Next: License,  Prev: Insta
 This code would only have existed with the help of Protesilaos Stavrou,
 developer of Denote.
 
-   In addition, Jakub Szczerbowski and Vedang Manerikar made significant
-contributions.
+   In addition, Jakub Szczerbowski, Samuel W.  Flint, Ad (skissue), and
+Vedang Manerikar made significant contributions.
 
    Feel free to raise an issue here on GitHub if you have any questions
 or find bugs or suggestions for enhanced functionality.
@@ -747,25 +755,25 @@ General Public License for more details.
 
 Tag Table:
 Node: Top89
-Node: Summary Statistics1765
-Node: Random Walks2974
-Node: Denote-Explore Janitor5278
-Node: Duplicate notes5977
-Node: Isolated Notes7847
-Node: Managing Keywords8670
-Node: Synchronising Meta Data10755
-Node: Visualise Denote11432
-Node: Community of Notes13587
-Node: Note Neighbourhood15487
-Node: Keyword Network18050
-Node: Network Layout and Presentation21040
-Node: GraphViz23155
-Node: D3js25506
-Node: Graph Exchange XML Format26713
-Node: Analysing the Denote Network27727
-Node: Installation and Package Configuration29633
-Node: Acknowledgements32113
-Node: License32591
+Node: Summary Statistics1761
+Node: Random Walks2970
+Node: Denote-Explore Janitor5274
+Node: Duplicate notes5973
+Node: Isolated Notes7843
+Node: Managing Keywords8666
+Node: Synchronising Meta Data10751
+Node: Visualise Denote11428
+Node: Community of Notes13583
+Node: Note Neighbourhood15483
+Node: Keyword Network18046
+Node: Network Layout and Presentation21036
+Node: GraphViz23151
+Node: D3js25502
+Node: Graph Exchange XML Format26709
+Node: Analysing the Denote Network27723
+Node: Installation and Package Configuration30080
+Node: Acknowledgements32560
+Node: License33071
 
 End Tag Table
 

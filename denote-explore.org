@@ -1,4 +1,4 @@
-#+title: Exploring Your Ideas With the Denote-Explore Package
+#+title: Denote Explore: Explore your Denote digital garden
 
 The Denote package by Protesilaos (Prot) Stavrou provides extensive functionality to create, retrieve, manage and link files in plain text, Markdown and Org Mode. The most redeeming qualities of this package are its filename convention and modular simplicity. You can also use the package to access other file types, such as PDFs or multimedia files (attachments). This way, Denote becomes a fully-featured personal knowledge management system. 
 
@@ -234,9 +234,11 @@ A well-trodden trope in network analysis is that all people are linked within si
 
 It might seem that adding more connections between your notes improves them, but this is not necessarily the case. The extreme case is a complete network where every file links to every other file. This situation lacks any interesting structure and wouldn't be very useful for analyses. So, be mindful of your approach to linking notes and attachments.
 
-Your Denote network is unlikely to be a fully connected graph. In a connected graph, there is a path from any point to any other point. Within the context of Denote, this means that all files have at least one link or backlink. Your network will most likely have isolated nodes (files without any (back) links) and islands of connected notes. The previously discussed ~denote-explore-isolated-notes~ function lists all files without any links and backlinks to and from the note in the minibuffer.
+Your Denote network is unlikely to be a fully connected graph. In a connected graph, there is a path from any point to any other point. Within the context of Denote, this means that all files have at least one link or backlink. Your network will most likely have isolated nodes (files without any (back)links) and islands of connected notes. The previously discussed ~denote-explore-isolated-notes~ function lists all files without any links and backlinks to and from the note in the minibuffer.
 
-The number of links and backlinks in a file (in mathematical terms, edges connected to a node) is the degree of a node. The degree distribution of a network is the probability distribution of these degrees over the whole network. The ~denote-explore-degree-barchart~ function uses the built-in chart package to display a simple bar chart of the frequency of degrees. This function might take a few seconds to run, depending on the number of notes in your system. Evaluating this function with the universal argument =C-u= excludes attachments from the analysis.
+The number of links and backlinks in a file (in mathematical terms, edges connected to a node) is the total degree of a node. The degree distribution of a network is the probability distribution of these degrees over the whole network. The ~denote-explore-degree-barchart~ function uses the built-in chart package to display a simple bar chart of the frequency of the total degree. This function might take a few seconds to run, depending on the number of notes in your system. Evaluating this function with the universal argument =C-u= excludes attachments from the analysis.
+
+The importance of a note is directly related to the number of notes that link to it, the number of backlinks. The =denote-explore-backlinks-barchart= function visualises the number of backlinks in the top-n files in a horizontal barchart, ordered by the number of backlinks. This function asks for the number of nodes to visualise and analyses the complete network of Denote files and attachments, which can take a few seconds.
 
 * Installation and Package Configuration
 This package is available through MELPA. The configuration below customises all available variables and binds the command on top of the =C-c n= prefix suggested in the Denote manual. You should modify this configuration to suit your needs, as one person's sensible defaults are another person's nightmare.
@@ -291,7 +293,7 @@ You can also use the most recent development version directly from GitHub (Emacs
 * Acknowledgements
 This code would only have existed with the help of Protesilaos Stavrou, developer of Denote.
 
-In addition, Jakub Szczerbowski and Vedang Manerikar made significant contributions.
+In addition, Jakub Szczerbowski, Samuel W. Flint, Ad (skissue), and Vedang Manerikar made significant contributions.
 
 Feel free to raise an issue here on GitHub if you have any questions or find bugs or suggestions for enhanced functionality.
 

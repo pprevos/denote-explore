@@ -4,7 +4,7 @@
 ;;
 ;; Author: Peter Prevos <peter@prevos.net>
 ;; URL: https://github.com/pprevos/denote-explore/
-;; Version: 1.5.1
+;; Version: 1.6
 ;; Package-Requires: ((emacs "29.1") (denote "2.3.5") (dash "2.19.1"))
 ;;
 ;; This file is NOT part of GNU Emacs.
@@ -424,11 +424,11 @@ Set `denote-rename-buffer-mode' to ensure synchronised notes."  ;; TODO Elaborat
 ;; Bar charts
 ;; Leverages the built-in chart package for plain text visualisation.
 
-(defun denote-explore--barchart (table var title &optional n)
+(defun denote-explore--barchart (table var title &optional n horizontal)
   "Create a barchart from a frequency TABLE with top N entries.
 VAR and TITLE used for display."
   (chart-bar-quickie
-   'vertical
+   (if horizontal 'horizontal 'vertical)
    title
    (mapcar #'car table) var
    (mapcar #'cdr table) "Frequency" n))
@@ -494,7 +494,7 @@ VAR and TITLE used for display."
                             nodes)))
     (sort backlinks (lambda (a b)
                       (> (cdr a) (cdr b))))
-    (denote-explore--barchart backlinks "Backlinks" "Node backlinks distribution" n)))
+    (denote-explore--barchart backlinks "Backlinks" "Node backlinks distribution" n t)))
 
 ;;;###autoload
 (defun denote-explore-isolated-notes (&optional include-attachments)

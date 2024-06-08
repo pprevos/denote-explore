@@ -1,4 +1,4 @@
-#+title:  Denote Explore: Explore your digital Denote garden
+#+title:  Denote Explore: Explore your Denote digital garden
 #+author: Peter Prevos
 
 The Denote-Explore package provides auxiliary functions to maintain and explore your collection of Denote files. Denote-Explore provides three groups of Emacs commands:
@@ -43,6 +43,9 @@ Alternatively, you can install it directly from GitHub:
 #+end_src
 
 * Change Log
+** Version 1.6
+- New function =denote-explore-backlinks-barchart=
+  
 ** Version 1.5.1
 - Fixed various compilation errors.
 - Enhanced output for ~denote-explore-identify-duplicate-notes~
@@ -111,13 +114,13 @@ New functionality since the previous version:
 - ~denote-explore-rename-keyword~: Rename or remove a keyword across the whole Denote collection.
 - ~denote-explore-sync-metadata~: Synchronise the filenames with the metadata for all Denote files.
 
-* Future Development
-- [ ] Create a Denote widget for the Emacs Dashboard with links to statistics.
-- [ ] Functions to rename Denote attachments using EXIF metadata.
-- [ ] Jump to random note within a time frame
-- [ ] Ring of previously-generated networks instead of overwriting ~denote-explore-network-previous~
+* Ideas for future development
+- [-] Create a Denote widget for the Emacs Dashboard with links to statistics.
+- [-] Functions to rename Denote attachments using EXIF metadata.
+- [-] Jump to random note within a time frame
 
 ** Visualising Denote
+- [-] Ring of previously-generated networks instead of overwriting ~denote-explore-network-previous~
 - [ ] [[https://orgmode.org/manual/Dynamic-Blocks.html][Dynamic org mode blocks]] to visualise the neighbourhood of a node
 - [ ] Use [[https://github.com/alphapapa/org-graph-view/][org-graph-view]] for live neighbourhood view of the current buffer
 - [ ] [[https://graphviz.org/pdf/cluster.1.pdf][Community detection]] in GraphViz versions?
