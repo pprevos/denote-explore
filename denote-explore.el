@@ -341,6 +341,25 @@ suspected duplicate files."
   "1.2")
 
 ;;;###autoload
+(defun denote-explore-identify-duplicate-notes-dired (&optional filenames)
+  "Identify duplicate Denote IDs or FILENAMES.
+
+If FILENAMES is nil, check Denote IDs, otherwise use complete file names.
+Using the FILENAMES option (or using the universal argument) excludes
+exported Denote files from duplicate-detection.
+
+Duplicate files are displayed `find-dired'."
+  (interactive "P")
+  (let* ((duplicates (denote-explore--duplicate-notes filenames)))
+    (if (not duplicates)
+        (message "No duplicates found")
+      (find-dired denote-directory
+                  (mapconcat (lambda (id)
+                               (format "-name '%s*'" id))
+                             duplicates
+                             " -o ")))))
+
+;;;###autoload
 (defun denote-explore-single-keywords ()
   "Select a note or attachment with a keyword that is only used once."
   (interactive)
