@@ -292,6 +292,23 @@ With universal argument the sample includes attachments."
   (sort (-frequencies list)
         (lambda (a b) (> (cdr a) (cdr b)))))
 
+(defun denote-explore--duplicate-notes (strict-filenames-p)
+  "Find duplicate Denote IDs.
+
+When STRICT-FILENAMES-P, use complete filenames, not merely IDs."
+  (let* ((denote-files (denote-directory-files))
+         (candidates (if strict-filenames-p
+                         (mapcar (lambda (path)
+				   (file-name-nondirectory path))
+				 denote-files)
+                       (mapcar #'denote-retrieve-filename-identifier
+			       denote-files)))
+         (tally (denote-explore--table candidates)))
+    (mapcar #'car (cl-remove-if-not
+                   (lambda (note)
+		     (> (cdr note) 1))
+		   tally))))
+
 ;;;###autoload
 (defun denote-explore-identify-duplicate-notes (&optional filenames)
   "Identify duplicate Denote IDs or FILENAMES.
@@ -303,18 +320,7 @@ exported Denote files from duplicate-detection.
 Duplicate files are displayed in a temporary buffer with links to the
 suspected duplicate files."
   (interactive "P")
-  (let* ((denote-files (denote-directory-files))
-         (candidates (if filenames
-                         (mapcar (lambda (path)
-				   (file-name-nondirectory path))
-				 denote-files)
-                       (mapcar #'denote-retrieve-filename-identifier
-			       denote-files)))
-         (tally (denote-explore--table candidates))
-         (duplicates (mapcar #'car (cl-remove-if-not
-                                    (lambda (note)
-				      (> (cdr note) 1))
-				    tally))))
+  (let* ((duplicates (denote-explore--duplicate-notes filenames)))
     (if (not duplicates)
         (message "No duplicates found")
       (with-current-buffer-window "*denote-duplicates*" nil nil
