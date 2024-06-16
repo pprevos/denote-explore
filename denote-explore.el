@@ -284,6 +284,16 @@ With universal argument the sample includes attachments."
       (denote-explore--jump sample)
     (message "No matching Denote files found")))
 
+;;;###autoload
+(defun denote-explore-random-regex (regex &optional include-attachments)
+  "Jump to a random not matching a regular expression REGEX.
+Use Universal Argument to EXCLUDE-ATTACHMENTS"
+  (interactive "sRegular expression: \nP")
+  (if include-attachments (message "C-u") (message "nil"))
+  (if-let* ((sample (denote-directory-files regex t (not include-attachments))))
+      (denote-explore--jump sample)
+    (message "No matching Denote files found")))
+
 ;;; JANITOR
 ;; The Janitor provides various functions to maintain a Denote file collection.
 

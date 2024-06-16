@@ -110,28 +110,34 @@ randomness into your explorations:
      forward or backwards) or attachments (forward only).
   3. ‘denote-explore-random-keyword’: Jump to a random note or
      attachment with the same selected keyword(s).
+  4. ‘denote-explore-random-regex’: Jump to a random note or attachment
+     that matches a regular expression.
 
-   The default state is that these three functions jump to any Denote
-text file (plain text, Markdown or Org-mode).  Adding the universal
-argument (‘C-u’) includes attachments as candidates for a random jump.
+   The default state is that these functions jump to any Denote text
+file (plain text, Markdown or Org-mode).  Adding the universal argument
+(‘C-u’) includes attachments in the sample for a random jump.
 
    Jumping to a randomly linked file only works when the current buffer
 is a Denote file.  A warning appears when the current buffer is an
 isolated note (no links or backlinks available).
 
    When jumping to a random file with selected keywords, you can choose
-between one or more keywords from the current buffer, or you can
-override the completion options with free text.  When the current buffer
-only has one keyword, the section process is skipped.  When the current
-buffer is not a Denote file, you can choose any available keyword(s) in
-your Denote collection.  The asterisk symbol ‘*’ selects all keywords in
-the completion list.
+between one or more keywords used in the current buffer, or override the
+completion options with free text.  The asterisk symbol ‘*’ selects all
+keywords in the completion list.  When the current buffer only has one
+keyword, the section process is skipped.  When the current buffer is not
+a Denote file, you can choose any available keyword(s) in your Denote
+collection.
 
-   Please note that jumping to a random note with multiple keywords only
-works when the ‘denote-sort-keywords’ is enabled or when the selected
-keywords are in the same order as in the target file.  The following
-section explains how you can alphabetise your keywords using the
-Janitor.
+   Jumping to a random note with multiple keywords only works when the
+‘denote-sort-keywords’ is enabled or when the selected keywords are in
+the same order as in the target file.  The following section explains
+how you can alphabetise your keywords using the Janitor.
+
+   Jumping to a note that matches a regular expression lets you, for
+example, find a note you wrote in May 2022 (‘202205’).  More complex
+regular expressions provide ultimate freedom.  For example using
+‘202305.*_journal’ jumps to a random journal entry in May 2023.
 
 
 File: denote-explore.info,  Node: Denote-Explore Janitor,  Next: Visualise Denote,  Prev: Random Walks,  Up: Top
@@ -182,6 +188,8 @@ extension.
    The ‘denote-explore-identify-duplicate-notes’ command lists all
 duplicate identifiers in a temporary buffer.  The temporary buffer
 includes links to the suspected duplicate notes and attachments.
+Additionally, the ‘denote-explore-identify-duplicate-notes-dired’
+command will show them in a Dired buffer.
 
    Be careful when changing the identifier of a Denote file, as it can
 destroy the integrity of your links, so please ensure that the file you
@@ -673,41 +681,36 @@ customises all available variables and binds the command on top of the
 configuration to suit your needs, as one person's sensible defaults are
 another person's nightmare.
 
-       (use-package denote-explore
-         :custom
-         ;; Where to store network data and in which format
-         (denote-explore-network-directory "<folder>")
-         (denote-explore-network-filename "<filename?")
-         (denote-explore-network-format 'graphviz)
-         (denote-explore-network-graphviz-filetype 'svg)
-         :bind
-         (;; Statistics
-          ("C-c n e c" . denote-explore-count-notes)
-          ("C-c n e C" . denote-explore-count-keywords)
-          ("C-c n e b" . denote-explore-keywords-barchart)
-          ("C-c n e x" . denote-explore-extensions-barchart)
-          ;; Random walks
-          ("C-c n e r" . denote-explore-random-note)
-          ("C-c n e l" . denote-explore-random-link)
-          ("C-c n e k" . denote-explore-random-keyword)
-          ;; Denote Janitor
-     <<<<<<< HEAD
-          ("C-c n e d" . denote-explore-identify-duplicate-notes)
-          ("C-c n e z" . denote-explore-zero-keywords)
-          ("C-c n e s" . denote-explore-single-keywords)
-          ("C-c n e o" . denote-explore-sort-keywords)
-          ("C-c n e r" . denote-explore-rename-keywords)
-     =======
-          ("C-c w e d" . denote-explore-identify-duplicate-notes)
-          ("C-c w e z" . denote-explore-zero-keywords)
-          ("C-c w e s" . denote-explore-single-keywords)
-          ("C-c w e o" . denote-explore-sort-keywords)
-          ("C-c w e R" . denote-explore-rename-keywords)
-     >>>>>>> ebcd697587dde8972cc5419446ee3de2edf035c3
-          ;; Visualise denote
-          ("C-c n e n" . denote-explore-network)
-          ("C-c n e v" . denote-explore-network-regenerate)
-          ("C-c n e D" . denote-explore-degree-barchart)))
+     (use-package denote-explore
+       :custom
+       ;; Where to store network data and in which format
+       (denote-explore-network-directory "<folder>")
+       (denote-explore-network-filename "<filename?")
+       (denote-explore-network-format 'graphviz)
+       (denote-explore-network-graphviz-filetype 'svg)
+       :bind
+       (;; Statistics
+        ("C-c e s n" . denote-explore-count-notes)
+        ("C-c e s k" . denote-explore-count-keywords)
+        ("C-c e s K" . denote-explore-keywords-barchart)
+        ("C-c e s e" . denote-explore-extensions-barchart)
+        ;; Random walks
+        ("C-c e w n" . denote-explore-random-note)
+        ("C-c e w l" . denote-explore-random-link)
+        ("C-c e w k" . denote-explore-random-keyword)
+        ("C-c e w r" . denote-explore-random-regex)
+        ;; Denote Janitor
+        ("C-c e j d" . denote-explore-identify-duplicate-notes)
+        ("C-c e j D" . denote-explore-identify-duplicate-notes-dired)
+        ("C-c e j z" . denote-explore-zero-keywords)
+        ("C-c e j s" . denote-explore-single-keywords)
+        ("C-c e j o" . denote-explore-sort-keywords)
+        ("C-c e j r" . denote-explore-rename-keywords)
+        ;; Visualise denote
+        ("C-c e n" . denote-explore-network)
+        ("C-c e r" . denote-explore-network-regenerate)
+        ("C-c e d" . denote-explore-degree-barchart)
+        ("C-c e b" . denote-explore-backlinks-barchart)))
 
    You can also use the most recent development version directly from
 GitHub (Emacs 29.1 or higher):
@@ -757,23 +760,23 @@ Tag Table:
 Node: Top89
 Node: Summary Statistics1761
 Node: Random Walks2970
-Node: Denote-Explore Janitor5274
-Node: Duplicate notes5973
-Node: Isolated Notes7843
-Node: Managing Keywords8666
-Node: Synchronising Meta Data10751
-Node: Visualise Denote11428
-Node: Community of Notes13583
-Node: Note Neighbourhood15483
-Node: Keyword Network18046
-Node: Network Layout and Presentation21036
-Node: GraphViz23151
-Node: D3js25502
-Node: Graph Exchange XML Format26709
-Node: Analysing the Denote Network27723
-Node: Installation and Package Configuration30080
-Node: Acknowledgements32560
-Node: License33071
+Node: Denote-Explore Janitor5638
+Node: Duplicate notes6337
+Node: Isolated Notes8319
+Node: Managing Keywords9142
+Node: Synchronising Meta Data11227
+Node: Visualise Denote11904
+Node: Community of Notes14059
+Node: Note Neighbourhood15959
+Node: Keyword Network18522
+Node: Network Layout and Presentation21512
+Node: GraphViz23627
+Node: D3js25978
+Node: Graph Exchange XML Format27185
+Node: Analysing the Denote Network28199
+Node: Installation and Package Configuration30556
+Node: Acknowledgements32779
+Node: License33290
 
 End Tag Table
 

@@ -104,15 +104,19 @@ The Denote-Explore package provides three commands to inject some randomness int
 @code{denote-explore-random-link}: Jump to a random linked note (either forward or backwards) or attachments (forward only).
 @item
 @code{denote-explore-random-keyword}: Jump to a random note or attachment with the same selected keyword(s). 
+@item
+@code{denote-explore-random-regex}: Jump to a random note or attachment that matches a regular expression.
 @end enumerate
 
-The default state is that these three functions jump to any Denote text file (plain text, Markdown or Org-mode). Adding the universal argument (@samp{C-u}) includes attachments as candidates for a random jump.
+The default state is that these functions jump to any Denote text file (plain text, Markdown or Org-mode). Adding the universal argument (@samp{C-u}) includes attachments in the sample for a random jump.
 
 Jumping to a randomly linked file only works when the current buffer is a Denote file. A warning appears when the current buffer is an isolated note (no links or backlinks available).
 
-When jumping to a random file with selected keywords, you can choose between one or more keywords from the current buffer, or you can override the completion options with free text. When the current buffer only has one keyword, the section process is skipped. When the current buffer is not a Denote file, you can choose any available keyword(s) in your Denote collection. The asterisk symbol @samp{*} selects all keywords in the completion list.
+When jumping to a random file with selected keywords, you can choose between one or more keywords used in the current buffer, or override the completion options with free text. The asterisk symbol @samp{*} selects all keywords in the completion list. When the current buffer only has one keyword, the section process is skipped. When the current buffer is not a Denote file, you can choose any available keyword(s) in your Denote collection. 
 
-Please note that jumping to a random note with multiple keywords only works when the @code{denote-sort-keywords} is enabled or when the selected keywords are in the same order as in the target file. The following section explains how you can alphabetise your keywords using the Janitor.
+Jumping to a random note with multiple keywords only works when the @code{denote-sort-keywords} is enabled or when the selected keywords are in the same order as in the target file. The following section explains how you can alphabetise your keywords using the Janitor.
+
+Jumping to a note that matches a regular expression lets you, for example, find a note you wrote in May 2022 (@samp{202205}). More complex regular expressions provide ultimate freedom. For example using @samp{202305.*_journal} jumps to a random journal entry in May 2023.
 
 @node Denote-Explore Janitor
 @chapter Denote-Explore Janitor
@@ -135,7 +139,7 @@ Besides my Denote-generated notes, I have historical attachments in my collectio
 
 Adding the Denote identifier manually introduces a risk of duplication. Duplicates can also arise when exporting Denote Org mode files, as the exported files have the same file name but a different extension.
 
-The @code{denote-explore-identify-duplicate-notes} command lists all duplicate identifiers in a temporary buffer. The temporary buffer includes links to the suspected duplicate notes and attachments.
+The @code{denote-explore-identify-duplicate-notes} command lists all duplicate identifiers in a temporary buffer. The temporary buffer includes links to the suspected duplicate notes and attachments.  Additionally, the @code{denote-explore-identify-duplicate-notes-dired} command will show them in a Dired buffer.
 
 Be careful when changing the identifier of a Denote file, as it can destroy the integrity of your links, so please ensure that the file you rename does not have any links pointing to it. You can use the @code{denote-find-link} and @code{denote-find-backlink} commands to check a file for links.
 
@@ -368,41 +372,36 @@ The importance of a note is directly related to the number of notes that link to
 This package is available through MELPA@. The configuration below customises all available variables and binds the command on top of the @samp{C-c n} prefix suggested in the Denote manual. You should modify this configuration to suit your needs, as one person's sensible defaults are another person's nightmare.
 
 @lisp
-  (use-package denote-explore
-    :custom
-    ;; Where to store network data and in which format
-    (denote-explore-network-directory "<folder>")
-    (denote-explore-network-filename "<filename?")
-    (denote-explore-network-format 'graphviz)
-    (denote-explore-network-graphviz-filetype 'svg)
-    :bind
-    (;; Statistics
-     ("C-c n e c" . denote-explore-count-notes)
-     ("C-c n e C" . denote-explore-count-keywords)
-     ("C-c n e b" . denote-explore-keywords-barchart)
-     ("C-c n e x" . denote-explore-extensions-barchart)
-     ;; Random walks
-     ("C-c n e r" . denote-explore-random-note)
-     ("C-c n e l" . denote-explore-random-link)
-     ("C-c n e k" . denote-explore-random-keyword)
-     ;; Denote Janitor
-<<<<<<< HEAD
-     ("C-c n e d" . denote-explore-identify-duplicate-notes)
-     ("C-c n e z" . denote-explore-zero-keywords)
-     ("C-c n e s" . denote-explore-single-keywords)
-     ("C-c n e o" . denote-explore-sort-keywords)
-     ("C-c n e r" . denote-explore-rename-keywords)
-=======
-     ("C-c w e d" . denote-explore-identify-duplicate-notes)
-     ("C-c w e z" . denote-explore-zero-keywords)
-     ("C-c w e s" . denote-explore-single-keywords)
-     ("C-c w e o" . denote-explore-sort-keywords)
-     ("C-c w e R" . denote-explore-rename-keywords)
->>>>>>> ebcd697587dde8972cc5419446ee3de2edf035c3
-     ;; Visualise denote
-     ("C-c n e n" . denote-explore-network)
-     ("C-c n e v" . denote-explore-network-regenerate)
-     ("C-c n e D" . denote-explore-degree-barchart)))
+(use-package denote-explore
+  :custom
+  ;; Where to store network data and in which format
+  (denote-explore-network-directory "<folder>")
+  (denote-explore-network-filename "<filename?")
+  (denote-explore-network-format 'graphviz)
+  (denote-explore-network-graphviz-filetype 'svg)
+  :bind
+  (;; Statistics
+   ("C-c e s n" . denote-explore-count-notes)
+   ("C-c e s k" . denote-explore-count-keywords)
+   ("C-c e s K" . denote-explore-keywords-barchart)
+   ("C-c e s e" . denote-explore-extensions-barchart)
+   ;; Random walks
+   ("C-c e w n" . denote-explore-random-note)
+   ("C-c e w l" . denote-explore-random-link)
+   ("C-c e w k" . denote-explore-random-keyword)
+   ("C-c e w r" . denote-explore-random-regex)
+   ;; Denote Janitor
+   ("C-c e j d" . denote-explore-identify-duplicate-notes)
+   ("C-c e j D" . denote-explore-identify-duplicate-notes-dired)
+   ("C-c e j z" . denote-explore-zero-keywords)
+   ("C-c e j s" . denote-explore-single-keywords)
+   ("C-c e j o" . denote-explore-sort-keywords)
+   ("C-c e j r" . denote-explore-rename-keywords)
+   ;; Visualise denote
+   ("C-c e n" . denote-explore-network)
+   ("C-c e r" . denote-explore-network-regenerate)
+   ("C-c e d" . denote-explore-degree-barchart)
+   ("C-c e b" . denote-explore-backlinks-barchart)))
 @end lisp
 
 You can also use the most recent development version directly from GitHub (Emacs 29.1 or higher):

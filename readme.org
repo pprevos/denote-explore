@@ -44,7 +44,10 @@ Alternatively, you can install it directly from GitHub:
 
 * Change Log
 ** Version 1.6
-- New function =denote-explore-backlinks-barchart=
+- New functions:
+  - ~denote-explore-backlinks-barchart~ to view top-n notes with backlinks
+  - ~denote-explore-random-regex~ to jump to random note matching a regular expression.
+  - ~denote-explore-identify-duplicate-notes-dired~: View notes with duplicates ID in Dired.
   
 ** Version 1.5.1
 - Fixed various compilation errors.

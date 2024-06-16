@@ -32,14 +32,17 @@ The Denote-Explore package provides three commands to inject some randomness int
 1. ~denote-explore-random-note~: Jump to a random note or attachment.
 2. ~denote-explore-random-link~: Jump to a random linked note (either forward or backwards) or attachments (forward only).
 3. ~denote-explore-random-keyword~: Jump to a random note or attachment with the same selected keyword(s). 
+4. ~denote-explore-random-regex~: Jump to a random note or attachment that matches a regular expression.
 
-The default state is that these three functions jump to any Denote text file (plain text, Markdown or Org-mode). Adding the universal argument (=C-u=) includes attachments as candidates for a random jump.
+The default state is that these functions jump to any Denote text file (plain text, Markdown or Org-mode). Adding the universal argument (=C-u=) includes attachments in the sample for a random jump.
 
 Jumping to a randomly linked file only works when the current buffer is a Denote file. A warning appears when the current buffer is an isolated note (no links or backlinks available).
 
-When jumping to a random file with selected keywords, you can choose between one or more keywords from the current buffer, or you can override the completion options with free text. When the current buffer only has one keyword, the section process is skipped. When the current buffer is not a Denote file, you can choose any available keyword(s) in your Denote collection. The asterisk symbol =*= selects all keywords in the completion list.
+When jumping to a random file with selected keywords, you can choose between one or more keywords used in the current buffer, or override the completion options with free text. The asterisk symbol =*= selects all keywords in the completion list. When the current buffer only has one keyword, the section process is skipped. When the current buffer is not a Denote file, you can choose any available keyword(s) in your Denote collection. 
 
-Please note that jumping to a random note with multiple keywords only works when the ~denote-sort-keywords~ is enabled or when the selected keywords are in the same order as in the target file. The following section explains how you can alphabetise your keywords using the Janitor.
+Jumping to a random note with multiple keywords only works when the ~denote-sort-keywords~ is enabled or when the selected keywords are in the same order as in the target file. The following section explains how you can alphabetise your keywords using the Janitor.
+
+Jumping to a note that matches a regular expression lets you, for example, find a note you wrote in May 2022 (=202205=). More complex regular expressions provide ultimate freedom. For example using =202305.*_journal= jumps to a random journal entry in May 2023.
 
 * Denote-Explore Janitor
 After using Denote for a while, you might need a janitor to keep your collection organised. A janitor is a member of the maintenance and cleaning staff for buildings. Their primary responsibility is to ensure cleanliness, orderliness, and sanitation, so this role is also perfect to apply to your Denote files. The Denote-Explore package provides a series of commands to assist with cleaning, ordering and sanitising your files.
@@ -253,32 +256,27 @@ This package is available through MELPA. The configuration below customises all 
     (denote-explore-network-graphviz-filetype 'svg)
     :bind
     (;; Statistics
-     ("C-c n e c" . denote-explore-count-notes)
-     ("C-c n e C" . denote-explore-count-keywords)
-     ("C-c n e b" . denote-explore-keywords-barchart)
-     ("C-c n e x" . denote-explore-extensions-barchart)
+     ("C-c e s n" . denote-explore-count-notes)
+     ("C-c e s k" . denote-explore-count-keywords)
+     ("C-c e s K" . denote-explore-keywords-barchart)
+     ("C-c e s e" . denote-explore-extensions-barchart)
      ;; Random walks
-     ("C-c n e r" . denote-explore-random-note)
-     ("C-c n e l" . denote-explore-random-link)
-     ("C-c n e k" . denote-explore-random-keyword)
+     ("C-c e w n" . denote-explore-random-note)
+     ("C-c e w l" . denote-explore-random-link)
+     ("C-c e w k" . denote-explore-random-keyword)
+     ("C-c e w r" . denote-explore-random-regex)
      ;; Denote Janitor
-<<<<<<< HEAD
-     ("C-c n e d" . denote-explore-identify-duplicate-notes)
-     ("C-c n e z" . denote-explore-zero-keywords)
-     ("C-c n e s" . denote-explore-single-keywords)
-     ("C-c n e o" . denote-explore-sort-keywords)
-     ("C-c n e r" . denote-explore-rename-keywords)
-=======
-     ("C-c w e d" . denote-explore-identify-duplicate-notes)
-     ("C-c w e z" . denote-explore-zero-keywords)
-     ("C-c w e s" . denote-explore-single-keywords)
-     ("C-c w e o" . denote-explore-sort-keywords)
-     ("C-c w e R" . denote-explore-rename-keywords)
->>>>>>> ebcd697587dde8972cc5419446ee3de2edf035c3
+     ("C-c e j d" . denote-explore-identify-duplicate-notes)
+     ("C-c e j D" . denote-explore-identify-duplicate-notes-dired)
+     ("C-c e j z" . denote-explore-zero-keywords)
+     ("C-c e j s" . denote-explore-single-keywords)
+     ("C-c e j o" . denote-explore-sort-keywords)
+     ("C-c e j r" . denote-explore-rename-keywords)
      ;; Visualise denote
-     ("C-c n e n" . denote-explore-network)
-     ("C-c n e v" . denote-explore-network-regenerate)
-     ("C-c n e D" . denote-explore-degree-barchart)))
+     ("C-c e n" . denote-explore-network)
+     ("C-c e r" . denote-explore-network-regenerate)
+     ("C-c e d" . denote-explore-degree-barchart)
+     ("C-c e b" . denote-explore-backlinks-barchart)))
 #+end_src
 
 You can also use the most recent development version directly from GitHub (Emacs 29.1 or higher):
