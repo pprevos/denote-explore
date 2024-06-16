@@ -188,8 +188,11 @@ extension.
    The ‘denote-explore-identify-duplicate-notes’ command lists all
 duplicate identifiers in a temporary buffer.  The temporary buffer
 includes links to the suspected duplicate notes and attachments.
-Additionally, the ‘denote-explore-identify-duplicate-notes-dired’
-command will show them in a Dired buffer.
+
+   Additionally, the ‘denote-explore-identify-duplicate-notes-dired’
+command will show them in a Dired buffer.  You can the directly change
+filenames in the Dired buffer with ‘dired-toggle-read-only’ (‘C-x C-Q’),
+or any other preferred method.
 
    Be careful when changing the identifier of a Denote file, as it can
 destroy the integrity of your links, so please ensure that the file you
@@ -762,21 +765,21 @@ Node: Summary Statistics1761
 Node: Random Walks2970
 Node: Denote-Explore Janitor5638
 Node: Duplicate notes6337
-Node: Isolated Notes8319
-Node: Managing Keywords9142
-Node: Synchronising Meta Data11227
-Node: Visualise Denote11904
-Node: Community of Notes14059
-Node: Note Neighbourhood15959
-Node: Keyword Network18522
-Node: Network Layout and Presentation21512
-Node: GraphViz23627
-Node: D3js25978
-Node: Graph Exchange XML Format27185
-Node: Analysing the Denote Network28199
-Node: Installation and Package Configuration30556
-Node: Acknowledgements32779
-Node: License33290
+Node: Isolated Notes8464
+Node: Managing Keywords9287
+Node: Synchronising Meta Data11372
+Node: Visualise Denote12049
+Node: Community of Notes14204
+Node: Note Neighbourhood16104
+Node: Keyword Network18667
+Node: Network Layout and Presentation21657
+Node: GraphViz23772
+Node: D3js26123
+Node: Graph Exchange XML Format27330
+Node: Analysing the Denote Network28344
+Node: Installation and Package Configuration30701
+Node: Acknowledgements32924
+Node: License33435
 
 End Tag Table
 
