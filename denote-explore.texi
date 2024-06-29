@@ -6,6 +6,11 @@
 @documentlanguage en
 @c %**end of header
 
+@dircategory Misc
+@direntry
+* denote-explore.       Denote Explore: Explore your Denote digital garden.
+@end direntry
+
 @finalout
 @titlepage
 @title Denote Explore: Explore your Denote digital garden
@@ -30,13 +35,14 @@ Janitor: Maintain your denote collection.
 @item
 Visualisations: Visualise your Denote files as a network.
 @end enumerate
+
 @end ifnottex
 
 @menu
 * Summary Statistics::
 * Random Walks::
 * Denote-Explore Janitor::
-* Visualise Denote::
+* Create Personal Knowledge Graphs::
 * Installation and Package Configuration::
 * Acknowledgements::
 * License::
@@ -51,7 +57,7 @@ Denote-Explore Janitor
 * Managing Keywords::
 * Synchronising Meta Data::
 
-Visualise Denote
+Create Personal Knowledge Graphs
 
 * Community of Notes::
 * Note Neighbourhood::
@@ -172,18 +178,18 @@ Denote stores the metadata for each note in the filename using its ingenious for
 
 The @code{denote-explore-sync-metadata} function checks all notes and asks the user to rename any file where these two data sets are mismatched. The front matter data is the source of truth. This function also enforces the alphabetisation of keywords, which assists with finding notes.
 
-@node Visualise Denote
-@chapter Visualise Denote
+@node Create Personal Knowledge Graphs
+@chapter Create Personal Knowledge Graphs
 
-Emacs is a text processor with limited graphical capabilities. Committing your ideas to text requires a linear way of thinking, as you can only process one word at a time. In my paper journal, I often use diagrams, such as a mind map, rather than a narrative to relate my thoughts. Visual thinking is another way to approach your ideas, and one of the most common methods to visualise interlinked documents is in a network diagram.
+Emacs is a text processor with limited graphical capabilities. Committing your ideas to text requires a linear way of thinking, as you can only process one word at a time. Visual thinking through tools such as mind maps and other diagrams is another way to approach your ideas. One of the most common methods to visualise interlinked documents is in a network or a personal knowledge graph.
 
-Viewing your notes as a network can help discover hitherto unseen connections between your thoughts. Visualising your Denote digital garden can be helpful in your creative process.
+A knowledge graph is a network diagram that visualises how are linked to each other. Viewing your notes as a network can help discover hitherto unseen connections between your thoughts. Visualising your Denote digital garden can be helpful in your creative process.
 
-Denote Explore does not provide a live environment to view the structure of your Denote collection. The purpose of network visualisation is to analyse the structure of your notes, not to act as an alternative user interface. Live previews of note networks are dopamine traps. While seeing the network of your thoughts develop in front of your eyes is satisfying, it can also become a distraction. The Denote-Explore visualisation tools provide a surgical tool to analyse and restructure your notes.
+Denote Explore does not provide a live environment to view the structure of your Denote collection. The purpose of network visualisation is to analyse the structure of your notes, not to act as an alternative user interface. Live previews of note networks are dopamine traps. While seeing the network of your thoughts develop in front of your eyes is satisfying, it can also become a distraction. The Denote-Explore visualisation tools provide a surgical tool to analyse your notes.
 
-A network diagram has nodes (vertices) and edges. Each node represents a file in your Denote system, indicated with a circle. Each edge is a link between notes. Denote-Explore provides three types of network diagrams to explore the relationships between your thoughts. The package exports and displays each of these in one of three formats, with SVG files viewed in the browser as the default.
+A network diagram has nodes (vertices) and edges. Each node represents a file in your Denote system. Each edge represents a link between notes. Denote-Explore provides three types of network diagrams to explore the relationships between your thoughts. The package exports and displays each of these in one of three formats, with SVG files viewed in the browser as the default. The diagram below shows the basic principle of a knowledge graph. In the actual output nodes are squares.
 
-You create a network with the @code{denote-explore-network} command. This command will ask the user to select the type of network to create. Each network type requires additional inputs to zoom in to a defined part of your Denote files.
+You create a network with the @code{denote-explore-network} command. This command will ask the user to select the type of network to create. Each network type requires additional inputs to analyse to a defined part of your Denote files. You can visualise all your notes, but if your collection because large it is not an informative exercise.
 
 @menu
 * Community of Notes::
@@ -199,7 +205,7 @@ You create a network with the @code{denote-explore-network} command. This comman
 @node Community of Notes
 @section Community of Notes
 
-A community consists of notes that share part of an ID, name, signature or keyword. The software asks to enter a search term or regular expression. For example, all notes with Emacs as their keyword (@samp{_emacs}), or all notes with a certain part of a signature, e.g. @code{==ews01}.  community graph displays all notes matching the search term and their connections. The example below indicates the @samp{_emacs} community with the dashed line. The algorithm prunes any links to non-matching notes, which in the example is the note that with the @samp{_vim} keyword.
+A community consists of notes that share (part of) an ID, name, signature or keyword. The software asks to enter a search term or regular expression. For example, all notes with Emacs as their keyword (@samp{_emacs}), or all notes with a certain signature, e.g. @code{==ews}.  A community graph displays all notes matching the search term and their connections. The example below indicates the @samp{_emacs} community with the dashed line. The algorithm prunes any links to non-matching notes, which in the example below is the note with the @samp{_vim} keyword.
 
 @example
 ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─┐        
@@ -215,42 +221,41 @@ A community consists of notes that share part of an ID, name, signature or keywo
 └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─┘        
 @end example
 
-To generate a community graph, use @code{denote-explore-network}, choose community and enter a search string or regular expression.
+To generate a community graph, use @code{denote-explore-network}, choose 'Community' and enter a regular expression. The resulting diagram will pop up in your default system browser as an SVG file.
 
-The @code{denote-explore-network-regenerate} command recreates the current graph with the same parameters, which is useful when changing the structure of your notes and you like to see the result visualised.
+The @code{denote-explore-network-regenerate} command recreates the current graph with the same parameters, which is useful when changing the structure of your notes and you like to see the result visualised without having to repeat the parameters.
 
-The @code{denote-explore-network-regex-ignore} variable lets you define a regular expression of notes to ignore in your visualisations. For example, if you create meta notes with long lists of dynamic links and they have the @samp{_meta} keyword, then you could exclude this set of nodes by setting this variable to ``@math{_meta}''.
+The @code{denote-explore-network-regex-ignore} variable lets you define a regular expression of notes to ignore in your visualisations. For example, if you create meta notes with long lists of dynamic links and they have the @samp{_meta} keyword, then you could exclude this set of nodes by customising this variable to the relevant regular expression.
 
 @node Note Neighbourhood
 @section Note Neighbourhood
 
-The neighbourhood of a note consists of all files linked to it at one or more steps deep. The algorithm selects members of the graph from linked and backlinked notes. This visualisation effectively creates the possible paths you can follow with the @code{denote-explore-random-link} function discussed in the Random Walks session above.
+The neighbourhood of a note consists of all files linked to it at one or more steps deep. The algorithm selects members of the graph from linked and back-linked notes. This visualisation effectively creates the possible paths you can follow with the @code{denote-explore-random-link} function discussed in the Random Walks section above.
 
 The illustration below shows the principle of the linking depth. Notes B and C are at linking depth 1 from A and notes D and E are at depth 2 from A@.
 
 @example
-   depth  depth
-     1      2  
-    ┌─┐    ┌─┐ 
- ┌─►│B│◄───┤D│ 
- │  └─┘    └─┘ 
-┌┴┐            
-│A│            
-└─┘            
- ▲  ┌─┐    ┌─┐ 
- └──┤C├───►│E│ 
-    └─┘    └─┘
+Depth 1      2
+     ┌─┐    ┌─┐ 
+  ┌─►│B│◄───┤D│ 
+  │  └─┘    └─┘ 
+ ┌┴┐            
+ │A│            
+ └─┘            
+  ▲  ┌─┐    ┌─┐ 
+  └──┤C├───►│E│ 
+     └─┘    └─┘
 @end example
 
-To generate a neighbourhood graph from the current Denote note buffer, use @code{denote-explore-network} and enter the graph's depth. The user enters the required depth, and the software searches all notes linked to the current buffer at that depth. When building this graph from a buffer that is not a Denote note, the system also asks to select a source file (A in the diagram). The system issues a warning when you select a note without links or backlinks. You can identify your Denote files without any links with the @code{denote-explore-isolated-notes} function.
+To generate a neighbourhood graph from the current Denote note buffer, use @code{denote-explore-network} and enter the graph's depth. The user enters the required depth, and the software searches all notes linked to the current buffer at that depth. When building this graph from a buffer that is not a Denote note, the system also asks to select a source file (A in the diagram). The system issues a warning when you select a note without links or backlinks. You can also identify Denote files without any links with the @code{denote-explore-isolated-notes} function describe above.
 
 The @code{denote-explore-network-regenerate} command recreates the current graph with the same parameters, which is useful when you want to change the structure of your notes after viewing the first version of the graph.
 
 The complete set of your Denote files is most likely a disconnected Graph, meaning that there is no one path that connects all nodes. Firstly, there will be isolated notes. There will also exist isolated neighbourhoods of notes that connect to each other but not to other files.
 
-A depth of more than three links is usually not informative because the network can become very large and hard to read, or you hit the edges of your island of connected notes.
+A depth of more than three links is usually not informative because the network can become to large to read, or you hit the edges of your island of connected notes.
 
-The @code{denote-explore-network-regex-ignore} variable lets you define a regular expression of notes to ignore in your visualisations. Lets assume you create meta notes with long lists of dynamic links and they have the @samp{_meta} keyword, then you could exclude this set of nodes by setting this variable to ``@samp{_meta}''.
+The @code{denote-explore-network-regex-ignore} variable lets you define a regular expression of notes to ignore in your visualisations. Lets assume you create meta notes with long lists of dynamic links and they have the @samp{_meta} keyword, then you could exclude this set of nodes by setting this variable.
 
 @node Keyword Network
 @section Keyword Network
@@ -262,12 +267,12 @@ While the first two graph types are directed (arrows indicate the direction of l
 In this example there are three notes, two with two keywords and one with three keywords. Each notes forms a small complete network that links all keywords.
 
 @example
-┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐
-│_kwd1├─┤_kwd2│ │_kwd1├─┤_kwd2│ │_kwd3├─┤_kwd4│
-└─────┘ └─────┘ └─┬───┘ └───┬─┘ └─────┘ └─────┘
-                  │ ┌─────┐ │  
-                  └─┤_kwd3├─┘  
-                    └─────┘    
+┌─────┐ ┌─────┐   ┌─────┐ ┌─────┐   ┌─────┐ ┌─────┐
+│_kwd1├─┤_kwd2│   │_kwd1├─┤_kwd2│   │_kwd3├─┤_kwd4│
+└─────┘ └─────┘   └─┬───┘ └───┬─┘   └─────┘ └─────┘
+                    │ ┌─────┐ │  
+                    └─┤_kwd3├─┘  
+                      └─────┘    
 @end example
 
 The union of these three networks forms the keyword network for this collection of notes. The example generates the following keyword network.
@@ -282,16 +287,16 @@ The union of these three networks forms the keyword network for this collection 
     └─────┘    └─────┘                         
 @end example
 
-When generating this graph, you will need to enter a minimum edge weight for the graph. The graph then will only show those keywords that are at least @emph{n} times associated with each other. The default is one, which can generate a rather large graph.
+When generating this graph type, you will need to enter a minimum edge weight (n). The graph then will only show those keywords that are at least n times associated with each other. The default is one, which can generate a rather large graph.
 
-The @code{denote-explore-network-regenerate} command recreates the current graph with the same parameters, which is useful when you are changing your notes' structure.
+The @code{denote-explore-network-regenerate} command recreates the current graph with the same parameters, which is useful when you are changing notes.
 
-Some keywords should be excluded from this graph because they skew the results. For example, when using the Citar-Denote package, you might like to exclude the @samp{bib} keyword from the diagram because it is only used to minimise the search space for bibliographic notes and has no further semantic value. The @code{denote-explore-network-keywords-ignore} variable lists keywords ignored in this visualisation.
+Some keywords might have to be excluded from this graph because they skew the results. For example, when using the Citar-Denote package, you might like to exclude the @samp{bib} keyword from the diagram because it is only used to minimise the search space for bibliographic notes and has no further semantic value. The @code{denote-explore-network-keywords-ignore} variable lists keywords ignored in this visualisation.
 
 @node Network Layout and Presentation
 @section Network Layout and Presentation
 
-Emacs cannot independently generate graphics and thus relies on external software. This package can use three external mechanisms to create graphs (configurable with @code{denote-explore-network-format}), set to GraphViz SVG output by default.
+Emacs cannot independently generate graphics and thus relies on external software. This package can use three external mechanisms to create graphs (configurable with @code{denote-explore-network-format}), set to GraphViz SVG output by default. Other available formats are JSON and GEXF@.
 
 The Denote-Explore network algorithm consists of four steps:
 
@@ -306,12 +311,12 @@ Metadata e.g.: @samp{(meta (directed . t) (type . "Neighbourhood '20210104T19440
 @item
 Association list of nodes and their degrees, e.g., @samp{(((id . "20210104T194405") (name . "Platonic Solids") (keywords "geometry" "esotericism") (type . "org") (degree . 4)) ...)}. In the context of Denote, the degree of a network node is the unweighted sum of links and backlinks in a note. 
 @item
-Association list of edges and their weights, e.g., @samp{(((source . "20220529T190246") (target . "20201229T143000") (weight . 1)) ...)}. The weight of an edge indicates the number of times it occurs, which is the number of time two files are linked or the number of times two keywords appear in the same note.
+Association list of edges and their weights: @samp{(((source . "20220529T190246") (target . "20201229T143000") (weight . 1)) ...)}. The weight of an edge indicates the number of times it occurs, which is the number of time the two files are linked or the number of times two keywords appear in the same note.
 @end itemize
 @item
 The package encodes the association list to a GraphViz DOT file, JSON file, or GEXF file. The location and name of this file is configurable with the  @code{denote-explore-network-directory} and @code{denote-explore-network-filename} variables.
 @item
-Relevant external software is called upon to display the result.
+Relevant external software displays the result.
 @end enumerate
 
 The @code{denote-explore-network-graph-formats} variable defines the file extension and the relevant functions for encoding and visualisation for each graph format.
@@ -325,15 +330,15 @@ You will need to install the GraphViz software to enable this functionality. Den
 
 The configurable @code{denote-explore-network-graphviz-header} variable defines the basic settings for GraphViz graphs, such as the layout method and default node and edge settings.
 
-The @code{denote-explore-network-graphviz-filetype} variable defines the GraphViz output format. SVG (the default) or PDF provide the best results. The SVG format should be viewed in a web browser to view tooltips of nodes to show their name and other meta data, and to follow hyperlinks. Emacs can display SVG files, but is unable to follow links or show tootltips.
+The @code{denote-explore-network-graphviz-filetype} variable defines the GraphViz output format. SVG (the default) or PDF provide the best results. View the SVG file in a web browser to enable tooltips of nodes to show their name and other meta data, and to follow hyperlinks. Emacs can display SVG files, but is unable to follow links or show tootltips.
+
+The diameter of nodes are sized relative to their degree. Thus, the most referenced note in your system will be the most visible. For nodes with a degree greater than two, the name is displayed outside the node (top left). When generating a neighbourhood, the source node is marked in a contrasting colour. In keyword graphs, the thickness of the edges indicates the number of times two keywords are associated with each other.
 
 Hovering the mouse cursor over a node provides its name and other meta data. You can open the relevant file by clicking on the node, which works best when using Emacs as a server, if you configure your browser to open Org mode, Markdown and text files with the Emacs client. Links only work in neighbourhood and community graphs. These interactive functions are only available when viewing SVG files in a web browser.
 
-The diameter @math{D} of nodes are sized relative to their degree. Thus, the most referenced note in your system will be the most visible. For nodes with a degree greater than two, the name is displayed outside the node (top left). When generating a neighbourhood, the source node is marked in a contrasting colour. In keyword graphs, the thickness of the edges indicates the number of times two keywords are associated with each other.
-
 The layout of the graph uses the Neato spring model in GraphViz. 
 
-This method is ideal for viewing small parts of your network. The network will be hard to read when the number of notes becomes too large. I have not yet figured out how to better scale the output based on the number of nodes in a graph.
+This method is ideal for viewing small parts of your network. The network will be hard to read when the number of notes becomes too large.
 
 @node D3js
 @section D3.js
@@ -366,12 +371,12 @@ Your Denote network is unlikely to be a fully connected graph. In a connected gr
 
 The number of links and backlinks in a file (in mathematical terms, edges connected to a node) is the total degree of a node. The degree distribution of a network is the probability distribution of these degrees over the whole network. The @code{denote-explore-degree-barchart} function uses the built-in chart package to display a simple bar chart of the frequency of the total degree. This function might take a few seconds to run, depending on the number of notes in your system. Evaluating this function with the universal argument @samp{C-u} excludes attachments from the analysis.
 
-The importance of a note is directly related to the number of notes that link to it, the number of backlinks. The @samp{denote-explore-backlinks-barchart} function visualises the number of backlinks in the top-n files in a horizontal barchart, ordered by the number of backlinks. This function asks for the number of nodes to visualise and analyses the complete network of Denote files and attachments, which can take a few seconds.
+The importance of a note is directly related to the number of notes that link to it, the number of backlinks. The @code{denote-explore-backlinks-barchart} function visualises the number of backlinks in the top-n files in a horizontal barchart, ordered by the number of backlinks. This function asks for the number of nodes to visualise and analyses the complete network of Denote files and attachments, which can take a few seconds.
 
 @node Installation and Package Configuration
 @chapter Installation and Package Configuration
 
-This package is available through MELPA@. The configuration below customises all available variables and binds the command on top of the @samp{C-c n} prefix suggested in the Denote manual. You should modify this configuration to suit your needs, as one person's sensible defaults are another person's nightmare.
+This package is available through MELPA@. The configuration below customises all available variables and binds the command on top of the @samp{C-c e} prefix. You should modify this configuration to suit your needs, as one person's sensible defaults are another person's nightmare.
 
 @lisp
 (use-package denote-explore
@@ -406,7 +411,7 @@ This package is available through MELPA@. The configuration below customises all
    ("C-c e b" . denote-explore-backlinks-barchart)))
 @end lisp
 
-You can also use the most recent development version directly from GitHub (Emacs 29.1 or higher):
+You can use the most recent development version directly from GitHub (Emacs 29.1 or higher):
 
 @lisp
 (unless (package-installed-p 'denote-explore)
@@ -420,7 +425,7 @@ You can also use the most recent development version directly from GitHub (Emacs
 
 This code would only have existed with the help of Protesilaos Stavrou, developer of Denote.
 
-In addition, Jakub Szczerbowski, Samuel W@. Flint, Ad (skissue), and Vedang Manerikar made significant contributions.
+In addition, Jakub Szczerbowski, Samuel W@. Flint, Ad (skissue), Vedang Manerikar, and Jousimies made significant contributions and suggestions.
 
 Feel free to raise an issue here on GitHub if you have any questions or find bugs or suggestions for enhanced functionality.
 
