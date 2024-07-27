@@ -391,20 +391,33 @@ Duplicate files are displayed `find-dired'."
 				    (denote-directory-files))))
     (find-file (completing-read "Select file with zero keywords: " zero-keywords))))
 
+(defun denote-explore--alphabetical-p (str-list)
+  "Check if the list of strings STR-LIST is sorted alphabetically."
+  (let ((sorted t))
+    (while (and str-list (cdr str-list) sorted)
+      (unless (string< (car str-list) (cadr str-list))
+        (setq sorted nil))
+      (setq str-list (cdr str-list)))
+    sorted))
+
 ;;;###autoload
 (defun denote-explore-sort-keywords ()
-  "Order the keywords of all Denote notes and attachments alphabetically."
+  "Order the file keywords of all Denote notes and attachments alphabetically.
+
+This function extracts the keywords from the filename. When the keywords are not
+in alphabetical order, the file is renamed. The front matter for notes is left
+as is. Use `denote-explore-sync-metadata' to synchronise filenames and front
+matter."
   (interactive)
-  (save-some-buffers)
-  (let ((denote-rename-no-confirm nil)
+  (let ((denote-rename-confirmations '(modify-file-name))
 	(notes (denote-directory-files)))
     (dolist (file notes)
-      (let ((keywords (denote-explore--retrieve-keywords file)))
-	(denote-rename-file file
-	 		    (denote-retrieve-filename-title file)
-	 		    (denote-keywords-sort
-	 		     (if (equal (car keywords) "") nil keywords))
-	 		    (denote-retrieve-filename-signature file)))))
+      (when-let ((file-keywords (denote-retrieve-filename-keywords file)))
+	  (when (not (denote-explore--alphabetical-p (split-string file-keywords "_")))
+	    (denote-rename-file file
+	 			(denote-retrieve-filename-title file)
+	 			(denote-keywords-sort (split-string file-keywords "_"))
+				(denote-retrieve-filename-signature file))))))
   (message "All keywords ordered alphabetically"))
 
 ;;;###autoload
@@ -414,7 +427,7 @@ When selecting more than one existing keyword, all selections are renamed.
 Use empty string as new keyword to remove the selection."
   (interactive)
   (save-some-buffers)
-  (let* ((denote-rename-no-confirm nil)
+  (let* ((denote-rename-confirmations '(rewrite-front-matter modify-file-name))
          (denote-sort-keywords t)
          (selected (denote-keywords-prompt "Keyword to rename"))
          (new-keyword (read-from-minibuffer "New keyword: "))
@@ -429,7 +442,7 @@ Use empty string as new keyword to remove the selection."
                                      current-keywords))))
         (denote-rename-file file
                             (denote-retrieve-title-or-filename
-                             file (denote-filetype-heuristics file))
+			     file (denote-filetype-heuristics file))
                             (if (equal new-keywords nil) "" new-keywords)
                             (denote-retrieve-filename-signature file))))))
 
@@ -441,11 +454,10 @@ Use empty string as new keyword to remove the selection."
 ;;;###autoload
 (defun denote-explore-sync-metadata ()
   "Synchronise the filenames with the metadata for all Denote files.
-
-Set `denote-rename-buffer-mode' to ensure synchronised notes."  ;; TODO Elaborate
+The front matter is considered the source of truth."
   (interactive)
   (save-some-buffers)
-  (let ((denote-rename-no-confirm nil)
+  (let ((denote-rename-confirmations '(rewrite-front-matter modify-file-name))
 	(denote-sort-keywords t)
 	(notes (denote-directory-files nil nil t)))
     (dolist (file notes)
