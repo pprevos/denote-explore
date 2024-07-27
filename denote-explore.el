@@ -422,27 +422,31 @@ matter."
 
 ;;;###autoload
 (defun denote-explore-rename-keyword ()
-  "Rename or remove keyword(s) across the whole Denote collection.
-When selecting more than one existing keyword, all selections are renamed.
-Use empty string as new keyword to remove the selection."
+  "Rename or remove keyword(s) across the Denote collection.
+When selecting more than one existing keyword, all selections are renamed
+to the new version. Use an empty string as new keyword to remove the selection.
+The filename is taken as the source of truth for metadata and does not modify
+the frontmatter. Use `denote-explore-sync-metadata' to synchronise filenames
+and frontmatter."
   (interactive)
   (save-some-buffers)
-  (let* ((denote-rename-confirmations '(rewrite-front-matter modify-file-name))
+  (let* ((denote-rename-confirmations '(modify-file-name))
          (denote-sort-keywords t)
          (selected (denote-keywords-prompt "Keyword to rename"))
          (new-keyword (read-from-minibuffer "New keyword: "))
-         (keywords-pattern (mapconcat (lambda (keyword) (concat "_" keyword)) selected "\\|"))
-         (notes (denote-directory-files keywords-pattern)))
-    (dolist (file notes)
-      (let* ((current-keywords (denote-explore--retrieve-keywords file))
+         (keywords-regex (mapconcat
+			  (lambda (keyword) (concat "_" keyword)) selected "\\|"))
+         (files (denote-directory-files keywords-regex)))
+    (dolist (file files)
+      (let* ((file-keywords (denote-retrieve-filename-keywords file))
+	     (current-keywords (split-string file-keywords "_"))
              (new-keywords (if (equal new-keyword "")
                                (cl-set-difference current-keywords selected :test 'string=)
                              (mapcar (lambda (keyword)
                                        (if (member keyword selected) new-keyword keyword))
                                      current-keywords))))
         (denote-rename-file file
-                            (denote-retrieve-title-or-filename
-			     file (denote-filetype-heuristics file))
+	 		    (denote-retrieve-filename-title file)
                             (if (equal new-keywords nil) "" new-keywords)
                             (denote-retrieve-filename-signature file))))))
 
