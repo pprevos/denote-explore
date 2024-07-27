@@ -402,7 +402,7 @@ Duplicate files are displayed `find-dired'."
 
 ;;;###autoload
 (defun denote-explore-sort-keywords ()
-  "Order the file keywords of all Denote notes and attachments alphabetically.
+  "Order the file keywords of all Denote files alphabetically.
 
 This function extracts the keywords from the filename. When the keywords are not
 in alphabetical order, the file is renamed. The front matter for notes is left
@@ -412,6 +412,7 @@ matter."
   (let ((denote-rename-confirmations '(modify-file-name))
 	(notes (denote-directory-files)))
     (dolist (file notes)
+      (message file)
       (when-let ((file-keywords (denote-retrieve-filename-keywords file)))
 	  (when (not (denote-explore--alphabetical-p (split-string file-keywords "_")))
 	    (denote-rename-file file
@@ -458,23 +459,25 @@ and frontmatter."
 ;;;###autoload
 (defun denote-explore-sync-metadata ()
   "Synchronise filenames with the metadata for all Denote notes.
-The front matter is considered the source of truth."
+The front matter is used as the source of truth."
   (interactive)
   (save-some-buffers)
   (let ((denote-rename-confirmations '(modify-file-name))
 	(denote-sort-keywords t)
 	(notes (denote-directory-files nil nil t)))
     (dolist (file notes)
-      (let * ((id (denote-retrieve-filename-identifier file))
-	      (file-type )
-	      (keywords (denote-retrieve-front-matter-keywords-value file 'txt))
-	      (title (denote-retrieve-title-or-filename file 'txt))
-	      (extension (file-name-extension file :include-period))
-	      (signature (denote-retrieve-filename-signature file))
-	      (denote-format-file-name directory id keywords title extension signature)
-	      )
-      (denote-rename-file-using-front-matter file)))
-  (message "Integrity check completed"))
+      (let* ((file-type (denote-filetype-heuristics file))
+	     (directory (file-name-directory file))
+	     (id (denote-retrieve-filename-identifier file))
+	     (keywords (denote-retrieve-front-matter-keywords-value file file-type))
+	     (title (denote-retrieve-front-matter-title-value file file-type))
+	     (extension (file-name-extension file :include-period))
+	     (signature (denote-retrieve-filename-signature file))
+	     (new-name (denote-format-file-name directory id keywords title extension signature)))
+	(when (not (string= file new-name))
+	  (progn (message file)
+	(denote-rename-file-using-front-matter file))))))
+    (message "Integrity check completed"))
 
 ;;; VISUALISATION
 
