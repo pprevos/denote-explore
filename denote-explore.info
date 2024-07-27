@@ -1,11 +1,6 @@
 This is denote-explore.info, produced by makeinfo version 7.1 from
 denote-explore.texi.
 
-INFO-DIR-SECTION Misc
-START-INFO-DIR-ENTRY
-* denote-explore.       Denote Explore: Explore your Denote digital garden.
-END-INFO-DIR-ENTRY
-
 
 File: denote-explore.info,  Node: Top,  Next: Summary Statistics,  Up: (dir)
 
@@ -13,22 +8,23 @@ Denote Explore: Explore your Denote digital garden
 **************************************************
 
 The Denote package by Protesilaos (Prot) Stavrou provides extensive
-functionality to create, retrieve, manage and link files in plain text,
-Markdown and Org Mode.  The most redeeming qualities of this package are
-its filename convention and modular simplicity.  You can also use the
-package to access other file types, such as PDFs or multimedia files
-(attachments).  This way, Denote becomes a fully-featured personal
-knowledge management system.
+functionality for creating, retrieving, managing, and linking files in
+plain text, Markdown, and Org Mode.  The most redeeming qualities of
+this package are its filename convention and modular simplicity.  You
+can also use the package to access other file types, such as PDFs or
+multimedia files (which we call Denote attachments).  In this way,
+Denote becomes a fully-featured personal knowledge management system.
 
    The Denote-Explore package came into existence as my collection of
 Denote files grew.  I created some auxiliary functions to manage and
-explore my burgeoning collection of Denote files, which I eventually
-packaged together.  The package provides four types of commands:
+explore my burgeoning Denote files.  This package provides four types of
+commands:
 
   1. Summary statistics: Count notes, attachments and keywords.
   2. Random walks: Generate new ideas using serendipity.
   3. Janitor: Maintain your denote collection.
-  4. Visualisations: Visualise your Denote files as a network.
+  4. Visualisations: Visualise your Denote files as bar charts or a
+     network.
 
 * Menu:
 
@@ -45,7 +41,6 @@ packaged together.  The package provides four types of commands:
 Denote-Explore Janitor
 
 * Duplicate notes::
-* Isolated Notes::
 * Managing Keywords::
 * Synchronising Meta Data::
 
@@ -67,14 +62,14 @@ File: denote-explore.info,  Node: Summary Statistics,  Next: Random Walks,  Prev
 1 Summary Statistics
 ********************
 
-This Denote-Explore package distinguishes between Denote files (notes)
+The Denote-Explore package distinguishes between Denote files (notes)
 and attachments.  Denote files are either Org Mode, Markdown, or Plain
 Text.  All other files, such as photographs, PDFs, media files, LaTeX,
 and HTML, are attachments.
 
-   After a day of working hard on your digital knowledge garden, you
-might like to count the notes and attachments in your collection.  Two
-functions provide some basic statistics of your Denote files:
+   After a day of working hard on your digital knowledge garden, you can
+count the notes and attachments in your collection.  Two functions
+provide some basic statistics of your Denote files:
 
   1. ‘denote-explore-count-notes’: Count the number of notes and
      attachments.
@@ -86,8 +81,8 @@ thousand numbers.  The built-in ‘chart.el’ package by Eric M.  Ludlam is
 a quaint tool for creating bar charts in a plain text buffer.  Two
 commands are available in Denote-Explore to visualise basic statistics:
 
-  1. ‘denote-explore-keywords-barchart’: Visualise the top n keywords.
-  2. ‘denote-explore-extensions-barchart’: Visualise used file
+  1. ‘denote-explore-barchart-keywords’: Visualise the top n keywords.
+  2. ‘denote-explore-barchart-filetypes’: Visualise used file
      extensions.
 
 
@@ -105,44 +100,43 @@ randomly.
 
    A random walk is an arbitrary sequence of events without a defined
 relationship between the steps.  You take a random walk by jumping to a
-random note, either connected or unconnected to the current buffer.
+random note, connected or unconnected to the current buffer.
 
    The Denote-Explore package provides three commands to inject some
 randomness into your explorations:
 
   1. ‘denote-explore-random-note’: Jump to a random note or attachment.
   2. ‘denote-explore-random-link’: Jump to a random linked note (either
-     forward or backwards) or attachments (forward only).
+     forward or backward) or attachments (forward only).
   3. ‘denote-explore-random-keyword’: Jump to a random note or
      attachment with the same selected keyword(s).
   4. ‘denote-explore-random-regex’: Jump to a random note or attachment
      that matches a regular expression.
 
    The default state is that these functions jump to any Denote text
-file (plain text, Markdown or Org-mode).  Adding the universal argument
-(‘C-u’) includes attachments in the sample for a random jump.
+file (plain text, Markdown or Org-mode).  The universal argument (‘C-u’)
+includes attachments in the sample for a random jump.
 
-   Jumping to a randomly linked file only works when the current buffer
-is a Denote file.  A warning appears when the current buffer is an
-isolated note (no links or backlinks available).
+   Jumping to a randomly linked file naturally only works when the
+current buffer is a Denote file.  A warning appears when the current
+buffer is an isolated note (no links or backlinks available).
 
-   When jumping to a random file with selected keywords, you can choose
-between one or more keywords used in the current buffer, or override the
-completion options with free text.  The asterisk symbol ‘*’ selects all
-keywords in the completion list.  When the current buffer only has one
-keyword, the section process is skipped.  When the current buffer is not
-a Denote file, you can choose any available keyword(s) in your Denote
-collection.
+   When jumping to a random file with one or more matching keywords, you
+can choose keywords from the current buffer or override the completion
+options with free text.  The asterisk symbol ‘*’ selects all keywords in
+the completion list.  The section process is skipped when the current
+buffer only has one keyword.  When the current buffer is not a Denote
+file, you can choose any available keyword(s) in your Denote collection.
 
-   Jumping to a random note with multiple keywords only works when the
-‘denote-sort-keywords’ is enabled or when the selected keywords are in
-the same order as in the target file.  The following section explains
-how you can alphabetise your keywords using the Janitor.
+   Jumping to a random note matching multiple keywords only works when
+the ‘denote-sort-keywords’ is enabled or when the selected keywords are
+in the same order as the target file.  You can alphabetise keywords in
+your Denote files with ‘denote-explore-sort-keywords’.
 
-   Jumping to a note that matches a regular expression lets you, for
-example, find a note you wrote in May 2022 (‘202205’).  More complex
-regular expressions provide ultimate freedom.  For example using
-‘202305.*_journal’ jumps to a random journal entry in May 2023.
+   Jumping to a note that matches a regular expression lets you find
+random notes matching a search string.  For example, to find a note you
+wrote in May 2022, use ‘^202205’ and using ‘202305.*_journal’ jumps to a
+random journal entry in May 2023.
 
 
 File: denote-explore.info,  Node: Denote-Explore Janitor,  Next: Create Personal Knowledge Graphs,  Prev: Random Walks,  Up: Top
@@ -150,23 +144,22 @@ File: denote-explore.info,  Node: Denote-Explore Janitor,  Next: Create Personal
 3 Denote-Explore Janitor
 ************************
 
-After using Denote for a while, you might need a janitor to keep your
+After using Denote for a while, you may need a janitor to help keep your
 collection organised.  A janitor is a member of the maintenance and
 cleaning staff for buildings.  Their primary responsibility is to ensure
 cleanliness, orderliness, and sanitation, so this role is also perfect
-to apply to your Denote files.  The Denote-Explore package provides a
-series of commands to assist with cleaning, ordering and sanitising your
-files.
+for applying to your Denote files.  The Denote-Explore package provides
+a series of commands to assist with cleaning, organising, and sanitising
+your files.
 
 * Menu:
 
 * Duplicate notes::
-* Isolated Notes::
 * Managing Keywords::
 * Synchronising Meta Data::
 
 
-File: denote-explore.info,  Node: Duplicate notes,  Next: Isolated Notes,  Up: Denote-Explore Janitor
+File: denote-explore.info,  Node: Duplicate notes,  Next: Managing Keywords,  Up: Denote-Explore Janitor
 
 3.1 Duplicate notes
 ===================
@@ -177,61 +170,39 @@ Denote either uses the current date and time when generating a new note
 or the date and time the file was created on the file system.  The
 Denote package prevents duplicate identifiers when creating a new note.
 
-   Besides my Denote-generated notes, I have historical attachments in
-my collection and manually add identifiers.  My 'oldest' Denote file is
-a mortgage document from 23 June 1370.  The creation date and time of
-the file are irrelevant, as I like to keep my files sorted in historical
-order, so I manually add identifiers (for example ‘13700623T120000’).  I
-used the same approach when renaming scanned photographs in Denote
-format.
+   An attachment might have manually generated identifiers.  The file's
+creation date and time are irrelevant when using historical documents as
+attachments.  For example, when adding scanned historical records, the
+identifier might be centuries ago, so it must be manually added.
 
    Adding the Denote identifier manually introduces a risk of
-duplication.  Duplicates can also arise when exporting Denote Org mode
-files, as the exported files have the same file name but a different
-extension.
+duplication.  Duplicates can also arise when exporting Denote Org files,
+as the exported files have the same file name but a different extension.
 
    The ‘denote-explore-identify-duplicate-notes’ command lists all
-duplicate identifiers in a temporary buffer.  The temporary buffer
-includes links to the suspected duplicate notes and attachments.
+duplicate identifiers in a popup buffer, which includes links to the
+suspected duplicate notes and attachments.
 
    Additionally, the ‘denote-explore-identify-duplicate-notes-dired’
-command will show them in a Dired buffer.  You can the directly change
-filenames in the Dired buffer with ‘dired-toggle-read-only’ (‘C-x C-Q’),
-or any other preferred method.
+command shows them in a Dired buffer.  You can directly change filenames
+in the Dired buffer with ‘dired-toggle-read-only’ (‘C-x C-q’) or any
+other preferred method.
 
    Be careful when changing the identifier of a Denote file, as it can
-destroy the integrity of your links, so please ensure that the file you
+destroy the integrity of your links.  Please ensure that the file you
 rename does not have any links pointing to it.  You can use the
 ‘denote-find-link’ and ‘denote-find-backlink’ commands to check a file
 for links.
 
-   Using this command with the universal argument (‘C-u’), looks for
-duplicated filenames instead of identifiers.  This option thus ignores
-any duplicated identifiers created when exporting Denote Org mode files.
+   With the universal argument (‘C-u’), this command looks for
+duplicated filenames without extensions instead of identifiers.  Thus,
+this option ignores any duplicated identifiers created when exporting
+Denote Org mode files.
 
 
-File: denote-explore.info,  Node: Isolated Notes,  Next: Managing Keywords,  Prev: Duplicate notes,  Up: Denote-Explore Janitor
+File: denote-explore.info,  Node: Managing Keywords,  Next: Synchronising Meta Data,  Prev: Duplicate notes,  Up: Denote-Explore Janitor
 
-3.2 Isolated Notes
-==================
-
-Denote implements a linking mechanism that connects notes (either Org
-mode, Markdown, or plain text) to other notes or attachments.  This
-mechanism allows the user to visualise all notes as a network.  However,
-some notes don't have any links or backlinks.  Depending on your
-note-taking strategy, you might want all your notes linked to another
-note.
-
-   The ‘denote-explore-isolated-notes’ function provides a list in the
-minibuffer of all notes without links or backlinks for you to peruse.
-You can select any note and add any links.  Calling this function with
-the universal argument ‘C-u’ includes attachments in the list of lonely
-files.
-
-
-File: denote-explore.info,  Node: Managing Keywords,  Next: Synchronising Meta Data,  Prev: Isolated Notes,  Up: Denote-Explore Janitor
-
-3.3 Managing Keywords
+3.2 Managing Keywords
 =====================
 
 Denote keywords connect notes with similar content.  Keywords should not
@@ -242,40 +213,38 @@ command provides a list of file tags that are only used once.  The list
 of single keywords is presented in the minibuffer, from where you can
 open the relevant note or attachment.
 
-   You can also find any notes or attachments that don't have any
-keywords at all with the ‘denote-explore-zero-keywords’.  This command
-presents all notes and attachments without keywords in the minibuffer,
-so you can open them and consider adding a keyword or leaving them as
-is.
+   You can also find notes or attachments without keywords with the
+‘denote-explore-zero-keywords’ command.  This command presents all notes
+and attachments without keywords in the minibuffer, so you can open them
+and consider adding a keyword or leaving them as is.
 
    You can remove or rename keywords with
 ‘denote-explore-rename-keyword’.  Select one or more existing keywords
 from the completion list and enter the new name of the keyword(s).  This
-function renames all chosen keywords to their new version or removes the
-original keyword from all existing notes when you enter an empty string
-as the new keyword.  This function cycles through all notes and
-attachments containing one or more of the selected keywords and asks for
+function renames all chosen keywords to their latest version or removes
+the original keyword from all existing notes when you enter an empty
+string as the new keyword.  This function cycles through all notes and
+attachments containing one or more selected keywords and asks for
 confirmation before making any changes.  The new keyword list is stored
 alphabetically, and the front matter is synchronised with the file name.
 
-   Denote sorts keywords alphabetically when the ‘denote-sort-keywords’
-variable is enabled.  Ordering keywords alphabetically makes searching
-for files more predictable.  If you rename files manually, the keywords
-might not always be in the correct order.  The
-‘denote-explore-sort-keywords’ function checks all notes and notifies
-the user if there are any notes where keywords are not alphabetised.
-The function warns the user before renaming any files.  This function
-also synchronises the front matter with the file name.
+   Ordering keywords alphabetically makes searching for files more
+predictable.  If you rename files manually, the keywords might sometimes
+be in different order.  The ‘denote-explore-sort-keywords’ function
+checks all notes.  It notifies the user if there are any notes where
+keywords are not alphabetised.  The function warns the user before
+renaming any files.  Denote sorts keywords alphabetically for new notes
+when the ‘denote-sort-keywords’ variable is enabled.
 
 
 File: denote-explore.info,  Node: Synchronising Meta Data,  Prev: Managing Keywords,  Up: Denote-Explore Janitor
 
-3.4 Synchronising Meta Data
+3.3 Synchronising Meta Data
 ===========================
 
 Denote stores the metadata for each note in the filename using its
 ingenious format.  Some of this metadata is copied to the front matter
-of a note, which can lead to differences between the two metadata
+of a note, which can lead to discrepancies between the two metadata
 sources.
 
    The ‘denote-explore-sync-metadata’ function checks all notes and asks
@@ -290,34 +259,36 @@ File: denote-explore.info,  Node: Create Personal Knowledge Graphs,  Next: Insta
 4 Create Personal Knowledge Graphs
 **********************************
 
-Emacs is a text processor with limited graphical capabilities.
-Committing your ideas to text requires a linear way of thinking, as you
-can only process one word at a time.  Visual thinking through tools such
-as mind maps and other diagrams is another way to approach your ideas.
-One of the most common methods to visualise interlinked documents is in
-a network or a personal knowledge graph.
+Denote implements a linking mechanism that connects notes (either Org,
+Markdown, or plain text files) to other notes or attachments.  This
+mechanism allows the user to visualise all notes as a network.
 
-   A knowledge graph is a network diagram that visualises how are linked
-to each other.  Viewing your notes as a network can help discover
-hitherto unseen connections between your thoughts.  Visualising your
-Denote digital garden can be helpful in your creative process.
+   Emacs is a text processor with limited graphical capabilities.
+However, committing your ideas to text requires a linear way of thinking
+since you can only process one word at a time.  Visual thinking through
+tools such as mind maps or network diagrams is another way to approach
+your ideas.  One of the most common methods to visualise interlinked
+documents is in a network or a personal knowledge graph.
 
-   Denote Explore does not provide a live environment to view the
-structure of your Denote collection.  The purpose of network
-visualisation is to analyse the structure of your notes, not to act as
-an alternative user interface.  Live previews of note networks are
-dopamine traps.  While seeing the network of your thoughts develop in
-front of your eyes is satisfying, it can also become a distraction.  The
-Denote-Explore visualisation tools provide a surgical tool to analyse
-your notes.
+   Network visualisation in Denote is not just a feature but a powerful
+tool that visualises how notes are linked, helping you discover
+previously unseen connections between your thoughts and enhancing your
+creative process.
+
+   It's important to note that Denote does not offer live previews of
+your note collection.  This deliberate choice is to prevent 'dopamine
+traps' because seeing your thoughts develop in real-time is a
+distraction.  Instead, Denote-Explore provides a focused tool for the
+surgical analysis of your notes, while the main user interface remains
+text-based.
 
    A network diagram has nodes (vertices) and edges.  Each node
-represents a file in your Denote system.  Each edge represents a link
+represents a file in your Denote system, and each edge represents a link
 between notes.  Denote-Explore provides three types of network diagrams
 to explore the relationships between your thoughts.  The package exports
-and displays each of these in one of three formats, with SVG files
-viewed in the browser as the default.  The diagram below shows the basic
-principle of a knowledge graph.  In the actual output nodes are squares.
+and displays these in one of three formats, with SVG files viewed in the
+browser as the default.  The diagram below shows the basic principle of
+a knowledge graph.  In the actual output, nodes are circles.
 
    You create a network with the ‘denote-explore-network’ command.  This
 command will ask the user to select the type of network to create.  Each
@@ -645,9 +616,8 @@ as the network can become large and difficult to review.
    It might seem that adding more connections between your notes
 improves them, but this is not necessarily the case.  The extreme case
 is a complete network where every file links to every other file.  This
-situation lacks any interesting structure and wouldn't be very useful
-for analyses.  So, be mindful of your approach to linking notes and
-attachments.
+situation lacks any interesting structure and wouldn't be informative.
+So, be mindful of your approach to linking notes and attachments.
 
    Your Denote network is unlikely to be a fully connected graph.  In a
 connected graph, there is a path from any point to any other point.
@@ -663,10 +633,10 @@ edges connected to a node) is the total degree of a node.  The degree
 distribution of a network is the probability distribution of these
 degrees over the whole network.  The ‘denote-explore-degree-barchart’
 function uses the built-in chart package to display a simple bar chart
-of the frequency of the total degree.  This function might take a few
-seconds to run, depending on the number of notes in your system.
-Evaluating this function with the universal argument ‘C-u’ excludes
-attachments from the analysis.
+of the frequency of the total degree.  This function might take a moment
+to run, depending on the number of notes in your system.  Evaluating
+this function with the universal argument ‘C-u’ excludes attachments
+from the analysis.
 
    The importance of a note is directly related to the number of notes
 that link to it, the number of backlinks.  The
@@ -674,7 +644,15 @@ that link to it, the number of backlinks.  The
 backlinks in the top-n files in a horizontal barchart, ordered by the
 number of backlinks.  This function asks for the number of nodes to
 visualise and analyses the complete network of Denote files and
-attachments, which can take a few seconds.
+attachments, which can take a brief moment.
+
+   Lastly, some notes don't have any links or backlinks.  Depending on
+your note-taking strategy, you might want all your notes linked to
+another note.  The ‘denote-explore-isolated-notes’ function provides a
+list in the minibuffer of all notes without links or backlinks for you
+to peruse.  You can select any note and add any links.  Calling this
+function with the universal argument ‘C-u’ includes attachments in the
+list of lonely files.
 
 
 File: denote-explore.info,  Node: Installation and Package Configuration,  Next: Acknowledgements,  Prev: Create Personal Knowledge Graphs,  Up: Top
@@ -764,26 +742,25 @@ General Public License for more details.
 
 
 Tag Table:
-Node: Top228
-Node: Summary Statistics1932
-Node: Random Walks3141
-Node: Denote-Explore Janitor5809
-Node: Duplicate notes6524
-Node: Isolated Notes8651
-Node: Managing Keywords9474
-Node: Synchronising Meta Data11559
-Node: Create Personal Knowledge Graphs12236
-Node: Community of Notes14666
-Node: Note Neighbourhood16711
-Node: Keyword Network19267
-Node: Network Layout and Presentation22275
-Node: GraphViz24421
-Node: D3js26675
-Node: Graph Exchange XML Format27898
-Node: Analysing the Denote Network28928
-Node: Installation and Package Configuration31301
-Node: Acknowledgements33504
-Node: License34042
+Node: Top89
+Node: Summary Statistics1778
+Node: Random Walks2975
+Node: Denote-Explore Janitor5610
+Node: Duplicate notes6316
+Node: Managing Keywords8267
+Node: Synchronising Meta Data10277
+Node: Create Personal Knowledge Graphs10956
+Node: Community of Notes13420
+Node: Note Neighbourhood15465
+Node: Keyword Network18021
+Node: Network Layout and Presentation21029
+Node: GraphViz23175
+Node: D3js25429
+Node: Graph Exchange XML Format26652
+Node: Analysing the Denote Network27682
+Node: Installation and Package Configuration30489
+Node: Acknowledgements32692
+Node: License33230
 
 End Tag Table
 
