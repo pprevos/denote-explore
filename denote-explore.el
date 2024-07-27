@@ -4,7 +4,7 @@
 ;;
 ;; Author: Peter Prevos <peter@prevos.net>
 ;; URL: https://github.com/pprevos/denote-explore/
-;; Version: 1.6
+;; Version: 3.0
 ;; Package-Requires: ((emacs "29.1") (denote "3.0") (dash "2.19.1"))
 ;;
 ;; This file is NOT part of GNU Emacs.

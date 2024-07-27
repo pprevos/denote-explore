@@ -10,13 +10,11 @@ The Denote-Explore package provides auxiliary functions to maintain and explore 
 
 This package exists because I started to move many files on my computer into Denote silos, leveraging the ingenious file naming convention and associated functionality. These functions helped me to add some structure to the organic chaos of my digital garden.
 
-Read the [[https://lucidmanager.org/productivity/denote-explore][denote-explore manual]] for a comprehensive explanation of all functionality.
+Read the [[https://lucidmanager.org/productivity/denote-explore][denote-explore manual]] for a comprehensive explanation of all functionality (=C-h R denote-explore=).
 
 This package is available on MELPA and is easily installed with the ~use-package~ macro.
 
-The configuration below sets all available variables. The first two variables define where graph files are stored, sans extension. If the directory does not yet exist, then the package creates it when required. The third variable defines the output format and as such the file extensions. Possible options are [[https://graphviz.org/][graphviz]], [[https://d3js.org/][D3.js]] (JSON) and [[https://gexf.net/][GEXF]].
-
-You will need to install GraphViz and/or the R language to visualise Denote graphs.
+The configuration below sets all available variables. The first two variables define where graph files are stored, sans extension. If the directory does not yet exist, then the package creates it when required. The third variable defines the output format and as such the file extensions. Possible options are [[https://graphviz.org/][graphviz]], [[https://d3js.org/][D3.js]] (JSON) and [[https://gexf.net/][GEXF]]. You will need to install GraphViz and/or the R language to visualise Denote graphs.
 
 #+begin_src elisp :results none
   (use-package denote-explore
@@ -31,8 +29,6 @@ You will need to install GraphViz and/or the R language to visualise Denote grap
     (denote-explore-network-keywords-ignore '("bib")))
 #+end_src
 
-The ~denote-explore-network-graphviz-header~ variable defines the layout and general aesthetics of GraphViz output.
-
 Alternatively, you can install it directly from GitHub:
 
 #+begin_src elisp :eval no
@@ -43,6 +39,13 @@ Alternatively, you can install it directly from GitHub:
 #+end_src
 
 * Change Log
+** Version 3.0
+- Compatability with Denote 3.0 
+- Renamed barchart functions to all start with ~denote-explore-barchart-~.
+- Using universal argument with ~denote-explore-barchart-extensions~ visualises only attachment file types.
+- All functions that rename files updated for compatability with Denote 3.0
+- Enhanced info manual
+  
 ** Version 1.6
 - New functions:
   - ~denote-explore-backlinks-barchart~ to view top-n notes with backlinks
