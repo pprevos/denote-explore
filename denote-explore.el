@@ -501,6 +501,10 @@ VAR and TITLE used for display."
    (denote-explore--table
     (denote--inferred-keywords)) "Keywords" "Denote Keywords" n))
 
+(define-obsolete-function-alias
+  'denote-explore-keywords-barchart
+  'denote-explore-barchart-keywords "3.0")
+
 ;;;###autoload
 (defun denote-explore-barchart-filetypes (&optional attachments)
   "Visualise the Denote file types and optionally only ATTACHMENTS.
@@ -521,10 +525,6 @@ types in `denote-file-type-extensions'."
      (denote-explore--table ext-list) "Extensions" "Denote file extensions")))
 
 (define-obsolete-function-alias
-  'denote-explore-keywords-barchart
-  'denote-explore-barchart-keywords "3.0")
-
-(define-obsolete-function-alias
   'denote-explore-extensions-barchart
   'denote-explore-barchart-filetypes "3.0")
 
@@ -540,8 +540,8 @@ types in `denote-file-type-extensions'."
     (sort degree-sums (lambda (a b) (< (car a) (car b))))))
 
 ;;;###autoload
-(defun denote-explore-degree-barchart ()
-  "Visualise the number of degrees for each node in the Denote network."
+(defun denote-explore-barchart-degree ()
+  "Visualise the degree for each Denote file (total links and backlinks)."
   (interactive)
   (message "Analysing Denote network.")
   (let* ((graph (denote-explore-network-community-graph ""))
@@ -551,6 +551,10 @@ types in `denote-file-type-extensions'."
 				(cons (number-to-string (car pair)) (cdr pair)))
 			      degrees)))
     (denote-explore--barchart txt-degrees "Degree" "Node degree distribution")))
+
+(define-obsolete-function-alias
+  'denote-explore-degree-barchart
+  'denote-explore-barchart-degree "3.0")
 
 ;;;###autoload
 (defun denote-explore-backlinks-barchart (n)
@@ -567,6 +571,10 @@ types in `denote-file-type-extensions'."
     (sort backlinks (lambda (a b)
                       (> (cdr a) (cdr b))))
     (denote-explore--barchart backlinks "Backlinks" "Node backlinks distribution" n t)))
+
+(define-obsolete-function-alias
+  'denote-explore-backlinks-barchart
+  'denote-explore-barchart-backlinks "3.0")
 
 ;;;###autoload
 (defun denote-explore-isolated-notes (&optional include-attachments)
