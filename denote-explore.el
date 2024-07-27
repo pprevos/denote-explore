@@ -5,7 +5,7 @@
 ;; Author: Peter Prevos <peter@prevos.net>
 ;; URL: https://github.com/pprevos/denote-explore/
 ;; Version: 1.6
-;; Package-Requires: ((emacs "29.1") (denote "2.3.5") (dash "2.19.1"))
+;; Package-Requires: ((emacs "29.1") (denote "3.0") (dash "2.19.1"))
 ;;
 ;; This file is NOT part of GNU Emacs.
 ;;
@@ -34,7 +34,7 @@
 ;; 3. Janitor: Maintenance on you Denote collection
 ;; 3. Network diagrams: visualise the structure of your notes
 ;;
-;; The Denote-Explore manual is in info-mode `C-h R denote-explore`
+;; The Denote-Explore manual is available in info-mode `C-h R denote-explore`
 ;;
 ;;; Code:
 
@@ -111,7 +111,7 @@ shape=circle fontsize=80 fontcolor=gray10 fontname = \"Helvetica, Arial, sans-se
   "List of strings for the header of a GraphViz DOT file.
 
 Defines graph and layout properties and default edge and node attributes.
-See https://graphviz.org for documentation.
+See graphviz.org for detailed documentation.
 
 Properties for specific edges and nodes, as defined by the
 `denote-explore-network-encode-graphviz' function, override these settings."
@@ -124,7 +124,7 @@ Properties for specific edges and nodes, as defined by the
   "Output file type for Denote GraphViz network files.
 
 Use SVG or for interactivity (tootltips and hyperlinks).
-See https://graphviz.org for documentation."
+See graphviz.org for detailed documentation."
   :group 'denote-explore
   :package-version '(denote-explore . "1.4")
   :type '(choice
@@ -457,15 +457,22 @@ and frontmatter."
 
 ;;;###autoload
 (defun denote-explore-sync-metadata ()
-  "Synchronise the filenames with the metadata for all Denote files.
+  "Synchronise filenames with the metadata for all Denote notes.
 The front matter is considered the source of truth."
   (interactive)
   (save-some-buffers)
-  (let ((denote-rename-confirmations '(rewrite-front-matter modify-file-name))
+  (let ((denote-rename-confirmations '(modify-file-name))
 	(denote-sort-keywords t)
 	(notes (denote-directory-files nil nil t)))
     (dolist (file notes)
-      (message file)
+      (let * ((id (denote-retrieve-filename-identifier file))
+	      (file-type )
+	      (keywords (denote-retrieve-front-matter-keywords-value file 'txt))
+	      (title (denote-retrieve-title-or-filename file 'txt))
+	      (extension (file-name-extension file :include-period))
+	      (signature (denote-retrieve-filename-signature file))
+	      (denote-format-file-name directory id keywords title extension signature)
+	      )
       (denote-rename-file-using-front-matter file)))
   (message "Integrity check completed"))
 
@@ -484,7 +491,7 @@ VAR and TITLE used for display."
    (mapcar #'cdr table) "Frequency" n))
 
 ;;;###autoload
-(defun denote-explore-keywords-barchart (n)
+(defun denote-explore-barchart-keywords (n)
   "Create a barchart with the top N most used Denote keywords."
   (interactive "nNumber of keywords: ")
   (denote-explore--barchart
@@ -492,19 +499,31 @@ VAR and TITLE used for display."
     (denote--inferred-keywords)) "Keywords" "Denote Keywords" n))
 
 ;;;###autoload
-(defun denote-explore-extensions-barchart ()
-  "Visualise the Denote file and attachment types."
-  (interactive)
-  (let (ext-list)
-    (dolist (file (denote-directory-files))
-      (push (file-name-extension file) ext-list))
-    ;; Replace nil extensions with string
+(defun denote-explore-barchart-filetypes (&optional attachments)
+  "Visualise the Denote file types and optionally only ATTACHMENTS.
+With universal argument only visualises attachments, excluding file
+types in `denote-file-type-extensions'."
+  (interactive "P")
+  (let* ((files (denote-directory-files))
+	 (extensions (mapcar (lambda(file) (file-name-extension file t)) files))
+	 (ext-list (if attachments
+		       (cl-set-difference extensions (denote-file-type-extensions) :test 'equal)
+		     extensions)))
+    (message "%s" (length ext-list))
     (setq ext-list (mapcar (lambda (extension)
 			     (if (null extension)
 				 "nil" extension))
 			   ext-list))
     (denote-explore--barchart
      (denote-explore--table ext-list) "Extensions" "Denote file extensions")))
+
+(define-obsolete-function-alias
+  'denote-explore-keywords-barchart
+  'denote-explore-barchart-keywords "3.0")
+
+(define-obsolete-function-alias
+  'denote-explore-extensions-barchart
+  'denote-explore-barchart-filetypes "3.0")
 
 (defun denote-explore--network-sum-degrees (nodes)
   "Sum the degrees in NODES, producing a new alist with degree counts."
