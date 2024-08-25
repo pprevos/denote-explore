@@ -969,7 +969,7 @@ ID-DEPTH is a list containing the starting ID and the DEPTH of the links."
              (name (cdr (assoc 'name node)))
 	     (degree (cdr (assoc 'degree node)))
 	     (label (denote-explore--network-escape-xml name)))
-        (push (format "<node id=%S label=%S>\n<attvalues>\n<attvalue for=\"degree\" value=%S/>\n</attvalues>\n</node>"
+        (push (format "<node id=%S label=%S>\n<attvalues>\n<attvalue for=\"degree\" value=\"%S\"/>\n</attvalues>\n</node>"
 		      id label degree) gexf-lines)))
     (push "</nodes>\n<edges>\n" gexf-lines)
     (dolist (edge edges)
