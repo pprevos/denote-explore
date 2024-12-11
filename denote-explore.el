@@ -906,7 +906,7 @@ ID-DEPTH is a list containing the starting ID and the DEPTH of the links."
     (dolist (node nodes)
       (let* ((id (cdr (assoc 'id node)))
 	     (core (if (equal nb-core id) "fillcolor=darkorchid" ""))
-             (name (cdr (assoc 'name node)))
+             (name (replace-regexp-in-string (rx ?\") "\\\\\"" (cdr (assoc 'name node))))
 	     (degree (cdr (assoc 'degree node)))
 	     (label (if (or (> degree 2) (equal nb-core id)) name ""))
              (tags (mapconcat 'identity (cdr (assoc 'keywords node)) ", "))
