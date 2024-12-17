@@ -558,8 +558,8 @@ types in `denote-file-type-extensions'."
   'denote-explore-barchart-degree "3.0")
 
 ;;;###autoload
-(defun denote-explore-backlinks-barchart (n)
-  "Visualise the number of backlinks for each node in the Denote network."
+(defun denote-explore-barchart-backlinks (n)
+  "Visualise the number of backlinks for N nodes in the Denote network."
   (interactive "nNumber of nodes: ")
   (message "Analysing Denote network.")
   (let* ((graph (denote-explore-network-community-graph ""))
