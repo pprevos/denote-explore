@@ -4,7 +4,7 @@
 ;;
 ;; Author: Peter Prevos <peter@prevos.net>
 ;; URL: https://github.com/pprevos/denote-explore/
-;; Version: 3.0
+;; Version: 3.1
 ;; Package-Requires: ((emacs "29.1") (denote "3.0") (dash "2.19.1"))
 ;;
 ;; This file is NOT part of GNU Emacs.
@@ -32,9 +32,10 @@
 ;; 1. Statistics: count and visualise notes and keywords
 ;; 2. Random walks: aces notes with serendipitous discovery
 ;; 3. Janitor: Maintenance on you Denote collection
-;; 3. Network diagrams: visualise the structure of your notes
+;; 4. Network diagrams: visualise the structure of your notes
 ;;
-;; The Denote-Explore manual is available in info-mode `C-h R denote-explore`
+;; The Denote-Explore manual is available in info-mode
+;; (info "denote-explore") `C-h R denote-explore`
 ;;
 ;;; Code:
 
@@ -287,7 +288,7 @@ With universal argument the sample includes attachments."
 ;;;###autoload
 (defun denote-explore-random-regex (regex &optional include-attachments)
   "Jump to a random not matching a regular expression REGEX.
-Use Universal Argument to EXCLUDE-ATTACHMENTS"
+Use Universal Argument to INCLUDE-ATTACHMENTS"
   (interactive "sRegular expression: \nP")
   (if-let* ((sample (denote-directory-files regex t (not include-attachments))))
       (denote-explore--jump sample)
@@ -692,8 +693,7 @@ of a file."
 	      (append node (list (cons 'degree degree))))) nodes))
 
 (defun denote-explore--network-backlinks (nodes edges)
-"Calculate the number of backlinks for each node in a network graph NODES and
-EDGES."
+"Calculate the number of backlinks for NODES and EDGES."
   (mapcar (lambda (node)
             (let ((node-id (cdr (assoc 'id node)))
                   (backlinks 0))
