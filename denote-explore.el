@@ -25,7 +25,8 @@
 ;;; Commentary:
 ;;
 ;; Denote-Explore provides functionality to explore, maintain and visualise
-;; your collection fo Denote file.
+;; your collection of Denote files. The major version number indicates compa-
+;; tability with the relevantDenote version.
 ;; 
 ;; Functionality:
 ;;
@@ -78,7 +79,7 @@ File type defined with `denote-explore-network-format'."
   :type 'string)
 
 (defcustom denote-explore-network-format
-  'graphviz
+  'd3.js
   "Output format for Denote network files."
   :group 'denote-explore
   :package-version '(denote-explore . "1.3")
