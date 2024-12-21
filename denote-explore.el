@@ -100,6 +100,13 @@ File type defined with `denote-explore-network-format'."
   :type '(choice (const :tag "No Ignore Regexp" nil)
                  (regexp :tag "Ignore using Regexp")))
 
+(defcustom denote-explore-network-d3-template
+  (concat (file-name-directory load-file-name) "denote-explore-network.html")
+  "Fully qualified path of the D3.JS HTML template file."
+  :group 'denote-explore
+  :package-version '(denote-explore . "3.1")
+  :type 'string)
+
 (defcustom denote-explore-network-graphviz-header
   '("layout=neato"
     "size=20"
@@ -134,6 +141,30 @@ See graphviz.org for detailed documentation."
 	  (const :tag "Portable Network Graphics (PNG)" "png")
 	  (string :tag "Other option")))
 
+(defcustom denote-explore-network-d3-js
+  "https://d3js.org/d3.v7.min.js"
+  "Location of the D3.js source code."
+  :group 'denote-explore
+  :type 'string)
+
+(defcustom denote-explore-network-d3-colours
+  "schemeCategory10"
+  "Colour scheme for D3.js network visualisations.
+Refer to URL `https://d3js.org/d3-scale-chromatic/categorical' for details."
+  :group 'denote-explore
+  :type '(choice
+	  (const :tag "schemeCategory10" "schemeCategory10")
+	  (const :tag "schemeAccent" "schemeAccent")
+	  (const :tag "schemeDark2" "schemeDark2")
+	  (const :tag "schemeObservable10" "schemeObservable10")
+	  (const :tag "schemePaired" "schemePaired")
+	  (const :tag "schemePastel1" "schemePastel1")
+	  (const :tag "schemePastel2" "schemePastel2")
+	  (const :tag "schemePastel3" "schemePastel3")
+	  (const :tag "schemeSet1" "schemeSet1")
+	  (const :tag "schemeSet2" "schemeSet2")
+	  (const :tag "schemeTableau10" "schemeTableau10")))
+
 (defvar denote-explore-network-graph-formats
   '((graphviz
      :file-extension ".gv"
@@ -160,19 +191,22 @@ PROPERTY-LIST is a plist that consists of three elements:
 
 (defvar denote-explore-graph-types
   `(("Community"
+     :description "Notes matching a regular expression"
      :generate denote-explore-network-community
      :regenerate denote-explore-network-community-graph)
     ("Neighbourhood"
+     :description "Search n-deep in a selected note"
      :generate denote-explore-network-neighbourhood
      :regenerate denote-explore-network-neighbourhood-graph)
     ("Keywords"
+     :description "Relationships between keywords"
      :generate denote-explore-network-keywords
      :regenerate denote-explore-network-keywords-graph))
   "List of network types and their (re)generation functions.")
 
-(defvar denote-explore-load-directory
-  (file-name-directory load-file-name)
-  "Path of the denote-explore package required to start non-elisp scripts.")
+(define-obsolete-variable-alias
+  'denote-explore-load-directory
+  'denote-explore-network-filename "3.1")
 
 (defvar denote-explore-network-previous
   nil
@@ -208,8 +242,7 @@ A note is defined by `denote-file-types', anything else is an attachment."
 (defun denote-explore--jump (denote-sample)
   "Jump to a random note in the DENOTE-SAMPLE file list.
 Used in `denote-explore-random-*' functions."
-  (let ((sample denote-sample))
-    (find-file (nth (random (length sample)) sample))))
+  (find-file (nth (random (length denote-sample)) denote-sample)))
 
 ;;;###autoload
 (defun denote-explore-random-note (&optional include-attachments)
@@ -861,7 +894,6 @@ Uses the ID of the current Denote buffer or user selects via completion menu."
     (setq denote-explore-network-previous `("Neighbourhood" (,id ,depth)))
     (denote-explore-network-neighbourhood-graph `(,id ,depth))))
 
-
 (defun denote-explore-network-neighbourhood-graph (id-depth)
   "Generate Denote graph object from the neighbourhood with ID-DEPTH.
 ID-DEPTH is a list containing the starting ID and the DEPTH of the links."
@@ -1018,24 +1050,36 @@ Output is saved to the `denote-explore-network-directory' in the
 	  (user-error "No output file produced"))
       (user-error "GraphViz image generation unsuccessful"))))
 
-(defun denote-explore-network-display-json (json-file)
-  "Convert GraphViz JSON-FILE to an HTML file and display in external browser.
-Output is saved to `denote-explore-network-directory'.
-This functionality currently requires a working version of the R language."
-  ;; TODO: Develop D3.js template to negate the need for R.
-  (let* ((html-file (concat (file-name-sans-extension json-file) ".html"))
-	 (script-call (format "Rscript %sdenote-explore-network.R %s"
-			      (shell-quote-argument denote-explore-load-directory)
-			      (shell-quote-argument json-file)))
-	 (exit-status))
-    (message script-call)
-    (delete-file html-file)
-    (setq exit-status (shell-command script-call))
-    (if (eq exit-status 0)
-	(if (file-exists-p html-file)
-	    (browse-url-default-browser html-file nil)
-	  (user-error "No output file found"))
-      (user-error "Graphic generation unsuccessful"))))
+(defun denote-explore-network-display-json (json)
+  "Convert GraphViz JSON to an HTML file and display in external browser.
+Output is saved to `denote-explore-network-directory'."
+  ;; Add variable for template file.
+  (let* ((template-file denote-explore-network-d3-template)
+         (output-file (concat (file-name-sans-extension json) ".html"))
+         (json-content (with-temp-buffer
+                         (insert-file-contents json)
+                         (buffer-string)))
+	 (json-object (json-parse-string json-content))
+	 (type (car (split-string
+		     (gethash "type" (gethash "meta" json-object))
+		     "\\s-+" t))))
+    ;; Replace shortcodes with data
+    (with-temp-buffer
+      (insert-file-contents template-file)
+      (goto-char (point-min))
+      (while (re-search-forward "{{\\([^}]+\\)}}" nil t)
+        (let ((variable-name (match-string 1)))
+	  (cond
+	   ((string= variable-name "graph-type")
+	    (replace-match type t t))
+	   ((string= variable-name "d3-js")
+	    (replace-match denote-explore-network-d3-js t t))
+	   ((string= variable-name "json-content")
+	    (replace-match (format "%s" json-content) t t))
+	   ((string= variable-name "d3-colourscheme")
+	    (replace-match (format "%s" denote-explore-network-d3-colours) t t)))))
+      (write-file output-file))
+    (browse-url-default-browser output-file nil)))
 
 (defun denote-explore-network-view ()
   "Recreate the most recently generated Denote graph with external software."
@@ -1088,8 +1132,13 @@ generate and regenerate graphs.
 The `denote-explore-network-graph-formats' variable contains a list of functions
 to encode and display each graph format."
   (interactive)
-  (let* ((options (mapcar #'car denote-explore-graph-types))
-	 (graph-type (completing-read "Network type?" options))
+  (let* (;;(options (mapcar #'car denote-explore-graph-types))
+	 (options (mapcar (lambda (type)
+		   (format "%s (%s)" (car type)
+			   (plist-get (cdr type) :description)))
+		 denote-explore-graph-types))
+	 (selection (completing-read "Network type?" options))
+	 (graph-type (substring selection 0 (string-match " " selection)))
 	 (config (assoc graph-type denote-explore-graph-types))
 	 (generate-fn (plist-get (cdr config) :generate))
 	 (graph (funcall generate-fn)))
