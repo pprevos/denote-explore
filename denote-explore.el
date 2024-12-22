@@ -458,11 +458,13 @@ matter."
   "Rename or remove keyword(s) across the Denote collection.
 When selecting more than one existing keyword, all selections are renamed
 to the new version. Use an empty string as new keyword to remove the selection.
-The filename is taken as the source of truth for metadata and does not modify
-the frontmatter. Use `denote-explore-sync-metadata' to synchronise filenames
-and frontmatter."
+The filename is taken as the source of truth for metadata.
+Use `denote-explore-sync-metadata' to synchronise filenames with the frontmatter.
+All Denote buffers need to be saved for this function to work reliably."
   (interactive)
-  (save-some-buffers)
+  ;; Save any open Denote files
+  (save-some-buffers nil #'(lambda ()
+                             (denote-filename-is-note-p buffer-file-name)))
   (let* ((denote-rename-confirmations '(modify-file-name))
          (denote-sort-keywords t)
          (selected (denote-keywords-prompt "Keyword to rename"))
@@ -471,7 +473,8 @@ and frontmatter."
 			  (lambda (keyword) (concat "_" keyword)) selected "\\|"))
          (files (denote-directory-files keywords-regex)))
     (dolist (file files)
-      (let* ((file-keywords (denote-retrieve-filename-keywords file))
+      (let* ((filetype (denote-filetype-heuristics file))
+	     (file-keywords (denote-retrieve-filename-keywords file))
 	     (current-keywords (split-string file-keywords "_"))
              (new-keywords (if (equal new-keyword "")
                                (cl-set-difference current-keywords selected :test 'string=)
@@ -479,7 +482,7 @@ and frontmatter."
                                        (if (member keyword selected) new-keyword keyword))
                                      current-keywords))))
         (denote-rename-file file
-	 		    (denote-retrieve-filename-title file)
+	 		    (denote-explore--retrieve-title file filetype)
                             (if (equal new-keywords nil) "" new-keywords)
                             (denote-retrieve-filename-signature file))))))
 
@@ -762,7 +765,7 @@ Links to notes outside the search area are pruned."
   (let ((regex (read-from-minibuffer
 		"Enter search term / regular expression (empty string for all notes):")))
     (setq denote-explore-network-previous `("Community" ,regex))
-    (message "Building graph for %s community " regex)
+    (message "Building graph for \"%s\" community " regex)
     (denote-explore-network-community-graph regex)))
 
 ;;; keywords graph
