@@ -630,7 +630,6 @@ Using the universal argument includes attachments."
 ;; Define various graph types as an association list
 
 ;; Community graph
-
 (defun denote-explore--network-zip-alists (source target)
   "Combine two lists into an alists, pairing SOURCE and TARGET, defining edges."
   (let ((result nil))
@@ -755,9 +754,9 @@ Links to notes outside the search area are pruned."
 	    (edges-pruned (denote-explore--network-prune-edges ids edges))
 	    (edges-alist (denote-explore--network-count-edges edges-pruned))
 	    (nodes (mapcar #'denote-explore--network-extract-node files))
-	    (nodes-alist-1 (denote-explore--network-degree nodes edges-alist))
-	    (nodes-alist (denote-explore--network-backlinks nodes-alist-1 edges-alist))
-	    (meta-alist `((directed . t) (type . ,(format "Community '%s'" regex)))))
+	    (nodes-alist-degree (denote-explore--network-degree nodes edges-alist))
+	    (nodes-alist (denote-explore--network-backlinks nodes-alist-degree edges-alist))
+	    (meta-alist `((directed . t) (type . "Community") (parameters ,regex))))
       `((meta . ,meta-alist) (nodes . ,nodes-alist) (edges . ,edges-alist))
     (user-error "No Denote files or (back)links found for %s" regex)))
 
@@ -770,7 +769,6 @@ Links to notes outside the search area are pruned."
     (denote-explore-network-community-graph regex)))
 
 ;;; keywords graph
-
 (defun denote-explore--network-keywords-extract (files)
   "Convert keywords from FILES to a list of lists.
 Notes with only one keyword and keywords listed in
@@ -834,7 +832,7 @@ In a complete graph (network), all  nodes are connected to each other."
 	 (nodes (dolist (node unique-nodes nodes)  ; Iterating over nodes
 		  (push (list (cons 'id node) (cons 'name node)) nodes)))
 	 (nodes-alist (denote-explore--network-degree (nreverse nodes) edges-alist))
-	 (meta-alist `((directed . nil) (type . "Keywords") (min-weight . ,min-weight))))
+	 (meta-alist `((directed . nil) (type . "Keywords") (parameters . ,min-weight))))
     `((meta . ,meta-alist) (nodes . ,nodes-alist) (edges . ,edges-alist))))
 
 ;;; Neighbourhood Graph
@@ -912,13 +910,13 @@ ID-DEPTH is a list containing the starting ID and the DEPTH of the links."
 		      (cl-some (lambda (regex) (string-match regex file)) ids))
 		    denote-files))
 	    (nodes (mapcar #'denote-explore--network-extract-node files))
-	    (nodes-alist (denote-explore--network-degree nodes edges-alist))
-	    (meta-alist `((directed . t) (type . ,(format "Neighbourhood '%s' (depth: %s)" id depth)))))
+	    (nodes-alist-degree (denote-explore--network-degree nodes edges-alist))
+	    (nodes-alist (denote-explore--network-backlinks nodes-alist-degree edges-alist))
+	    (meta-alist `((directed . t) (type . "Neighbourhood") (parameters ,id ,depth))))
       `((meta . ,meta-alist) (nodes . ,nodes-alist) (edges . ,edges-alist))
     (user-error "No network neighbourhood found")))
 
 ;;; SAVE GRAPH
-
 (defun denote-explore-network-encode-json (graph)
   "Encode a Denote GRAPH object to JSON and insert in a file."
   (insert (json-encode graph))
@@ -1029,7 +1027,7 @@ ID-DEPTH is a list containing the starting ID and the DEPTH of the links."
     (with-temp-file file-name (funcall convert-fn graph))
     (message "Graph data saved to %s" file-name)))
 
-;;; Visualise network
+;;; VISUALISE NETWORK
 
 (defun denote-explore-network-display-graphviz (gv-file)
   "Convert GraphViz GV-FILE to an SVG file and display in external application.
