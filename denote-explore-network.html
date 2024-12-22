@@ -76,7 +76,7 @@
 	  font-weight: bold;
 	  text-align: center;
 	  line-height: 50px;
-	  border-radius: 25px; /* Makes it a circle */
+	  border-radius: 25px;
 	  cursor: pointer;
 	  z-index: 1000;
 	  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
@@ -112,53 +112,58 @@
 	  display: none;
 	  z-index: 99999;
       }
+      
       .info-tooltip .title {
-          font-weight: bold;
-          margin-bottom: 10px;
+	  font-weight: bold;
+	  margin-bottom: 10px;
 	  font-size: 24px;
       }
 
       .info.tooltip .metadata {
-          margin-top: 10px;
-          font-size: 22px;
-          color: #555;
+	  margin-top: 10px;
+	  font-size: 22px;
+	  color: #555;
       }
 
       #keyword-chart svg {
 	  font-family: Arial, sans-serif;
       }
 
-      .bar {
-	  fill: #3b82f6;
+      .legend-container .chart-container {
+	  margin-bottom: 10px;
+	  padding: 10px;
+	  border: 1px solid #ddd;
+	  border-radius: 8px;
+	  background-color: #f8f8f8;
+      }
+      .metadata-container {
+	  margin-bottom: 10px;
+	  padding: 10px;
+	  border: 1px solid #ddd;
+	  border-radius: 8px;
+	  background-color: #f8f8f8; /* Matches the existing tooltip and legend background */
+	  font-size: 18px; /* Matches the metadata text size */
       }
 
-      .bar:hover {
-	  fill: #2563eb;
-      }
-
-      .axis text {
-	  font-size: 12px;
+      .metadata {
+	  margin-bottom: 10px; /* Adjust spacing as needed */
+	  font-size: 18px; /* Optional: Adjust font size */
       }
 
     </style>
   </head>
   <body>
-    <div id="info-button" class="info-button">
-      ℹ
-    </div>
-    <div class="info-tooltip">
-      <div class="title">Denote <span id="graph-type"></span> Network</div>
-      <div class="metadata">Nodes: <span id="node-count"></span></div>
-      <div class="metadata">Edges: <span id="edge-count"></span></div>
-      <div id="keyword-chart"></div>
-    </div>
+    <!-- Info Button -->
+    <div id="info-button" class="info-button" title="Click for more information">ℹ</div>
+    <!-- Tooltip Container -->
+    <div class="info-tooltip"></div>
     <script src="{{d3-js}}"></script>
     <script>
       const data = {{json-content}}
 
       const width = 1440;
       const height = 900;
-
+      const fontSize = 18;
       const color = d3.scaleOrdinal(d3.schemeCategory10);
       const links = data.edges; // Array of edges
       const nodes = data.nodes; // Array of nodes
@@ -202,24 +207,24 @@
       // Pre-calculate refX for edges
       links.forEach((d, i) => {
 	  const targetNode = nodes.find(node => node.id === d.target);
-	  const targetRadius = radiusScale(targetNode.degree) + 2; // Same padding as above
-	  d.refX = targetRadius; // Dynamically calculate refX for alignment
+	  const targetRadius = isKeywordType ? 15 : radiusScale(targetNode.degree); // Use constant radius if isKeywordType is true
+	  d.refX = targetRadius + 2; // Dynamically calculate refX for alignment, with padding
       });
 
       // Define arrow markers dynamically based on line weight
       links.forEach((d, i) => {
 	  arrowMarkers.append("marker")
-              .attr("id", `arrow-${i}`)
-              .attr("viewBox", "0 -5 10 10")
-              .attr("refX", d.refX) // Use the pre-calculated refX
-              .attr("refY", 0)
-              .attr("markerWidth", 10) // Adjust arrow size
-              .attr("markerHeight", 5) // Adjust arrow size
-              .attr("orient", "auto")
-              .append("path")
-              .attr("d", "M0,-5L10,0L0,5") // Arrow shape
-              .attr("fill", "#999")
-              .attr("stroke", "none");
+	      .attr("id", `arrow-${i}`)
+	      .attr("viewBox", "0 -5 10 10")
+	      .attr("refX", d.refX) // Use the pre-calculated refX
+	      .attr("refY", 0)
+	      .attr("markerWidth", 10) // Adjust arrow size
+	      .attr("markerHeight", 5) // Adjust arrow size
+	      .attr("orient", "auto")
+	      .append("path")
+	      .attr("d", "M0,-5L10,0L0,5") // Arrow shape
+	      .attr("fill", "#999")
+	      .attr("stroke", "none");
       });
 
       // Add links and use dynamically created markers
@@ -237,13 +242,13 @@
       
       // Add hover interaction for edges
     .on("mouseover", (event, d) => {
-	if (data.meta.type === "Keywords") { // Check if meta.type is "Keyword"
+	if (data.meta.type === "Keywords") { 
 	    // Generate content for the tooltip
 	    const tooltipContent = `
-      <div class="metadata">From: ${d.source.name}</div>
-      <div class="metadata">To: ${d.target.name}</div>
-      <div class="metadata">Weight: ${d.weight || 'undefined'}</div>
-      `;
+	<div class="metadata">From: ${d.source.name}</div>
+	<div class="metadata">To: ${d.target.name}</div>
+	<div class="metadata">Weight: ${d.weight || 'undefined'}</div>
+	`;
 	    tooltip
 		.classed("hidden", false)
 		.html(tooltipContent)
@@ -261,7 +266,7 @@
 	    .selectAll("circle")
 	    .data(nodes)
 	    .join("circle")
-	    .attr("r", d => radiusScale(d.degree)) // Radius based on degree
+	    .attr("r", d => isKeywordType ? 15 : radiusScale(d.degree)) 
 	    .attr("fill", d => color(d.type))
 	    .on("click", (event, d) => {
 		if (!isKeywordType) { // Only open hyperlink if isKeywordType is false
@@ -272,20 +277,20 @@
 		// Generate tooltip content based on meta.type
 		const tooltipContent = data.meta.type === "Keywords"
 		      ? `
-	    <div class="title">${d.name}</div>
-	    <div class="metadata">Degree: ${d.degree}</div>
-                      `:
+	<div class="title">${d.name}</div>
+	<div class="metadata">Degree: ${d.degree}</div>
+	`:
 		      // Tooltip for other types
 		`
-	    <div class="title">${d.name}</div>
-	    <div class="metadata">ID: ${d.id}</div>
-	    <div class="metadata">Degree: ${d.degree}, Backlinks: ${d.backlinks}</div>
-	    <div class="metadata">Type: ${d.type}</div>
-	    <div class="metadata">Signature: ${d.signature ? d.signature : 'undefined'}</div>
-	    <div class="keywords">${d.keywords && d.keywords.length > 0 ? d.keywords.map(keyword =>
-              `<span>${keyword}</span>`).join('') :
-              '<div class="metadata">No keywords</div>'}</div>`;
-
+	<div class="title">${d.name}</div>
+	<div class="metadata">ID: ${d.id}</div>
+	<div class="metadata">Degree: ${d.degree}, Backlinks: ${d.backlinks}</div>
+	<div class="metadata">Type: ${d.type}</div>
+	<div class="metadata">Signature: ${d.signature ? d.signature : 'undefined'}</div>
+	<div class="keywords">${d.keywords && d.keywords.length > 0 ? d.keywords.map(keyword =>
+          `<span>${keyword}</span>`).join('') :
+          '<div class="metadata">No keywords</div>'}</div>
+	`;
 		tooltip
 		    .classed("hidden", false)
 		    .html(tooltipContent)
@@ -310,7 +315,7 @@
 	    .join("text")
 	    .attr("dx", 10)
 	    .attr("dy", ".35em")
-	    .style("font-size", "14px")
+	    .style("font-size", `${fontSize}px`)
 	    .style("font-family", "Arial, sans-serif")
 	    .style("fill", "#333")
 	    .text(d => d.name);
@@ -328,32 +333,32 @@
       // Update positions on each tick
       function ticked() {
 	  link
-              .attr("x1", d => d.source.x)
-              .attr("y1", d => d.source.y)
-              .attr("x2", d => {
+	      .attr("x1", d => d.source.x)
+	      .attr("y1", d => d.source.y)
+	      .attr("x2", d => {
 		  const dx = d.target.x - d.source.x;
 		  const dy = d.target.y - d.source.y;
 		  const distance = Math.sqrt(dx * dx + dy * dy) || 1; // Avoid division by zero
-		  const targetRadius = radiusScale(d.target.degree); // Exact node radius
+		  const targetRadius = isKeywordType ? 15 : radiusScale(d.target.degree); 
 		  const offsetX = (dx / distance) * targetRadius;
 		  return d.target.x - offsetX;
-              })
-              .attr("y2", d => {
+	      })
+	      .attr("y2", d => {
 		  const dx = d.target.x - d.source.x;
 		  const dy = d.target.y - d.source.y;
 		  const distance = Math.sqrt(dx * dx + dy * dy) || 1; // Avoid division by zero
 		  const targetRadius = radiusScale(d.target.degree); // Exact node radius
 		  const offsetY = (dy / distance) * targetRadius;
 		  return d.target.y - offsetY;
-              });
+	      });
 
 	  node
-              .attr("cx", d => d.x)
-              .attr("cy", d => d.y);
+	      .attr("cx", d => d.x)
+	      .attr("cy", d => d.y);
 
 	  labels
-              .attr("x", d => d.x)
-              .attr("y", d => d.y);
+	      .attr("x", d => d.x)
+	      .attr("y", d => d.y);
       }
 
       // Drag event handlers
@@ -374,101 +379,249 @@
 	  event.subject.fy = null;
       }
 
-      // Info Tooltip Data
-      document.getElementById('node-count').textContent = data.nodes.length;
-      document.getElementById('edge-count').textContent = data.edges.length;
-      const graphTypeText = data.meta.type;
-      const firstWord = graphTypeText.split(' ')[0];
-      document.getElementById('graph-type').textContent = firstWord;
-
-      const keywordCounts = data.nodes.reduce((acc, node) => {
-	  (node.keywords || []).forEach(keyword => {
-              acc[keyword] = (acc[keyword] || 0) + 1;
-	  });
-	  return acc;
-      }, {});
-      
       const infoButton = document.getElementById("info-button");
       const infoTooltip = document.querySelector(".info-tooltip");
 
-      // Handle tooltip hover
-      infoButton.addEventListener("mouseover", () => {
-	  infoTooltip.style.display = "block";
+      // Generate Tooltip Content
+      function generateTooltipContent() {
+	  // Clear existing content in the tooltip
+	  infoTooltip.innerHTML = "";
 
-	  // Check if isKeywordType is true
+	  // Add title
+	  const title = document.createElement("div");
+	  title.className = "title";
+	  title.textContent = `Denote ${data.meta.type} Network`;
+	  infoTooltip.appendChild(title);
+
+	  // Add metadata container
+	  const metadataContainer = document.createElement("div");
+	  metadataContainer.className = "metadata-container";
+
+	  if (data.meta.type === "Community") {
+	      const graphParameter = document.createElement("div");
+	      graphParameter.className = "metadata";
+	      graphParameter.textContent = `Regular expression: "${data.meta.parameters[0]}"`;
+	      metadataContainer.appendChild(graphParameter);
+	  }
+
+	  if (data.meta.type === "Keywords") {
+	      const graphParameter = document.createElement("div");
+	      graphParameter.className = "metadata";
+	      graphParameter.textContent = `Minimum links: ${data.meta.parameters}`;
+	      metadataContainer.appendChild(graphParameter);
+	  }
+
+	  if (data.meta.type === "Neighbourhood") {
+	      const graphParameter = document.createElement("div");
+	      graphParameter.className = "metadata";
+
+	      const rootLine = document.createElement("div");
+	      rootLine.textContent = `Root: ${data.meta.parameters[0]}`;
+	      rootLine.style.marginBottom = "5px"; // Add spacing below the first line
+	      graphParameter.appendChild(rootLine);
+
+	      const depthLine = document.createElement("div");
+	      depthLine.textContent = `Depth: ${data.meta.parameters[1]}`;
+	      graphParameter.appendChild(depthLine);
+
+	      metadataContainer.appendChild(graphParameter);
+	  }
+
+	  const nodeCount = document.createElement("div");
+	  nodeCount.className = "metadata";
+	  nodeCount.textContent = `${data.nodes.length} nodes`;
+	  metadataContainer.appendChild(nodeCount);
+
+	  const edgeCount = document.createElement("div");
+	  edgeCount.className = "metadata";
+	  edgeCount.textContent = `${data.edges.length} ${data.edges.length === 1 ? "edge" : "edges"}`;
+	  metadataContainer.appendChild(edgeCount);
+
+	  infoTooltip.appendChild(metadataContainer);
+
+	  // Add legend container
+	  const legendContainer = document.createElement("div");
+	  legendContainer.className = "metadata-container"; // Match the metadata background style
+	  legendContainer.style.marginTop = "10px"; // Add spacing between sections
+
+	  const legendTitle = document.createElement("div");
+	  legendTitle.style.fontWeight = "bold";
+	  legendTitle.style.marginBottom = "10px";
+	  legendTitle.textContent = "File Types";
+	  legendContainer.appendChild(legendTitle);
+
+	  // Generate legend and bar chart dynamically for non-keyword types
 	  if (!isKeywordType) {
-	      // Prepare keyword data
+	      const typeCounts = data.nodes.reduce((acc, node) => {
+		  acc[node.type] = (acc[node.type] || 0) + 1;
+		  return acc;
+	      }, {});
+
+	      const legendData = Object.entries(typeCounts).map(([type, count]) => ({
+		  type,
+		  count,
+	      }));
+
+	      legendData.forEach((entry) => {
+		  const legendItem = document.createElement("div");
+		  legendItem.style.display = "flex";
+		  legendItem.style.alignItems = "center";
+		  legendItem.style.marginBottom = "5px";
+
+		  const colorBox = document.createElement("div");
+		  colorBox.style.width = "15px";
+		  colorBox.style.height = "15px";
+		  colorBox.style.marginRight = "10px";
+		  colorBox.style.backgroundColor = d3.schemeCategory10[legendData.indexOf(entry)];
+		  legendItem.appendChild(colorBox);
+
+		  const text = document.createElement("span");
+		  text.style.fontSize = `${fontSize}px`;
+		  text.textContent = `${entry.type} (${entry.count})`;
+		  legendItem.appendChild(text);
+
+		  legendContainer.appendChild(legendItem);
+	      });
+
+	      infoTooltip.appendChild(legendContainer);
+
+	      // Add keyword frequency chart container
+	      const chartContainer = document.createElement("div");
+	      chartContainer.className = "metadata-container"; // Match the metadata background style
+	      chartContainer.style.marginTop = "10px"; // Add spacing between sections
+
+	      const chartTitle = document.createElement("div");
+	      chartTitle.style.fontWeight = "bold";
+	      chartTitle.style.marginBottom = "10px";
+	      chartTitle.textContent = "Keyword Frequency Chart";
+	      chartContainer.appendChild(chartTitle);
+
+	      // Bar chart
 	      const keywordCounts = data.nodes.reduce((acc, node) => {
-		  (node.keywords || []).forEach(keyword => {
+		  (node.keywords || []).forEach((keyword) => {
 		      acc[keyword] = (acc[keyword] || 0) + 1;
 		  });
 		  return acc;
 	      }, {});
 
-	      // Convert and sort data by count (descending)
-	      const keywordData = Object.entries(keywordCounts)
-		    .map(([keyword, count]) => ({ keyword, count }))
-		    .sort((a, b) => b.count - a.count); // Sort from high to low
+	      const keywordData = Object.entries(keywordCounts).map(([keyword, count]) => ({
+		  keyword,
+		  count,
+	      }));
 
-	      // Clear previous chart (if any)
-	      d3.select("#keyword-chart").selectAll("*").remove();
+	      // Sort keywordData by count in descending order
+	      keywordData.sort((a, b) => b.count - a.count);
 
-	      // Add bar chart inside #keyword-chart
-	      const chartWidth = 600;
-	      const chartHeight = 600;
-	      const margin = { top: 20, right: 10, bottom: 30, left: 100 };
+	      // Define constants
+	      const barHeight = 20; // Height of each bar
+	      const barSpacing = 5; // Space between bars
+	      const chartWidth = 400;
+	      const margin = { top: 20, right: 20, bottom: 30, left: 20 }; // Initial margins
 
-	      const x = d3.scaleLinear()
-		    .domain([0, d3.max(keywordData, d => d.count)])
+	      // Create a temporary SVG to measure label dimensions
+	      const tempSVG = d3.select("body").append("svg").attr("class", "temp-svg");
+
+	      // Calculate max label width for y-axis
+	      const maxYLabelWidth = d3.max(keywordData, (d) => {
+		  const textElement = tempSVG
+			.append("text")
+			.attr("class", "temp-text")
+			.style("font-size", `${fontSize}px`)
+			.text(d.keyword);
+		  const textWidth = textElement.node().getBBox().width;
+		  textElement.remove();
+		  return textWidth;
+	      });
+
+	      // Calculate max label height for x-axis
+	      const maxXLabelHeight = d3.max(keywordData, (d) => {
+		  const textElement = tempSVG
+			.append("text")
+			.attr("class", "temp-text")
+			.style("font-size", `${fontSize}px`)
+			.text(d.count * 2);
+		  const textHeight = textElement.node().getBBox().height;
+		  textElement.remove();
+		  return textHeight;
+	      });
+	      tempSVG.remove(); // Clean up the temporary SVG
+
+	      // Update margins dynamically
+	      margin.left = maxYLabelWidth + 10; // Add padding
+	      margin.bottom = maxXLabelHeight + 10; // Add padding
+
+	      // Compute chart height based on number of bars
+	      const chartHeight = keywordData.length * (barHeight + barSpacing) + margin.top + margin.bottom;
+
+	      // Update scales
+	      const x = d3
+		    .scaleLinear()
+		    .domain([0, d3.max(keywordData, (d) => d.count)])
 		    .range([0, chartWidth - margin.left - margin.right]);
 
-	      const y = d3.scaleBand()
-		    .domain(keywordData.map(d => d.keyword)) // Sorted domain
-		    .range([0, chartHeight - margin.top - margin.bottom])
-		    .padding(0.1);
+	      const y = d3
+		    .scaleBand()
+		    .domain(keywordData.map((d) => d.keyword))
+		    .range([0, keywordData.length * (barHeight + barSpacing)])
+		    .padding(0.1); // Padding within the band
 
-	      const svg = d3.select("#keyword-chart")
+	      // Create SVG
+	      const chartSVG = d3
+		    .select(chartContainer)
 		    .append("svg")
 		    .attr("width", chartWidth)
-		    .attr("height", chartHeight)
+		    .attr("height", chartHeight);
+
+	      const chartGroup = chartSVG
 		    .append("g")
 		    .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
-	      svg.selectAll(".bar")
+	      // Add bars
+	      chartGroup
+		  .selectAll(".bar")
 		  .data(keywordData)
 		  .enter()
 		  .append("rect")
 		  .attr("class", "bar")
 		  .attr("x", 0)
-		  .attr("y", d => y(d.keyword))
-		  .attr("width", d => x(d.count))
-		  .attr("height", y.bandwidth())
-		  .attr("fill", "#3b82f6");
-
-	      // Add x-axis
-	      svg.append("g")
-		  .attr("transform", `translate(0, ${chartHeight - margin.top - margin.bottom})`)
-		  .call(d3.axisBottom(x).ticks(5))
-		  .selectAll("text") // Select all text labels
-		  .style("font-size", "18px") // Change font size
-		  .style("font-family", "Arial, sans-serif"); // Optional: Change font family
+		  .attr("y", (d, i) => i * (barHeight + barSpacing)) // Use index to calculate position
+		  .attr("width", (d) => x(d.count))
+		  .attr("height", barHeight)
+		  .attr("fill", "lightgrey");
 
 	      // Add y-axis
-	      svg.append("g")
+	      chartGroup
+		  .append("g")
 		  .call(d3.axisLeft(y))
-		  .selectAll("text") // Select all text labels
-		  .style("font-size", "18px") // Change font size
-		  .style("font-family", "Arial, sans-serif"); // Optional: Change font family
+		  .selectAll("text")
+		  .style("font-size", `${fontSize}px`);
 
-	  } else {
-              // Clear chart if not isKeywordType
-              d3.select("#keyword-chart").selectAll("*").remove();
+	      // Add x-axis
+	      const maxValue = d3.max(keywordData, d => d.count); // Get the maximum value
+	      chartGroup
+		  .append("g")
+		  .attr("transform", `translate(0, ${chartHeight - margin.top - margin.bottom})`)
+		  .call(d3.axisBottom(x).tickValues([0, maxValue])) // Set tick values to only 0 and max
+		  .selectAll("text")
+		  .style("font-size", `${fontSize}px`);
+
+	      // Append the chart container to the tooltip or desired location
+	      infoTooltip.appendChild(chartContainer);
+
 	  }
+      }
+
+      // Toggle tooltip visibility on button click
+      infoButton.addEventListener("click", () => {
+	  if (infoTooltip.style.display === "block") {
+	      infoTooltip.style.display = "none";
+	  } else {
+	      generateTooltipContent();
+	      infoTooltip.style.display = "block";
+	  }
+	  
       });
-      // Hide tooltip on mouseout
-      infoButton.addEventListener("mouseout", () => {
-	  infoTooltip.style.display = "none";
-      });
+
 
     </script>
   </body>
