@@ -5,7 +5,7 @@
 ;; Author: Peter Prevos <peter@prevos.net>
 ;; URL: https://github.com/pprevos/denote-explore/
 ;; Version: 3.1
-;; Package-Requires: ((emacs "29.1") (denote "3.0") (dash "2.19.1"))
+;; Package-Requires: ((emacs "29.1") (denote "3.1") (dash "2.19.1"))
 ;;
 ;; This file is NOT part of GNU Emacs.
 ;;
@@ -313,11 +313,8 @@ or target keywords are in the same order as the selection. Alternatively, use
 With universal argument the sample includes attachments."
   (interactive "P")
   (if-let* ((keyword-list (denote-explore--select-keywords))
-	    (keyword-regex (concat "_" (mapconcat #'identity keyword-list ".*_")))
-	    (sample (denote-directory-files
-		     keyword-regex t (not include-attachments))))
-      (denote-explore--jump sample)
-    (message "No matching Denote files found")))
+	    (keyword-regex (concat "_" (mapconcat #'identity keyword-list ".*_"))))
+      (denote-explore-random-regex keyword-regex)))
 
 ;;;###autoload
 (defun denote-explore-random-regex (regex &optional include-attachments)
