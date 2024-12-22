@@ -39,6 +39,13 @@ Alternatively, you can install it directly from GitHub:
 #+end_src
 
 * Change Log
+** Version 3.1
+- Removed dependency on R for D3.js graphs. D3 is now the default network output format.
+- Fixed bugs in renaming functions
+- Protection against using quotation marks in note title when visualising networks in GraphViz.
+- Fixed backlinks barchart visualisation
+- Updates documentation strings.
+
 ** Version 3.0
 - Compatability with Denote 3.0 
 - Renamed barchart functions to all start with ~denote-explore-barchart-~.
@@ -121,18 +128,17 @@ New functionality since the previous version:
 - ~denote-explore-sync-metadata~: Synchronise the filenames with the metadata for all Denote files.
 
 * Ideas for future development
-- [-] Create a Denote widget for the Emacs Dashboard with links to statistics.
-- [-] Functions to rename Denote attachments using EXIF metadata.
-- [-] Jump to random note within a time frame
+Some random ideas for future development.
+
+- [ ] Create a Denote widget for the Emacs Dashboard with links to statistics.
+- [ ] Functions to rename Denote attachments using EXIF metadata.
+- [ ] Jump to random note within a time frame
 
 ** Visualising Denote
-- [-] Ring of previously-generated networks instead of overwriting ~denote-explore-network-previous~
-- [ ] [[https://orgmode.org/manual/Dynamic-Blocks.html][Dynamic org mode blocks]] to visualise the neighbourhood of a node
-- [ ] Use [[https://github.com/alphapapa/org-graph-view/][org-graph-view]] for live neighbourhood view of the current buffer
-- [ ] [[https://graphviz.org/pdf/cluster.1.pdf][Community detection]] in GraphViz versions?
-- [ ] Visualise signatures ([[https://zettelkasten.de/introduction/2020-08-13_folgezettel-sequence.png][example]])
 - [ ] Store the Denote metadata in a [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Hash-Tables.html][hash table]] that is updated after every modification to a Denote file for more efficient visualisation.
-- [ ] The current network visualisation uses the [[https://christophergandrud.github.io/networkD3/][networkD3 package]] of the R language as a detour to generate a HTML file with associated JavaScript code. I am slowly working my way to not have to use R, but I first need to learn more JavaScript and the [[https://d3js.org/][D3 visualisation language]].
-- [ ] Scaling GraphViz text size based on number of nodes
-- [ ] Use a plain text method to perhaps visualise the network neighbourhood. The [[https://github.com/DamienCassou/hierarchy][hierarchy package]] can display information in a tree format, which might be helpful to visualise the local community of a Denote buffer, e.g. two links backwards and forwards.
+- [X] The current network visualisation uses the [[https://christophergandrud.github.io/networkD3/][networkD3 package]] of the R language as a detour to generate a HTML file with associated JavaScript code. I am slowly working my way to not have to use R, but I first need to learn more JavaScript and the [[https://d3js.org/][D3 visualisation language]].
+- [ ] Ring of previously-generated networks instead of overwriting ~denote-explore-network-previous~
+- [ ] Use [[https://github.com/alphapapa/org-graph-view/][org-graph-view]] for live neighbourhood view of the current buffer
+- [ ] [[https://graphviz.org/pdf/cluster.1.pdf][Community detection]]?
+- [ ] Visualise signatures ([[https://zettelkasten.de/introduction/2020-08-13_folgezettel-sequence.png][example]])
 - [ ] Plain text time series graph of the creation of new notes.
