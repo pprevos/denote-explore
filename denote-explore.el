@@ -442,15 +442,15 @@ as is. Use `denote-explore-sync-metadata' to synchronise filenames and front
 matter."
   (interactive)
   (let ((denote-rename-confirmations '(modify-file-name))
-	(notes (denote-directory-files)))
+	(notes (denote-directory-files nil nil t)))
     (dolist (file notes)
-      (message file)
-      (when-let ((file-keywords (denote-retrieve-filename-keywords file)))
-	  (when (not (denote-explore--alphabetical-p (split-string file-keywords "_")))
-	    (denote-rename-file file
-	 			(denote-retrieve-filename-title file)
-	 			(denote-keywords-sort (split-string file-keywords "_"))
-				(denote-retrieve-filename-signature file))))))
+      (when-let ((file-keywords (denote-retrieve-filename-keywords file))
+		 (file-type (denote-filetype-heuristics file)))
+	(when (not (denote-explore--alphabetical-p (split-string file-keywords "_")))
+	  (denote-rename-file file
+	 		      (denote-retrieve-title-or-filename file file-type)
+	 		      (denote-keywords-sort (split-string file-keywords "_"))
+			      (denote-retrieve-filename-signature file))))))
   (message "All keywords ordered alphabetically"))
 
 ;;;###autoload
@@ -460,7 +460,7 @@ When selecting more than one existing keyword, all selections are renamed
 to the new version. Use an empty string as new keyword to remove the selection.
 The filename is taken as the source of truth for metadata.
 Use `denote-explore-sync-metadata' to synchronise filenames with the frontmatter.
-All Denote buffers need to be saved for this function to work reliably."
+All open Denote buffers need to be saved for this function to work reliably."
   (interactive)
   ;; Save any open Denote files
   (save-some-buffers nil #'(lambda ()
@@ -473,7 +473,7 @@ All Denote buffers need to be saved for this function to work reliably."
 			  (lambda (keyword) (concat "_" keyword)) selected "\\|"))
          (files (denote-directory-files keywords-regex)))
     (dolist (file files)
-      (let* ((filetype (denote-filetype-heuristics file))
+      (let* ((file-type (denote-filetype-heuristics file))
 	     (file-keywords (denote-retrieve-filename-keywords file))
 	     (current-keywords (split-string file-keywords "_"))
              (new-keywords (if (equal new-keyword "")
@@ -482,7 +482,7 @@ All Denote buffers need to be saved for this function to work reliably."
                                        (if (member keyword selected) new-keyword keyword))
                                      current-keywords))))
         (denote-rename-file file
-	 		    (denote-explore--retrieve-title file filetype)
+	 		    (denote-retrieve-title-or-filename file file-type)
                             (if (equal new-keywords nil) "" new-keywords)
                             (denote-retrieve-filename-signature file))))))
 
@@ -494,13 +494,16 @@ All Denote buffers need to be saved for this function to work reliably."
 ;;;###autoload
 (defun denote-explore-sync-metadata ()
   "Synchronise filenames with the metadata for all Denote notes.
-The front matter is used as the source of truth."
+The front matter is used as the source of truth.
+All open Denote buffers need to be saved for this function to work reliably."
   (interactive)
-  (save-some-buffers)
+    (save-some-buffers nil #'(lambda ()
+                             (denote-filename-is-note-p buffer-file-name)))
   (let ((denote-rename-confirmations '(modify-file-name))
 	(denote-sort-keywords t)
 	(notes (denote-directory-files nil nil t)))
     (dolist (file notes)
+      ;; Construct file name from front matter (except the ID)
       (let* ((file-type (denote-filetype-heuristics file))
 	     (directory (file-name-directory file))
 	     (id (denote-retrieve-filename-identifier file))
@@ -509,6 +512,7 @@ The front matter is used as the source of truth."
 	     (extension (file-name-extension file :include-period))
 	     (signature (denote-retrieve-filename-signature file))
 	     (new-name (denote-format-file-name directory id keywords title extension signature)))
+	;; Rename when new name is not the same as current name
 	(when (not (string= file new-name))
 	  (progn (message file)
 	(denote-rename-file-using-front-matter file))))))
