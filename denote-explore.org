@@ -206,7 +206,7 @@ The Denote-Explore network algorithm consists of four steps:
 
 Hover over any node to reveal its name and relevant metadata. Clicking on any node in a community or neighbourhood graph opens the relevant file in the browser, or whatever application the browser associates with the relevant file type.
 
-For community and neighbourhood graphs, the diameter of nodes is proportional to their degree. Thus, the most linked note in your query will be the most visible. The colours indicate the file type of each node. 
+For community and neighbourhood graphs, the diameter of nodes is proportional to their degree. Thus, the most linked note in your query will be the most visible. The colours indicate the file type of each node and are assigned in order of appearance in the JSON file.
 
 For nodes with a degree greater than two, the name is displayed outside the node. In keyword graphs, the thickness of the edges indicates the number of times two keywords are associated with each other.
 
@@ -215,7 +215,7 @@ The info button provides some basic statistics about the visualised notes, such 
 There are a few configurations you might consider for this visualisation format:
 - ~denote-explore-network-d3-js~: Location of the D3 source, which has to be version 7 or above.
 - ~denote-explore-network-d3-template~: Location of the HTML/JavaScript template file.
-- ~denote-explore-network-d3-colours~: Colour palette for the nodes.
+- ~denote-explore-network-d3-colours~: Colour palette for the nodes. You can choose between any of the available categorical colour schemes in the D3 package. 
 
 ** GraphViz
 [[https://graphviz.org/][GraphViz]] is an open-source graph visualisation software toolkit, ideal for this task. The Denote-Explore software saves the graph in the DOT language as a =.gv= file. The GraphViz software converts the DOT code to an =SVG= file.
