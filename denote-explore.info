@@ -32,7 +32,7 @@ commands:
 * Summary Statistics::
 * Random Walks::
 * Denote-Explore Janitor::
-* Create Personal Knowledge Graphs::
+* Personal Knowledge Graphs::
 * Installation and Package Configuration::
 * Acknowledgements::
 * License::
@@ -45,7 +45,7 @@ Denote-Explore Janitor
 * Managing Keywords::
 * Synchronising Meta Data::
 
-Create Personal Knowledge Graphs
+Personal Knowledge Graphs
 
 * Community of Notes::
 * Note Neighbourhood::
@@ -141,7 +141,7 @@ wrote in May 2022, use ‘^202205’ and using ‘202305.*_journal’ jumps to a
 random journal entry in May 2023.
 
 
-File: denote-explore.info,  Node: Denote-Explore Janitor,  Next: Create Personal Knowledge Graphs,  Prev: Random Walks,  Up: Top
+File: denote-explore.info,  Node: Denote-Explore Janitor,  Next: Personal Knowledge Graphs,  Prev: Random Walks,  Up: Top
 
 3 Denote-Explore Janitor
 ************************
@@ -257,10 +257,10 @@ enforces the alphabetisation of keywords, which assists with finding
 notes.
 
 
-File: denote-explore.info,  Node: Create Personal Knowledge Graphs,  Next: Installation and Package Configuration,  Prev: Denote-Explore Janitor,  Up: Top
+File: denote-explore.info,  Node: Personal Knowledge Graphs,  Next: Installation and Package Configuration,  Prev: Denote-Explore Janitor,  Up: Top
 
-4 Create Personal Knowledge Graphs
-**********************************
+4 Personal Knowledge Graphs
+***************************
 
 Denote implements a linking mechanism that connects notes (either Org,
 Markdown, or plain text files) to other notes or attachments.  This
@@ -313,7 +313,7 @@ collection because large it is not an informative exercise.
 * Analysing the Denote Network::
 
 
-File: denote-explore.info,  Node: Community of Notes,  Next: Note Neighbourhood,  Up: Create Personal Knowledge Graphs
+File: denote-explore.info,  Node: Community of Notes,  Next: Note Neighbourhood,  Up: Personal Knowledge Graphs
 
 4.1 Community of Notes
 ======================
@@ -359,7 +359,7 @@ they have the ‘_meta’ keyword, then you could exclude this set of nodes
 by customising this variable to the relevant regular expression.
 
 
-File: denote-explore.info,  Node: Note Neighbourhood,  Next: Keyword Network,  Prev: Community of Notes,  Up: Create Personal Knowledge Graphs
+File: denote-explore.info,  Node: Note Neighbourhood,  Next: Keyword Network,  Prev: Community of Notes,  Up: Personal Knowledge Graphs
 
 4.2 Note Neighbourhood
 ======================
@@ -414,7 +414,7 @@ island of connected notes.
 regular expression of notes exclude from visualisations.
 
 
-File: denote-explore.info,  Node: Keyword Network,  Next: Network Layout and Presentation,  Prev: Note Neighbourhood,  Up: Create Personal Knowledge Graphs
+File: denote-explore.info,  Node: Keyword Network,  Next: Network Layout and Presentation,  Prev: Note Neighbourhood,  Up: Personal Knowledge Graphs
 
 4.3 Keyword Network
 ===================
@@ -475,7 +475,7 @@ no further semantic value.  The ‘denote-explore-network-keywords-ignore’
 variable lists keywords ignored in this visualisation.
 
 
-File: denote-explore.info,  Node: Network Layout and Presentation,  Next: D3js,  Prev: Keyword Network,  Up: Create Personal Knowledge Graphs
+File: denote-explore.info,  Node: Network Layout and Presentation,  Next: D3js,  Prev: Keyword Network,  Up: Personal Knowledge Graphs
 
 4.4 Network Layout and Presentation
 ===================================
@@ -512,7 +512,7 @@ GEXF.
      browser).
 
 
-File: denote-explore.info,  Node: D3js,  Next: GraphViz,  Prev: Network Layout and Presentation,  Up: Create Personal Knowledge Graphs
+File: denote-explore.info,  Node: D3js,  Next: GraphViz,  Prev: Network Layout and Presentation,  Up: Personal Knowledge Graphs
 
 4.5 D3.js
 =========
@@ -540,7 +540,13 @@ indicates the number of times two keywords are associated with each
 other.
 
    The info button provides some basic statistics about the visualised
-notes.
+notes, such as the number of nodes (files) and edges (links) and the
+network density.  The density of a network is the ratio between the
+number of edges and the potential number of edges.  If the density of a
+network is zero, then you just have a collection of unconnected notes.
+A density of one means everything is connection to everything.  The info
+panel also shows the distribution of keywords in the case of community
+and neighbourhood graphs.
 
    There are a few configurations you might consider for this
 visualisation format:
@@ -551,7 +557,7 @@ visualisation format:
    • ‘denote-explore-network-d3-colours’: Colour palette for the nodes.
 
 
-File: denote-explore.info,  Node: GraphViz,  Next: Graph Exchange XML Format,  Prev: D3js,  Up: Create Personal Knowledge Graphs
+File: denote-explore.info,  Node: GraphViz,  Next: Graph Exchange XML Format,  Prev: D3js,  Up: Personal Knowledge Graphs
 
 4.6 GraphViz
 ============
@@ -594,7 +600,7 @@ GraphViz output format.  SVG (the default) or PDF provide the best
 results.
 
 
-File: denote-explore.info,  Node: Graph Exchange XML Format,  Next: Analysing the Denote Network,  Prev: GraphViz,  Up: Create Personal Knowledge Graphs
+File: denote-explore.info,  Node: Graph Exchange XML Format,  Next: Analysing the Denote Network,  Prev: GraphViz,  Up: Personal Knowledge Graphs
 
 4.7 Graph Exchange XML Format
 =============================
@@ -618,7 +624,7 @@ The ‘GEXF’ file only contains the IDs, names and degree of the nodes;
 and the edges and their weights.
 
 
-File: denote-explore.info,  Node: Analysing the Denote Network,  Prev: Graph Exchange XML Format,  Up: Create Personal Knowledge Graphs
+File: denote-explore.info,  Node: Analysing the Denote Network,  Prev: Graph Exchange XML Format,  Up: Personal Knowledge Graphs
 
 4.8 Analysing the Denote Network
 ================================
@@ -663,7 +669,7 @@ of nodes to visualise and then analyses the complete network of Denote
 files and attachments, which can take a brief moment.
 
 
-File: denote-explore.info,  Node: Installation and Package Configuration,  Next: Acknowledgements,  Prev: Create Personal Knowledge Graphs,  Up: Top
+File: denote-explore.info,  Node: Installation and Package Configuration,  Next: Acknowledgements,  Prev: Personal Knowledge Graphs,  Up: Top
 
 5 Installation and Package Configuration
 ****************************************
@@ -752,24 +758,24 @@ General Public License for more details.
 
 Tag Table:
 Node: Top91
-Node: Summary Statistics1815
-Node: Random Walks3012
-Node: Denote-Explore Janitor5675
-Node: Duplicate notes6293
-Node: Managing Keywords8280
-Node: Synchronising Meta Data10289
-Node: Create Personal Knowledge Graphs10968
-Node: Community of Notes13411
-Node: Note Neighbourhood15675
-Node: Keyword Network18047
-Node: Network Layout and Presentation20974
-Node: D3js22891
-Node: GraphViz24540
-Node: Graph Exchange XML Format26422
-Node: Analysing the Denote Network27477
-Node: Installation and Package Configuration29965
-Node: Acknowledgements32168
-Node: License32797
+Node: Summary Statistics1801
+Node: Random Walks2998
+Node: Denote-Explore Janitor5661
+Node: Duplicate notes6272
+Node: Managing Keywords8259
+Node: Synchronising Meta Data10268
+Node: Personal Knowledge Graphs10947
+Node: Community of Notes13369
+Node: Note Neighbourhood15626
+Node: Keyword Network17991
+Node: Network Layout and Presentation20911
+Node: D3js22821
+Node: GraphViz24906
+Node: Graph Exchange XML Format26781
+Node: Analysing the Denote Network27829
+Node: Installation and Package Configuration30310
+Node: Acknowledgements32506
+Node: License33135
 
 End Tag Table
 
