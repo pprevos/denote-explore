@@ -1,4 +1,4 @@
-#+title:  Denote Explore: Explore your Denote digital garden
+#+title:  Denote Explore: Explore your Denote Digital Garden
 #+author: Peter Prevos
 
 The Denote-Explore package provides auxiliary functions to maintain and explore your collection of Denote files. Denote-Explore provides three groups of Emacs commands:
@@ -8,25 +8,14 @@ The Denote-Explore package provides auxiliary functions to maintain and explore 
 3. /Janitor/: Manage your denote collection.
 4. /Visualisations/: Visualise your Denote network  as a network graph.
 
-This package exists because I started to move many files on my computer into Denote silos, leveraging the ingenious file naming convention and associated functionality. These functions helped me to add some structure to the organic chaos of my digital garden.
-
 Read the [[https://lucidmanager.org/productivity/denote-explore][denote-explore manual]] for a comprehensive explanation of all functionality (=C-h R denote-explore=).
 
-This package is available on MELPA and is easily installed with the ~use-package~ macro.
+Visualising networks of Denote files with SVG or PDF files will require the GraphViz package to be available. Other visualisation types have no external dependencies.
 
-The configuration below sets all available variables. The first two variables define where graph files are stored, sans extension. If the directory does not yet exist, then the package creates it when required. The third variable defines the output format and as such the file extensions. Possible options are [[https://graphviz.org/][graphviz]], [[https://d3js.org/][D3.js]] (JSON) and [[https://gexf.net/][GEXF]]. You will need to install GraphViz and/or the R language to visualise Denote graphs.
+Denote-Explore package is available on MELPA and is easily installed with the ~use-package~ macro.
 
 #+begin_src elisp :results none
-  (use-package denote-explore
-    :custom
-    ;; Location of graph files
-    (denote-explore-network-directory "~/documents/notes/graphs/")
-    (denote-explore-network-filename "denote-network")
-    ;; Output format
-    (denote-explore-network-format 'graphviz)
-    (denote-explore-network-graphviz-filetype "svg")
-    ;; Exlude keywords or regex
-    (denote-explore-network-keywords-ignore '("bib")))
+  (use-package denote-explore)
 #+end_src
 
 Alternatively, you can install it directly from GitHub:
@@ -39,8 +28,10 @@ Alternatively, you can install it directly from GitHub:
 #+end_src
 
 * Change Log
+Major version numbers coincide with Denote major versions.
+
 ** Version 3.1
-- Removed dependency on R for D3.js graphs. D3 is now the default network output format.
+- Removed dependency on R for D3.js graphs. D3 now uses a template in which a JSON file is inserted. This format is now the default.
 - Fixed bugs in renaming functions
 - Protection against using quotation marks in note title when visualising networks in GraphViz.
 - Fixed backlinks barchart visualisation
@@ -136,7 +127,6 @@ Some random ideas for future development.
 
 ** Visualising Denote
 - [ ] Store the Denote metadata in a [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Hash-Tables.html][hash table]] that is updated after every modification to a Denote file for more efficient visualisation.
-- [X] The current network visualisation uses the [[https://christophergandrud.github.io/networkD3/][networkD3 package]] of the R language as a detour to generate a HTML file with associated JavaScript code. I am slowly working my way to not have to use R, but I first need to learn more JavaScript and the [[https://d3js.org/][D3 visualisation language]].
 - [ ] Ring of previously-generated networks instead of overwriting ~denote-explore-network-previous~
 - [ ] Use [[https://github.com/alphapapa/org-graph-view/][org-graph-view]] for live neighbourhood view of the current buffer
 - [ ] [[https://graphviz.org/pdf/cluster.1.pdf][Community detection]]?

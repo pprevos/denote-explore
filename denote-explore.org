@@ -78,7 +78,7 @@ Denote stores the metadata for each note in the filename using its ingenious for
 
 The ~denote-explore-sync-metadata~ function checks all notes and asks the user to rename any file where these two data sets are mismatched. The front matter data is the source of truth. This function also enforces the alphabetisation of keywords, which assists with finding notes.
 
-* Create Personal Knowledge Graphs
+* Personal Knowledge Graphs
 Denote implements a linking mechanism that connects notes (either Org, Markdown, or plain text files) to other notes or attachments. This mechanism allows the user to visualise all notes as a network.
 
 Emacs is a text processor with limited graphical capabilities. However, committing your ideas to text requires a linear way of thinking since you can only process one word at a time. Visual thinking through tools such as mind maps or network diagrams is another way to approach your ideas. One of the most common methods to visualise interlinked documents is in a network or a personal knowledge graph.
@@ -210,7 +210,7 @@ For community and neighbourhood graphs, the diameter of nodes is proportional to
 
 For nodes with a degree greater than two, the name is displayed outside the node. In keyword graphs, the thickness of the edges indicates the number of times two keywords are associated with each other.
 
-The info button provides some basic statistics about the visualised notes.
+The info button provides some basic statistics about the visualised notes, such as the number of nodes (files) and edges (links) and the network density. The density of a network is the ratio between the number of edges and the potential number of edges. If the density of a network is zero, then you just have a collection of unconnected notes. A density of one means everything is connection to everything. The info panel also shows the distribution of keywords in the case of community and neighbourhood graphs.
 
 There are a few configurations you might consider for this visualisation format:
 - ~denote-explore-network-d3-js~: Location of the D3 source, which has to be version 7 or above.
