@@ -1,10 +1,10 @@
-;;; denote-explore.el --- Explore Denote files -*- lexical-binding: t -*-
+;;; denote-explore.el --- Explore and visualise Denote files -*- lexical-binding: t -*-
 ;;
 ;; Copyright (C) 2023-2024 Peter Prevos
 ;;
 ;; Author: Peter Prevos <peter@prevos.net>
 ;; URL: https://github.com/pprevos/denote-explore/
-;; Version: 3.1
+;; Version: 3.1.1
 ;; Package-Requires: ((emacs "29.1") (denote "3.1") (dash "2.19.1"))
 ;;
 ;; This file is NOT part of GNU Emacs.
@@ -73,7 +73,7 @@ Created upon generating the network when it does not yet exist"
   "denote-network"
   "Base filename sans extension for Denote explore network files.
 Stored in `denote-explore-network-directory'.
-File type defined with `denote-explore-network-format'."
+File type defined by `denote-explore-network-format'."
   :group 'denote-explore
   :package-version '(denote-explore . "1.3")
   :type 'string)
@@ -84,8 +84,8 @@ File type defined with `denote-explore-network-format'."
   :group 'denote-explore
   :package-version '(denote-explore . "1.3")
   :type '(choice
-	  (const :tag "GraphViz (Dot)" graphviz)
 	  (const :tag "D3 JavaScript (JSON)" d3.js)
+	  (const :tag "GraphViz (Dot)" graphviz)
 	  (const :tag "Graph Exchange XML Format (GEXF)" gexf)))
 
 (defcustom denote-explore-network-keywords-ignore '("bib")
@@ -102,11 +102,42 @@ File type defined with `denote-explore-network-format'."
                  (regexp :tag "Ignore using Regexp")))
 
 (defcustom denote-explore-network-d3-template
-  (concat (file-name-directory load-file-name) "denote-explore-network.html")
+  nil
   "Fully qualified path of the D3.JS HTML template file."
   :group 'denote-explore
   :package-version '(denote-explore . "3.1")
+  :type '(file :must-match t)
+  :initialize 'custom-initialize-default)
+
+;; Set default value at load time if not customized
+(when (not denote-explore-network-d3-template)
+  (setq denote-explore-network-d3-template
+        (expand-file-name "denote-explore-network.html"
+                          (file-name-directory (or load-file-name buffer-file-name)))))
+
+(defcustom denote-explore-network-d3-js
+  "https://d3js.org/d3.v7.min.js"
+  "Location of the D3.js source code."
+  :group 'denote-explore
   :type 'string)
+
+(defcustom denote-explore-network-d3-colours
+  "schemeObservable10"
+  "Colour scheme for D3.js network visualisations.
+Refer to URL `https://d3js.org/d3-scale-chromatic/categorical' for details."
+  :group 'denote-explore
+  :type '(choice
+	  (const :tag "schemeCategory10" "schemeCategory10")
+	  (const :tag "schemeAccent" "schemeAccent")
+	  (const :tag "schemeDark2" "schemeDark2")
+	  (const :tag "schemeObservable10" "schemeObservable10")
+	  (const :tag "schemePaired" "schemePaired")
+	  (const :tag "schemePastel1" "schemePastel1")
+	  (const :tag "schemePastel2" "schemePastel2")
+	  (const :tag "schemePastel3" "schemePastel3")
+	  (const :tag "schemeSet1" "schemeSet1")
+	  (const :tag "schemeSet2" "schemeSet2")
+	  (const :tag "schemeTableau10" "schemeTableau10")))
 
 (defcustom denote-explore-network-graphviz-header
   '("layout=neato"
@@ -141,30 +172,6 @@ See graphviz.org for detailed documentation."
 	  (const :tag "Portable Document Format (PDF)" "pdf")
 	  (const :tag "Portable Network Graphics (PNG)" "png")
 	  (string :tag "Other option")))
-
-(defcustom denote-explore-network-d3-js
-  "https://d3js.org/d3.v7.min.js"
-  "Location of the D3.js source code."
-  :group 'denote-explore
-  :type 'string)
-
-(defcustom denote-explore-network-d3-colours
-  "schemeCategory10"
-  "Colour scheme for D3.js network visualisations.
-Refer to URL `https://d3js.org/d3-scale-chromatic/categorical' for details."
-  :group 'denote-explore
-  :type '(choice
-	  (const :tag "schemeCategory10" "schemeCategory10")
-	  (const :tag "schemeAccent" "schemeAccent")
-	  (const :tag "schemeDark2" "schemeDark2")
-	  (const :tag "schemeObservable10" "schemeObservable10")
-	  (const :tag "schemePaired" "schemePaired")
-	  (const :tag "schemePastel1" "schemePastel1")
-	  (const :tag "schemePastel2" "schemePastel2")
-	  (const :tag "schemePastel3" "schemePastel3")
-	  (const :tag "schemeSet1" "schemeSet1")
-	  (const :tag "schemeSet2" "schemeSet2")
-	  (const :tag "schemeTableau10" "schemeTableau10")))
 
 (defvar denote-explore-network-graph-formats
   '((graphviz
@@ -459,7 +466,7 @@ matter."
 When selecting more than one existing keyword, all selections are renamed
 to the new version. Use an empty string as new keyword to remove the selection.
 The filename is taken as the source of truth for metadata.
-Use `denote-explore-sync-metadata' to synchronise filenames with the frontmatter.
+Use `denote-explore-sync-metadata' to synchronise filenames with frontmatter.
 All open Denote buffers need to be saved for this function to work reliably."
   (interactive)
   ;; Save any open Denote files
@@ -1038,7 +1045,9 @@ ID-DEPTH is a list containing the starting ID and the DEPTH of the links."
 Output is saved to the `denote-explore-network-directory' in the
 `denote-explore-network-graphviz-filetype' file format."
   (let* ((file-type denote-explore-network-graphviz-filetype)
-	 (out-file (concat (file-name-sans-extension gv-file) "." file-type))
+	 (output-file (expand-file-name (concat denote-explore-network-filename "."
+						file-type)
+					denote-explore-network-directory))
 	 (script-call (format "dot %s -T%s -o %s"
 			      (shell-quote-argument gv-file)
 			      file-type
@@ -1048,8 +1057,8 @@ Output is saved to the `denote-explore-network-directory' in the
     (delete-file out-file)
     (setq exit-status (shell-command script-call))
     (if (eq exit-status 0)
-	(if (file-exists-p out-file)
-	    (browse-url-default-browser out-file nil)
+	(if (file-exists-p output-file)
+	    (browse-url-default-browser output-file nil)
 	  (user-error "No output file produced"))
       (user-error "GraphViz image generation unsuccessful"))))
 
@@ -1058,7 +1067,8 @@ Output is saved to the `denote-explore-network-directory' in the
 Output is saved to `denote-explore-network-directory'."
   ;; Add variable for template file.
   (let* ((template-file denote-explore-network-d3-template)
-         (output-file (concat (file-name-sans-extension json) ".html"))
+	 (output-file (expand-file-name (concat denote-explore-network-filename ".html")
+					denote-explore-network-directory))
          (json-content (with-temp-buffer
                          (insert-file-contents json)
                          (buffer-string)))

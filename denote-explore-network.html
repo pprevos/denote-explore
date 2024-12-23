@@ -33,6 +33,10 @@
 	  z-index: 1000;
       }
 
+      .lighter {
+	  color: #888;
+      }
+      
       .tooltip .title {
           font-weight: bold;
           margin-bottom: 10px;
@@ -57,7 +61,7 @@
       .tooltip .metadata {
           margin-top: 10px;
           font-size: 18px;
-          color: #555;
+          color: #333;
       }
 
       .hidden {
@@ -283,10 +287,16 @@
 		      // Tooltip for other types
 		`
 	<div class="title">${d.name}</div>
-	<div class="metadata">ID: ${d.id}</div>
+<div class="metadata">ID: 
+  ${d.id.replace(
+    'T',
+    '<span class="lighter">T</span>'
+  )}
+</div>
+
 	<div class="metadata">Degree: ${d.degree}, Backlinks: ${d.backlinks}</div>
 	<div class="metadata">Type: ${d.type}</div>
-	<div class="metadata">Signature: ${d.signature ? d.signature : 'undefined'}</div>
+	${d.signature ? `<div class="metadata">Signature: ${d.signature}</div>` : ''}
 	<div class="keywords">${d.keywords && d.keywords.length > 0 ? d.keywords.map(keyword =>
           `<span>${keyword}</span>`).join('') :
           '<div class="metadata">No keywords</div>'}</div>
@@ -427,15 +437,31 @@
 	      metadataContainer.appendChild(graphParameter);
 	  }
 
+	  // Number of nodes
 	  const nodeCount = document.createElement("div");
 	  nodeCount.className = "metadata";
 	  nodeCount.textContent = `${data.nodes.length} nodes`;
 	  metadataContainer.appendChild(nodeCount);
 
+	  // Number of edges
 	  const edgeCount = document.createElement("div");
 	  edgeCount.className = "metadata";
 	  edgeCount.textContent = `${data.edges.length} ${data.edges.length === 1 ? "edge" : "edges"}`;
 	  metadataContainer.appendChild(edgeCount);
+
+	  // Network Density
+	  const density = document.createElement("div");
+	  density.className = "metadata";
+	  const edges = data.edges.length;
+	  const nodes = data.nodes.length;
+	  if (nodes > 1) { // Avoid division by zero
+	      // Number of actual edges divided by the possible edges
+	      const calculatedDensity = (2 * edges) / (nodes * (nodes - 1));
+	      density.textContent = `Density: ${calculatedDensity.toFixed(3)}`;
+	  } else {
+	      density.textContent = "Density: N/A (insufficient nodes)";
+	  }
+	  metadataContainer.appendChild(density);
 
 	  infoTooltip.appendChild(metadataContainer);
 
@@ -493,7 +519,7 @@
 	      const chartTitle = document.createElement("div");
 	      chartTitle.style.fontWeight = "bold";
 	      chartTitle.style.marginBottom = "10px";
-	      chartTitle.textContent = "Keyword Frequency Chart";
+	      chartTitle.textContent = "Keywords";
 	      chartContainer.appendChild(chartTitle);
 
 	      // Bar chart
@@ -607,7 +633,6 @@
 
 	      // Append the chart container to the tooltip or desired location
 	      infoTooltip.appendChild(chartContainer);
-
 	  }
       }
 
@@ -621,7 +646,6 @@
 	  }
 	  
       });
-
 
     </script>
   </body>
