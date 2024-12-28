@@ -25,8 +25,8 @@
 ;;; Commentary:
 ;;
 ;; Denote-Explore provides functionality to explore, maintain and visualise
-;; your collection of Denote files. The major version number indicates compa-
-;; tability with the relevantDenote version.
+;; your collection of Denote files. The major version number indicates
+;; compatability with the relevant Denote major version.
 ;; 
 ;; Functionality:
 ;;
@@ -47,7 +47,8 @@
 (require 'json)
 (require 'browse-url)
 
-;; Variables
+;;; Customisation
+
 (defgroup denote-explore ()
   "Explore and visualise Denote file collections."
   :group 'files
@@ -172,6 +173,8 @@ See graphviz.org for detailed documentation."
 	  (const :tag "Portable Document Format (PDF)" "pdf")
 	  (const :tag "Portable Network Graphics (PNG)" "png")
 	  (string :tag "Other option")))
+
+;;; Internal variables
 
 (defvar denote-explore-network-graph-formats
   '((graphviz
