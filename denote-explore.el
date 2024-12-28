@@ -228,14 +228,17 @@ Parameters define the previous network, e.g.:
 ;; Count number of notes, attachments and keywords
 
 ;;;###autoload
-(defun denote-explore-count-notes ()
+(defun denote-explore-count-notes (&optional attachments)
   "Count number of Denote text files and attachments.
-A note is defined by `denote-file-types', anything else is an attachment."
-  (interactive)
+A note is defined by `denote-file-types', anything else is an attachment.
+Count only ATTACHMENTS by prefixing with universal argument."
+  (interactive "P")
   (let* ((all-files (length (denote-directory-files)))
 	 (denote-files (length (denote-directory-files nil nil t)))
-	 (attachments (- all-files denote-files)))
-    (message "%s notes (%s attachments)" denote-files attachments)))
+	 (attachment-files (- all-files denote-files)))
+    (if attachments
+	(message "%s attachments" attachment-files)
+      (message "%s notes (%s attachments)" denote-files attachment-files))))
 
 ;;;###autoload
 (defun denote-explore-count-keywords ()
@@ -545,7 +548,10 @@ VAR and TITLE used for display."
   (interactive "nNumber of keywords: ")
   (denote-explore--barchart
    (denote-explore--table
-    (denote--inferred-keywords)) "Keywords" "Denote Keywords" n))
+    (denote--inferred-keywords))
+   (concat "Top-" (number-to-string n) " Denote Keywords")
+   (concat "Total Denote keywords: "
+	   (number-to-string (length (denote-keywords)))) n))
 
 (define-obsolete-function-alias
   'denote-explore-keywords-barchart
@@ -553,22 +559,25 @@ VAR and TITLE used for display."
 
 ;;;###autoload
 (defun denote-explore-barchart-filetypes (&optional attachments)
-  "Visualise the Denote file types and optionally only ATTACHMENTS.
-With universal argument only visualises attachments, excluding file
-types in `denote-file-type-extensions'."
+  "Visualise the Denote file types for notes and/or attachments.
+With universal argument only visualises ATTACHMENTS, which excludes file
+types listed in `denote-file-type-extensions'."
   (interactive "P")
   (let* ((files (denote-directory-files))
-	 (extensions (mapcar (lambda(file) (file-name-extension file t)) files))
+	 (extensions (mapcar (lambda(file)
+			       (file-name-extension file t)) files))
 	 (ext-list (if attachments
 		       (cl-set-difference extensions (denote-file-type-extensions) :test 'equal)
-		     extensions)))
-    (message "%s" (length ext-list))
+		     extensions))
+	 (title (if attachments
+		    (denote-explore-count-notes :attachments)
+		  (denote-explore-count-notes))))
     (setq ext-list (mapcar (lambda (extension)
 			     (if (null extension)
 				 "nil" extension))
 			   ext-list))
     (denote-explore--barchart
-     (denote-explore--table ext-list) "Extensions" "Denote file extensions")))
+     (denote-explore--table ext-list) "Denote file extensions" title)))
 
 (define-obsolete-function-alias
   'denote-explore-extensions-barchart
