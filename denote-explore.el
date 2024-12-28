@@ -253,29 +253,29 @@ Count only ATTACHMENTS by prefixing with universal argument."
 ;; Jump to a random note, random linked note or random note with selected tag(s).
 ;; With universal argument the sample includes attachments.
 
-(defun denote-explore--jump (denote-sample)
-  "Jump to a random note in the DENOTE-SAMPLE file list.
+(defun denote-explore--jump (sample)
+  "Jump to a random note in the SAMPLE file list.
 Used in `denote-explore-random-*' functions."
   (find-file (nth (random (length denote-sample)) denote-sample)))
 
 ;;;###autoload
 (defun denote-explore-random-note (&optional include-attachments)
   "Jump to a random Denote file and optionally INCLUDE-ATTACHMENTS.
-With universal argument, the sample includes attachments."
+With universal argument the sample includes attachments."
   (interactive "P")
   (if-let ((denotes (denote-directory-files nil t (not include-attachments))))
       (denote-explore--jump denotes)
     (user-error "No Denote files found")))
 
 ;;;###autoload
-(defun denote-explore-random-link ()
-  "Jump to a random linked note (forward or backward).
+(defun denote-explore-random-link (&optional include-attachments)
+  "Jump to a random linked note and optionally INCLUDE-ATTACHMENTS.
 With universal argument the sample includes links to attachments."
-  (interactive)
+  (interactive "P")
   (let* ((forward-links (denote-link-return-links))
 	 (back-links (denote-link-return-backlinks))
 	 (all-links (append forward-links back-links))
-	 (links (if current-prefix-arg
+	 (links (if include-attachments
 		    all-links
 		  (seq-filter #'denote-file-is-note-p all-links))))
     (if links (denote-explore--jump links)
@@ -313,21 +313,21 @@ Uses front matter for notes and the filename for attachments."
 
 ;;;###autoload
 (defun denote-explore-random-keyword (&optional include-attachments)
-  "Jump to a random note with selected keyword(s), optionally INCLUDE-ATTACHMENTS.
+  "Jump to a random note with selected keyword(s).
 
-- Manually select one or more keywords from the active Denote buffer.
-- Can override the completion option by adding free text
+- Select one or more keywords from the active Denote buffer.
+- Override the completion option by adding free text
 - Use \"*\" to select all listed keywords.
 
 Selecting multiple keywords requires `denote-sort-keywords' to be non-nil
-or target keywords are in the same order as the selection. Alternatively, use
-`denote-explore-sort-keywords' to order keywords in all Denote files.
+or the target keywords are in the same order as the selection. Alternatively,
+use `denote-explore-sort-keywords' to order keywords in all Denote files.
 
-With universal argument the sample includes attachments."
+With universal argument the sample will INCLUDE-ATTACHMENTS."
   (interactive "P")
   (if-let* ((keyword-list (denote-explore--select-keywords))
 	    (keyword-regex (concat "_" (mapconcat #'identity keyword-list ".*_"))))
-      (denote-explore-random-regex keyword-regex)))
+      (denote-explore-random-regex keyword-regex include-attachments)))
 
 ;;;###autoload
 (defun denote-explore-random-regex (regex &optional include-attachments)
