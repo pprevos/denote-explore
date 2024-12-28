@@ -1,6 +1,11 @@
 This is denote-explore.info, produced by makeinfo version 7.1.1 from
 denote-explore.texi.
 
+INFO-DIR-SECTION Emacs
+START-INFO-DIR-ENTRY
+* Denote Explorer: (denote-explore). Explore your Denote digital garden.
+END-INFO-DIR-ENTRY
+
 
 File: denote-explore.info,  Node: Top,  Next: Summary Statistics,  Up: (dir)
 
