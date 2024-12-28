@@ -1,5 +1,9 @@
 #+title: Denote Explore: Explore your Denote digital garden
 
+#+TEXINFO_DIR_CATEGORY: Emacs
+#+TEXINFO_DIR_NAME: Denote Explorer
+#+TEXINFO_DIR_DESC: Explore your Denote digital garden
+
 The Denote package by Protesilaos (Prot) Stavrou provides extensive functionality for creating, retrieving, managing, and linking files in plain text, Markdown, and Org Mode. The most redeeming qualities of this package are its filename convention and modular simplicity. Due to its reliance on file names, you can also use the package to access other file types, such as PDFs or multimedia files (which we call Denote attachments). In this way, Denote becomes a fully-featured personal knowledge management system. 
 
 The Denote-Explore package came into existence as my collection of Denote files grew. I created some auxiliary functions to manage and explore my burgeoning Denote files. This package provides four types of commands:

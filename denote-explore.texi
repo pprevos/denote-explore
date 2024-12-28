@@ -6,6 +6,11 @@
 @documentlanguage en
 @c %**end of header
 
+@dircategory Emacs
+@direntry
+* Denote Explorer: (denote-explore). Explore your Denote digital garden.
+@end direntry
+
 @finalout
 @titlepage
 @title Denote Explore: Explore your Denote digital garden
