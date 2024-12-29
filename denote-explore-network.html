@@ -421,122 +421,157 @@
 
       // Generate Tooltip Content
       function generateTooltipContent() {
-      // Clear existing content in the tooltip
-      infoTooltip.innerHTML = "";
+	  infoTooltip.innerHTML = "";
 
-      // Add title
-      const title = document.createElement("div");
-      title.className = "title";
-      title.textContent = `Denote ${data.meta.type} Network`;
-      infoTooltip.appendChild(title);
+	  // Add title
+	  const title = document.createElement("div");
+	  title.className = "title";
+	  title.textContent = `Denote ${data.meta.type} Network`;
+	  infoTooltip.appendChild(title);
 
-      // Add metadata container
-      const metadataContainer = document.createElement("div");
-      metadataContainer.className = "metadata-container";
+	  // Add metadata container
+	  const metadataContainer = document.createElement("div");
+	  metadataContainer.className = "metadata-container";
 
-      if (data.meta.type === "Community") {
-      const graphParameter = document.createElement("div");
-      graphParameter.className = "metadata";
-      graphParameter.textContent = `Regular expression: "${data.meta.parameters[0]}"`;
-      metadataContainer.appendChild(graphParameter);
-      }
+	  if (data.meta.type === "Community") {
+	      const graphParameter = document.createElement("div");
+	      graphParameter.className = "metadata";
+	      graphParameter.textContent = `Regular expression: "${data.meta.parameters[0]}"`;
+	      metadataContainer.appendChild(graphParameter);
+	  }
 
-      if (data.meta.type === "Keywords") {
-      const graphParameter = document.createElement("div");
-      graphParameter.className = "metadata";
-      graphParameter.textContent = `Minimum links: ${data.meta.parameters}`;
-      metadataContainer.appendChild(graphParameter);
-      }
+	  if (data.meta.type === "Keywords") {
+	      const graphParameter = document.createElement("div");
+	      graphParameter.className = "metadata";
+	      graphParameter.textContent = `Minimum links: ${data.meta.parameters}`;
+	      metadataContainer.appendChild(graphParameter);
+	  }
 
-      if (data.meta.type === "Neighbourhood") {
-      const graphParameter = document.createElement("div");
-      graphParameter.className = "metadata";
+	  if (data.meta.type === "Neighbourhood") {
+	      const graphParameter = document.createElement("div");
+	      graphParameter.className = "metadata";
 
-      const rootLine = document.createElement("div");
-      rootLine.textContent = `Root: ${data.meta.parameters[0]}`;
-      rootLine.style.marginBottom = "5px"; // Add spacing below the first line
-      graphParameter.appendChild(rootLine);
+	      const rootLine = document.createElement("div");
+	      rootLine.textContent = `Root: ${data.meta.parameters[0]}`;
+	      rootLine.style.marginBottom = "5px";
+	      graphParameter.appendChild(rootLine);
 
-      const depthLine = document.createElement("div");
-      depthLine.textContent = `Depth: ${data.meta.parameters[1]}`;
-      graphParameter.appendChild(depthLine);
+	      const depthLine = document.createElement("div");
+	      depthLine.textContent = `Depth: ${data.meta.parameters[1]}`;
+	      graphParameter.appendChild(depthLine);
+	      metadataContainer.appendChild(graphParameter);
+	  }
 
-      metadataContainer.appendChild(graphParameter);
-      }
+	  // Number of nodes
+	  const nodeCount = document.createElement("div");
+	  nodeCount.className = "metadata";
+	  nodeCount.textContent = `${data.nodes.length} nodes`;
+	  metadataContainer.appendChild(nodeCount);
 
-      // Number of nodes
-      const nodeCount = document.createElement("div");
-      nodeCount.className = "metadata";
-      nodeCount.textContent = `${data.nodes.length} nodes`;
-      metadataContainer.appendChild(nodeCount);
+	  // Number of edges
+	  const edgeCount = document.createElement("div");
+	  edgeCount.className = "metadata";
+	  edgeCount.textContent = `${data.edges.length} ${data.edges.length === 1 ? "edge" : "edges"}`;
+	  metadataContainer.appendChild(edgeCount);
 
-      // Number of edges
-      const edgeCount = document.createElement("div");
-      edgeCount.className = "metadata";
-      edgeCount.textContent = `${data.edges.length} ${data.edges.length === 1 ? "edge" : "edges"}`;
-      metadataContainer.appendChild(edgeCount);
+	  // Network Density
+	  const density = document.createElement("div");
+	  density.className = "metadata";
+	  const edges = data.edges.length;
+	  const nodes = data.nodes.length;
+	  if (nodes > 1) {
+	      // Number of actual edges divided by the possible edges
+	      const calculatedDensity = (2 * edges) / (nodes * (nodes - 1));
+	      density.textContent = `Density: ${calculatedDensity.toFixed(3)}`;
+	  } else {
+	      density.textContent = "Density: N/A (insufficient nodes)";
+	  }
+	  metadataContainer.appendChild(density);
 
-      // Network Density
-      const density = document.createElement("div");
-      density.className = "metadata";
-      const edges = data.edges.length;
-      const nodes = data.nodes.length;
-      if (nodes > 1) { // Avoid division by zero
-      // Number of actual edges divided by the possible edges
-      const calculatedDensity = (2 * edges) / (nodes * (nodes - 1));
-      density.textContent = `Density: ${calculatedDensity.toFixed(3)}`;
-      } else {
-      density.textContent = "Density: N/A (insufficient nodes)";
-      }
-      metadataContainer.appendChild(density);
+	  infoTooltip.appendChild(metadataContainer);
 
-      infoTooltip.appendChild(metadataContainer);
+	  // Add a toggle button
+	  if (data.meta.type === "Community") {
+	      const buttonContainer = document.createElement("div");
+	      buttonContainer.className = "metadata-container";
 
-      // Add legend container
-      const legendContainer = document.createElement("div");
-      legendContainer.className = "metadata-container"; // Match the metadata background style
-      legendContainer.style.marginTop = "10px"; // Add spacing between sections
+	      const toggleButton = document.createElement("button");
+	      toggleButton.textContent = "Hide isolated nodes";
+	      toggleButton.style.marginTop = "10px";
+	      toggleButton.style.padding = "10px 20px";
+	      toggleButton.style.borderRadius = "5px";
+	      toggleButton.style.border = "1px solid #darkgrey";
+	      toggleButton.style.backgroundColor = "darkgrey";
+	      toggleButton.style.color = "white";
+	      toggleButton.style.cursor = "pointer";
+	      toggleButton.style.fontSize = "18px"; 
 
-      const legendTitle = document.createElement("div");
-      legendTitle.style.fontWeight = "bold";
-      legendTitle.style.marginBottom = "10px";
-      legendTitle.textContent = "File Types";
-      legendContainer.appendChild(legendTitle);
+	      // Toggle button click event
+	      toggleButton.addEventListener("click", () => {
+		  // Find all nodes with degree = 0
+		  const isolatedNodes = d3.selectAll("circle")
+			.filter(d => d.degree === 0);
 
-      // Generate legend and bar chart dynamically for non-keyword types
-      if (!isKeywordType) {
-      const typeCounts = data.nodes.reduce((acc, node) => {
-      acc[node.type] = (acc[node.type] || 0) + 1;
-      return acc;
-      }, {});
+		  // Determine if they are currently visible
+		  const isVisible = isolatedNodes.style("display") !== "none";
 
-      const legendData = Object.entries(typeCounts).map(([type, count]) => ({
-      type,
-      count,
-      }));
+		  // Toggle their visibility
+		  isolatedNodes.style("display", isVisible ? "none" : "block");
 
-      legendData.forEach((entry) => {
-      const legendItem = document.createElement("div");
-      legendItem.style.display = "flex";
-      legendItem.style.alignItems = "center";
-      legendItem.style.marginBottom = "5px";
+		  // Update the button text
+		  toggleButton.textContent = isVisible ? "Show Isolated Nodes" : "Hide Isolated Nodes";
+	      });
 
-      const colorBox = document.createElement("div");
-      colorBox.style.width = "15px";
-      colorBox.style.height = "15px";
-      colorBox.style.marginRight = "10px";
-      colorBox.style.backgroundColor = d3.{{d3-colourscheme}}[legendData.indexOf(entry)];
-      legendItem.appendChild(colorBox);
+	      buttonContainer.appendChild(toggleButton); // Add the button to the container
+	      infoTooltip.appendChild(buttonContainer);  // Append the container to the tooltip
+	  }
 
-      const text = document.createElement("span");
-      text.style.fontSize = `${fontSize}px`;
-      text.textContent = `${entry.type} (${entry.count})`;
-      legendItem.appendChild(text);
+	  
+	  // Add legend container
+	  const legendContainer = document.createElement("div");
+	  legendContainer.className = "metadata-container";
+	  legendContainer.style.marginTop = "10px";
 
-      legendContainer.appendChild(legendItem);
-      });
+	  const legendTitle = document.createElement("div");
+	  legendTitle.style.fontWeight = "bold";
+	  legendTitle.style.marginBottom = "10px";
+	  legendTitle.textContent = "File Types";
+	  legendContainer.appendChild(legendTitle);
 
-      infoTooltip.appendChild(legendContainer);
+	  // Generate legend and bar chart dynamically for non-keyword types
+	  if (!isKeywordType) {
+	      const typeCounts = data.nodes.reduce((acc, node) => {
+		  acc[node.type] = (acc[node.type] || 0) + 1;
+		  return acc;
+	      }, {});
+
+	      const legendData = Object.entries(typeCounts).map(([type, count]) => ({
+		  type,
+		  count,
+	      }));
+
+	      legendData.forEach((entry) => {
+		  const legendItem = document.createElement("div");
+		  legendItem.style.display = "flex";
+		  legendItem.style.alignItems = "center";
+		  legendItem.style.marginBottom = "5px";
+
+		  const colorBox = document.createElement("div");
+		  colorBox.style.width = "15px";
+		  colorBox.style.height = "15px";
+		  colorBox.style.marginRight = "10px";
+		  colorBox.style.backgroundColor = d3.{{d3-colourscheme}}[legendData.indexOf(entry)];
+		  legendItem.appendChild(colorBox);
+
+		  const text = document.createElement("span");
+		  text.style.fontSize = `${fontSize}px`;
+		  text.textContent = `${entry.type} (${entry.count})`;
+		  legendItem.appendChild(text);
+
+		  legendContainer.appendChild(legendItem);
+	      });
+
+	      infoTooltip.appendChild(legendContainer);
 
       // Add keyword frequency chart container
       const chartContainer = document.createElement("div");
