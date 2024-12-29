@@ -4,7 +4,16 @@
 @settitle Denote Explorer: Explore your Denote digital garden
 @documentencoding UTF-8
 @documentlanguage en
+@set MAINTAINERSITE @uref{https://lucidmanager.org/tags/emacs,maintainer webpage}
+@set MAINTAINER Peter Prevos
+@set MAINTAINEREMAIL @email{peter@prevos.net}
+@set MAINTAINERCONTACT @uref{mailto:peter@prevos.net,contact the maintainer}
 @c %**end of header
+
+@dircategory Emacs misc features
+@direntry
+* Denote Explorer: (denote-explore). Explore, visualise and analyse Denote files.
+@end direntry
 
 @finalout
 @titlepage

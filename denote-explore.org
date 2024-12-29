@@ -1,7 +1,12 @@
 #+title: Denote Explorer: Explore your Denote digital garden
-#+TEXINFO_DIR_CATEGORY: Emacs
-#+TEXINFO_DIR_NAME: Denote Explorer
-#+TEXINFO_DIR_DESC: Explore and visualise Denote files
+#+texinfo_dir_category: Emacs misc features
+#+texinfo_dir_title: Denote Explorer: (denote-explore)
+#+texinfo_dir_name: Denote Explorer
+#+texinfo_dir_desc: Explore, visualise and analyse Denote files
+#+texinfo_header: @set MAINTAINERSITE @uref{https://lucidmanager.org/tags/emacs,maintainer webpage}
+#+texinfo_header: @set MAINTAINER Peter Prevos
+#+texinfo_header: @set MAINTAINEREMAIL @email{peter@prevos.net}
+#+texinfo_header: @set MAINTAINERCONTACT @uref{mailto:peter@prevos.net,contact the maintainer}
 
 The Denote package by Protesilaos (Prot) Stavrou provides extensive functionality for creating, retrieving, managing, and linking files in plain text, Markdown, and Org Mode. The most redeeming qualities of this package are its filename convention and modular simplicity. Due to its reliance on file names, you can also use the package to access other file types, such as PDFs or multimedia files (which we call Denote attachments). In this way, Denote becomes a fully-featured personal knowledge management system. 
 

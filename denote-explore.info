@@ -1,6 +1,11 @@
 This is denote-explore.info, produced by makeinfo version 7.1.1 from
 denote-explore.texi.
 
+INFO-DIR-SECTION Emacs misc features
+START-INFO-DIR-ENTRY
+* Denote Explorer: (denote-explore). Explore, visualise and analyse Denote files.
+END-INFO-DIR-ENTRY
+
 
 File: denote-explore.info,  Node: Top,  Next: Descriptive Statistics,  Up: (dir)
 
@@ -764,25 +769,25 @@ General Public License for more details.
 
 
 Tag Table:
-Node: Top91
-Node: Descriptive Statistics1768
-Node: Random Walks3067
-Node: Janitor5720
-Node: Duplicate notes6278
-Node: Managing Keywords8250
-Node: Synchronising Meta Data10244
-Node: Knowledge Graphs10908
-Node: Community of Notes13313
-Node: Note Neighbourhood15561
-Node: Keyword Network17917
-Node: Network Layout and Presentation20828
-Node: D3js22730
-Node: GraphViz24964
-Node: Graph Exchange XML Format26832
-Node: Analysing the Denote Network27871
-Node: Installation and Package Configuration30343
-Node: Acknowledgements32530
-Node: License33159
+Node: Top251
+Node: Descriptive Statistics1928
+Node: Random Walks3227
+Node: Janitor5880
+Node: Duplicate notes6438
+Node: Managing Keywords8410
+Node: Synchronising Meta Data10404
+Node: Knowledge Graphs11068
+Node: Community of Notes13473
+Node: Note Neighbourhood15721
+Node: Keyword Network18077
+Node: Network Layout and Presentation20988
+Node: D3js22890
+Node: GraphViz25124
+Node: Graph Exchange XML Format26992
+Node: Analysing the Denote Network28031
+Node: Installation and Package Configuration30503
+Node: Acknowledgements32690
+Node: License33319
 
 End Tag Table
 
