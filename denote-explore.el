@@ -4,7 +4,7 @@
 ;;
 ;; Author: Peter Prevos <peter@prevos.net>
 ;; URL: https://github.com/pprevos/denote-explore/
-;; Version: 3.1.1
+;; Version: 3.2
 ;; Package-Requires: ((emacs "29.1") (denote "3.1") (dash "2.19.1"))
 ;;
 ;; This file is NOT part of GNU Emacs.
@@ -348,7 +348,6 @@ Use Universal Argument to INCLUDE-ATTACHMENTS"
 
 (defun denote-explore--duplicate-notes (strict-filenames-p)
   "Find duplicate Denote IDs.
-
 When STRICT-FILENAMES-P, use complete filenames, not merely IDs."
   (let* ((denote-files (denote-directory-files))
          (candidates (if strict-filenames-p
@@ -369,7 +368,7 @@ When STRICT-FILENAMES-P, use complete filenames, not merely IDs."
 
 If FILENAMES is nil, check Denote IDs, otherwise use complete file names.
 Using the FILENAMES option (or using the universal argument) excludes
-exported Denote files from duplicate-detection.
+exported Denote files from duplicate detection.
 
 Duplicate files are displayed in a temporary buffer with links to the
 suspected duplicate files."
@@ -1157,8 +1156,7 @@ generate and regenerate graphs.
 The `denote-explore-network-graph-formats' variable contains a list of functions
 to encode and display each graph format."
   (interactive)
-  (let* (;;(options (mapcar #'car denote-explore-graph-types))
-	 (options (mapcar (lambda (type)
+  (let* ((options (mapcar (lambda (type)
 		   (format "%s (%s)" (car type)
 			   (plist-get (cdr type) :description)))
 		 denote-explore-graph-types))

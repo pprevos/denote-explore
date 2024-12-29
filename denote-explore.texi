@@ -1,47 +1,42 @@
 \input texinfo    @c -*- texinfo -*-
 @c %**start of header
 @setfilename denote-explore.info
-@settitle Denote Explore: Explore your Denote digital garden
+@settitle Denote Explorer: Explore your Denote digital garden
 @documentencoding UTF-8
 @documentlanguage en
 @c %**end of header
 
-@dircategory Emacs
-@direntry
-* Denote Explorer: (denote-explore). Explore your Denote digital garden.
-@end direntry
-
 @finalout
 @titlepage
-@title Denote Explore: Explore your Denote digital garden
+@title Denote Explorer: Explore your Denote digital garden
 @author Peter Prevos
 @end titlepage
 
 @ifnottex
 @node Top
-@top Denote Explore: Explore your Denote digital garden
+@top Denote Explorer: Explore your Denote digital garden
 
 The Denote package by Protesilaos (Prot) Stavrou provides extensive functionality for creating, retrieving, managing, and linking files in plain text, Markdown, and Org Mode. The most redeeming qualities of this package are its filename convention and modular simplicity. Due to its reliance on file names, you can also use the package to access other file types, such as PDFs or multimedia files (which we call Denote attachments). In this way, Denote becomes a fully-featured personal knowledge management system. 
 
-The Denote-Explore package came into existence as my collection of Denote files grew. I created some auxiliary functions to manage and explore my burgeoning Denote files. This package provides four types of commands:
+The Denote-Explorer package came into existence as my collection of Denote files grew. I created some auxiliary functions to manage and explore my burgeoning Denote files. This package provides four types of commands:
 
 @enumerate
 @item
-Summary statistics: Count notes, attachments and keywords.
+Descriptive statistics: Count notes, attachments and keywords.
 @item
 Random walks: Generate new ideas using serendipity.
 @item
 Janitor: Maintain your denote collection.
 @item
-Visualisations: Visualise your Denote files as bar charts or a network.
+Knowledge Graphs: Visualise and analyse your Denote files as a network.
 @end enumerate
 @end ifnottex
 
 @menu
-* Summary Statistics::
+* Descriptive Statistics::
 * Random Walks::
-* Denote-Explore Janitor::
-* Personal Knowledge Graphs::
+* Janitor::
+* Knowledge Graphs::
 * Installation and Package Configuration::
 * Acknowledgements::
 * License::
@@ -49,13 +44,13 @@ Visualisations: Visualise your Denote files as bar charts or a network.
 @detailmenu
 --- The Detailed Node Listing ---
 
-Denote-Explore Janitor
+Janitor
 
 * Duplicate notes::
 * Managing Keywords::
 * Synchronising Meta Data::
 
-Personal Knowledge Graphs
+Knowledge Graphs
 
 * Community of Notes::
 * Note Neighbourhood::
@@ -69,10 +64,10 @@ Personal Knowledge Graphs
 @end detailmenu
 @end menu
 
-@node Summary Statistics
-@chapter Summary Statistics
+@node Descriptive Statistics
+@chapter Descriptive Statistics
 
-The Denote-Explore package distinguishes between Denote files (notes) and attachments. Denote files are either Org Mode, Markdown, or Plain Text. All other files, such as photographs, PDFs, media files, @LaTeX{}, and HTML, are attachments.
+The Denote-Explorer package distinguishes between Denote files (notes) and attachments. Denote files are either Org Mode, Markdown, or Plain Text. All other files, such as photographs, PDFs, media files, @LaTeX{}, and HTML, are attachments.
 
 After a day of working hard on your digital knowledge garden, you can count the notes and attachments in your collection. Two functions provide some basic statistics of your Denote files:
 
@@ -83,33 +78,35 @@ After a day of working hard on your digital knowledge garden, you can count the 
 @code{denote-explore-count-keywords}: Count the number of distinct Denote keywords. 
 @end enumerate
 
-These functions are informative, but a graph says more than a thousand numbers. The built-in @samp{chart.el} package by Eric M@. Ludlam is a quaint tool for creating bar charts in a plain text buffer. Two commands are available in Denote-Explore to visualise basic statistics: 
+These functions are informative, but a graph says more than a thousand numbers. The built-in @samp{chart.el} package by Eric M@. Ludlam is a quaint tool for creating bar charts in a plain text buffer. Two commands are available in Denote-Explorer to visualise basic statistics: 
 
 @enumerate
 @item
-@code{denote-explore-barchart-keywords}: Visualise the top n keywords.
-@item
 @code{denote-explore-barchart-filetypes}: Visualise used file extensions.
+@item
+@code{denote-explore-barchart-keywords}: Visualise the top n keywords.
 @end enumerate
+
+Prefixing the universal argument @samp{C-u} renders bar charts only for attachments.
 
 @node Random Walks
 @chapter Random Walks
 
 Creativity springs from a medley of experiences, emotions, subconscious musings, and connecting random ideas. Introducing random elements into the creative process generates avenues of thought you might not have travelled otherwise. Random walks through your notes can be beneficial when you're stuck in a rut or just like to walk through your files randomly.
 
-A random walk is an arbitrary sequence of events without a defined relationship between the steps. You take a random walk by jumping to a random note, connected or unconnected to the current buffer.
+A random walk is an arbitrary sequence without a defined relationship between the steps. You take a random walk by jumping to a random note, connected or unconnected to the current buffer.
 
-The Denote-Explore package provides three commands to inject some randomness into your explorations:
+The Denote-Explorer package provides three commands to inject some randomness into your explorations:
 
 @enumerate
 @item
-@code{denote-explore-random-note}: Jump to a random note or attachment.
+@code{denote-explore-random-note}: Jump to a random Denote file.
 @item
 @code{denote-explore-random-link}: Jump to a random linked note (either forward or backward) or attachments (forward only).
 @item
-@code{denote-explore-random-keyword}: Jump to a random note or attachment with the same selected keyword(s). 
+@code{denote-explore-random-keyword}: Jump to a random Denote file with the same selected keyword(s). 
 @item
-@code{denote-explore-random-regex}: Jump to a random note or attachment that matches a regular expression.
+@code{denote-explore-random-regex}: Jump to a random Denote file that matches a regular expression.
 @end enumerate
 
 The default state is that these functions jump to any Denote text file (plain text, Markdown or Org-mode). Prefixing the universal argument (@samp{C-u}) includes attachments in the sample for a random jump.
@@ -118,14 +115,14 @@ Jumping to a randomly linked file naturally only works when the current buffer i
 
 When jumping to a random file with one or more matching keywords, you can choose one or more keywords from the current buffer, or override the completion options with free text. The asterisk symbol @samp{*} selects all keywords in the completion list. This section process is skipped when the current buffer only has one keyword. When the current buffer is not a Denote file, you can choose any available keyword(s) in your Denote collection. 
 
-Jumping to a random note and matching multiple keywords only works when the @code{denote-sort-keywords} is enabled or when the selected keywords are in the same order as the target file. You can alphabetise keywords in your Denote files with @code{denote-explore-sort-keywords}.
+Jumping to a random note and matching multiple keywords only works when @code{denote-sort-keywords} is enabled, or when the selected keywords are in the same order as in the target file. You can alphabetise keywords in your Denote files with @code{denote-explore-sort-keywords}, explained in the next section.
 
 Jumping to a note that matches a regular expression lets you find random notes matching a search string. For example, to find a note you wrote in May 2022, use @samp{^202205} and using @samp{202305.*_journal} jumps to a random journal entry in May 2023.
 
-@node Denote-Explore Janitor
-@chapter Denote-Explore Janitor
+@node Janitor
+@chapter Janitor
 
-After hoarding Denote files for a while, you may need a janitor to organise your collection. A janitor ensures cleanliness, orderliness, and sanitation in a building, so this role is also perfect for managing to your Denote files. The Denote-Explore package provides a series of commands to assist with cleaning, organising, and sanitising your files.
+After hoarding Denote files for a while, you may need a janitor to organise your collection. A janitor ensures cleanliness, orderliness, and sanitation in a building, so this role is also perfect for managing to your Denote files. The Denote-Explorer package provides a series of commands to assist with cleaning, organising, and sanitising your files.
 
 @menu
 * Duplicate notes::
@@ -159,9 +156,9 @@ The @code{denote-explore-single-keywords} command provides a list of file tags t
 
 You can also find notes or attachments without keywords with the @code{denote-explore-zero-keywords} command. This command lists all notes and attachments without keywords in the minibuffer, so you can open them and consider adding keywords or leaving them as is.
 
-You can rename or remove keywords with @code{denote-explore-rename-keyword}. Select one or more existing keywords from the completion list and enter the new name of the keyword(s). This function renames all chosen keywords to their latest version or removes the original keyword from all existing notes when you enter an empty string as the new keyword. This function cycles through all notes and attachments containing one or more selected keywords and asks for confirmation before making any changes. The new keyword list is stored alphabetically, and the front matter is synchronised with the file name.
+Ordering keywords alphabetically makes searching for files more predictable. If you rename files manually, the keywords might sometimes be in different order. The @code{denote-explore-sort-keywords} function checks all notes. It notifies the user if there are any notes where keywords are not alphabetised. The function warns the user before renaming any files. Denote sorts keywords alphabetically for new notes when the @code{denote-sort-keywords} variable is enabled. 
 
-Ordering keywords alphabetically makes searching for files more predictable. If you rename files manually, the keywords might sometimes be in different order. The @code{denote-explore-sort-keywords} function checks all notes. It notifies the user if there are any notes where keywords are not alphabetised. The function warns the user before renaming any files. Denote sorts keywords alphabetically for new notes when the @code{denote-sort-keywords} variable is enabled.
+You can rename or remove keywords with @code{denote-explore-rename-keyword}. Select one or more existing keywords from the completion list and enter the new name of the keyword(s). This function renames all chosen keywords to their latest version or removes the original keyword from all existing notes when you enter an empty string as the new keyword. This function cycles through all notes and attachments containing one or more selected keywords and asks for confirmation before making any changes. The new keyword list is stored alphabetically, and the front matter is synchronised with the file name.
 
 @node Synchronising Meta Data
 @section Synchronising Meta Data
@@ -170,8 +167,8 @@ Denote stores the metadata for each note in the filename using its ingenious for
 
 The @code{denote-explore-sync-metadata} function checks all notes and asks the user to rename any file where these two data sets are mismatched. The front matter data is the source of truth. This function also enforces the alphabetisation of keywords, which assists with finding notes.
 
-@node Personal Knowledge Graphs
-@chapter Personal Knowledge Graphs
+@node Knowledge Graphs
+@chapter Knowledge Graphs
 
 Denote implements a linking mechanism that connects notes (either Org, Markdown, or plain text files) to other notes or attachments. This mechanism allows the user to visualise all notes as a network.
 
@@ -179,13 +176,13 @@ Emacs is a text processor with limited graphical capabilities. However, committi
 
 Network visualisation in Denote is not just a feature but a powerful tool that visualises how notes are linked, helping you discover previously unseen connections between your thoughts and enhancing your creative process.
 
-It's important to note that Denote-Explore does not offer live previews of your note collection. This deliberate choice is to prevent the 'dopamine traps' of seeing your thoughts develop in real-time. Instead, Denote-Explore provides a focused tool for the surgical analysis of your notes, while  the main user interface remains text-based.
+It's important to note that Denote-Explorer does not offer live previews of your note collection. This deliberate choice is to prevent the 'dopamine traps' of seeing your thoughts develop in real-time. Instead, Denote-Explorer provides a focused tool for the surgical analysis of your notes, while  the main user interface remains text-based.
 
-A network diagram has nodes (vertices) and edges. Each node represents a file in your Denote system, and each edge represents a link between notes. Denote-Explore provides three types of network diagrams to explore the relationships between your thoughts. The package exports and displays these in one of three formats, with HTML / D3.js files as the default.
+A network diagram has nodes (vertices) and edges. Each node represents a note or an attachment, and each edge represents a link between these. Denote-Explorer provides three types of network diagrams to explore the relationships between your thoughts. The package exports and displays these in one of three formats, with HTML / D3.js files as the default.
 
 The diagram below shows the basic principle of a knowledge graph. In the actual output, nodes are circles.
 
-You create a network with the @code{denote-explore-network} command. This command will ask the user to select the type of network to create. Each network type requires additional inputs to analyse to a defined part of your Denote files. You can visualise all your notes, but if your collection because large it is not an informative exercise.
+You create a network with the @code{denote-explore-network} command. This command will ask the user to select the type of network to create. Each network type requires additional inputs to analyse to a defined part of your Denote files. You can visualise all your notes, but if your collection is large it is not an informative exercise and will take a while to render.
 
 @menu
 * Community of Notes::
@@ -296,7 +293,7 @@ Some keywords might have to be excluded from this graph because they skew the re
 
 Emacs cannot independently generate graphics and thus relies on external software. This package can use three external mechanisms to create graphs (configurable with @code{denote-explore-network-format}), set to D3.js / JSON output by default. Other available formats are GraphViz SVG and GEXF@.
 
-The Denote-Explore network algorithm consists of four steps:
+The Denote-Explorer network algorithm consists of four steps:
 
 @enumerate
 @item
@@ -320,11 +317,11 @@ Relevant external software displays the result (in most cases a web browser).
 @node D3js
 @section D3.js
 
-@uref{https://d3js.org/, D3.js} is a JavaScript library for visualising data. This method provides an aesthetically pleasing and interactive view of your notes. The Denote-Explore package stores the desired network as a JSON file. This JSON file is merged with a HTML / JavaScript template to visualise the network. Emacs invokes your default browser to view the network.
+@uref{https://d3js.org/, D3.js} is a JavaScript library for visualising data. This method provides an aesthetically pleasing and interactive view of your notes. The Denote-Explorer package stores the desired network as a JSON file. This JSON file is merged with a HTML / JavaScript template to visualise the network. Emacs invokes your default browser to view the network.
 
 Hover over any node to reveal its name and relevant metadata. Clicking on any node in a community or neighbourhood graph opens the relevant file in the browser, or whatever application the browser associates with the relevant file type.
 
-For community and neighbourhood graphs, the diameter of nodes is proportional to their degree. Thus, the most linked note in your query will be the most visible. The colours indicate the file type of each node. 
+For community and neighbourhood graphs, the diameter of nodes is proportional to their degree. Thus, the most linked note in your query will be the most visible. The colours indicate the file type of each node and are assigned in order of appearance in the JSON file.
 
 For nodes with a degree greater than two, the name is displayed outside the node. In keyword graphs, the thickness of the edges indicates the number of times two keywords are associated with each other.
 
@@ -337,15 +334,15 @@ There are a few configurations you might consider for this visualisation format:
 @item
 @code{denote-explore-network-d3-template}: Location of the HTML/JavaScript template file.
 @item
-@code{denote-explore-network-d3-colours}: Colour palette for the nodes.
+@code{denote-explore-network-d3-colours}: Colour palette for the nodes. You can choose between any of the available categorical colour schemes in the D3 package. 
 @end itemize
 
 @node GraphViz
 @section GraphViz
 
-@uref{https://graphviz.org/, GraphViz} is an open-source graph visualisation software toolkit, ideal for this task. The Denote-Explore software saves the graph in the DOT language as a @samp{.gv} file. The GraphViz software converts the DOT code to an @samp{SVG} file.
+@uref{https://graphviz.org/, GraphViz} is an open-source graph visualisation software toolkit, ideal for this task. The Denote-Explorer software saves the graph in the DOT language as a @samp{.gv} file. The GraphViz software converts the DOT code to an @samp{SVG} file.
 
-You will need to install GraphViz to enable this functionality. Denote-Explore will raise an error when trying to create a GraphViz graph without the required external software available.
+You will need to install GraphViz to enable this functionality. Denote-Explorer will raise an error when trying to create a GraphViz graph without the required external software available.
 
 Hover over any node to reveal its name and relevant metadata. Clicking on any node in a community or neighbourhood graph opens the relevant file in the browser, or whatever application the browser associates with the relevant file type.
 
