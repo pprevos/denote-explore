@@ -1063,10 +1063,10 @@ Output is saved to the `denote-explore-network-directory' in the
 	 (script-call (format "dot %s -T%s -o %s"
 			      (shell-quote-argument gv-file)
 			      file-type
-			      (shell-quote-argument out-file)))
+			      (shell-quote-argument output-file)))
 	 (exit-status))
     (message script-call)
-    (delete-file out-file)
+    (delete-file output-file)
     (setq exit-status (shell-command script-call))
     (if (eq exit-status 0)
 	(if (file-exists-p output-file)
