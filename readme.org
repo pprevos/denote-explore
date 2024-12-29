@@ -6,7 +6,7 @@ The Denote-Explore package provides auxiliary functions to maintain and explore 
 1. /Summary statistics/: Count and visualise notes, attachments and keywords.
 2. /Random walks/: Generate new ideas using serendipity.
 3. /Janitor/: Manage your denote collection.
-4. /Visualisations/: Visualise your Denote network  as a network graph.
+4. /Knowledge graphs/: Visualise your Denote network  as a network graph.
 
 Read the [[https://lucidmanager.org/productivity/denote-explore][denote-explore manual]] for a comprehensive explanation of all functionality (=C-h R denote-explore=).
 
@@ -29,6 +29,19 @@ Alternatively, you can install it directly from GitHub:
 
 * Change Log
 Major version numbers coincide with Denote major versions.
+
+** Version 3.2
+- First version formally registered (for inclusion in Guin)
+- D3.js functionality
+  - Community graphs can filter out nodes where degree = 0 (isolated notes)
+  - Preview images and PDF files in tooltips
+- Updated manual
+- Bug fixes
+  - GraphViz network
+  - D3.js file type legend colours
+  - Random walk functions
+- Updated code commentary
+- Updated counting and related bar chart functions
 
 ** Version 3.1
 - Removed dependency on R for D3.js graphs. D3 now uses a template in which a JSON file is inserted. This format is now the default.
