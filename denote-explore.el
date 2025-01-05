@@ -682,11 +682,12 @@ types listed in `denote-file-type-extensions'."
     (sort degree-sums (lambda (a b) (< (car a) (car b))))))
 
 ;;;###autoload
-(defun denote-explore-barchart-degree ()
-  "Visualise the degree for each Denote file (total links and backlinks)."
-  (interactive)
-  (message "Analysing Denote network.")
-  (let* ((graph (denote-explore-network-community-graph ""))
+(defun denote-explore-barchart-degree (&optional text-only)
+  "Visualise the degree for each Denote file (total links and backlinks).
+The universal argument includes TEXT-ONLY files in the analyis."
+  (interactive "P")
+  (message "Analysing Denote network ...")
+  (let* ((graph (denote-explore-network-community-graph "" text-only))
 	 (nodes (cdr (assoc 'nodes graph)))
 	 (degrees (denote-explore--network-sum-degrees nodes))
 	 (txt-degrees (mapcar (lambda (pair)
