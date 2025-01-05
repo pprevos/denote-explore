@@ -857,29 +857,31 @@ Removes selected files from neighbourhood or community visualisation."
 		  nil)))
     (cl-set-difference files ignore :test 'string=)))
 
-(defun denote-explore-network-community-graph (regex)
+(defun denote-explore-network-community-graph (regex &optional text-only)
   "Generate network community association list for note matching REGEX.
+Optionally include TEXT-ONLY files (no attachments).
 Links to notes outside the search area are pruned."
   (if-let* ((files (denote-explore--network-filter-files
-		    (denote-directory-files regex)))
+		    (denote-directory-files regex nil text-only)))
 	    (ids (mapcar #'denote-extract-id-from-string files))
 	    (edges (denote-explore--network-extract-edges files))
 	    (edges-pruned (denote-explore--network-prune-edges ids edges))
 	    (edges-alist (denote-explore--network-count-edges edges-pruned))
 	    (nodes (mapcar #'denote-explore--network-extract-node files))
-	    (nodes-alist-degree (denote-explore--network-degree nodes edges-alist))
-	    (nodes-alist (denote-explore--network-backlinks nodes-alist-degree edges-alist))
+	    (nodes-degrees (denote-explore--network-degree nodes edges-alist))
+	    (nodes-alist (denote-explore--network-backlinks nodes-degrees edges-alist))
 	    (meta-alist `((directed . t) (type . "Community") (parameters ,regex))))
       `((meta . ,meta-alist) (nodes . ,nodes-alist) (edges . ,edges-alist))
     (user-error "No Denote files or (back)links found for %s" regex)))
 
-(defun denote-explore-network-community ()
-  "Define inputs for a network community and generate graph."
+(defun denote-explore-network-community (&optional text-only)
+  "Define inputs for a network community and generate graph.
+Optionally include TEXT-ONLY files."
   (let ((regex (read-from-minibuffer
-		"Enter search term / regular expression (empty string for all notes):")))
+		"Enter regular expression (empty string for all notes):")))
     (setq denote-explore-network-previous `("Community" ,regex))
     (message "Building graph for \"%s\" community " regex)
-    (denote-explore-network-community-graph regex)))
+    (denote-explore-network-community-graph regex text-only)))
 
 ;;; keywords graph
 (defun denote-explore--network-keywords-extract (files)
