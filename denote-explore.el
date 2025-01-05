@@ -96,7 +96,7 @@ File type defined by `denote-explore-network-format'."
   :type '(repeat (string :tag "Keyword")))
 
 (defcustom denote-explore-network-regex-ignore '()
-  "Regular expression for notes ignored in neighbourhood and community graphs."
+  "Regular expression ignored in neighbourhood, community and sequence graphs."
   :group 'denote-explore
   :package-version '(denote-explore . "1.4")
   :type '(choice (const :tag "No Ignore Regexp" nil)
@@ -110,7 +110,7 @@ File type defined by `denote-explore-network-format'."
   :type '(file :must-match t)
   :initialize 'custom-initialize-default)
 
-;; Set default value at load time if not customized
+;; Set default value at load time if not customised
 (when (not denote-explore-network-d3-template)
   (setq denote-explore-network-d3-template
         (expand-file-name "denote-explore-network.html"
@@ -125,6 +125,7 @@ File type defined by `denote-explore-network-format'."
 (defcustom denote-explore-network-d3-colours
   "schemeObservable10"
   "Colour scheme for D3.js network visualisations.
+Colours are assigned to fiule types in order of appearance in the JSON file.
 Refer to URL `https://d3js.org/d3-scale-chromatic/categorical' for details."
   :group 'denote-explore
   :type '(choice
@@ -1206,15 +1207,15 @@ Output is saved to the `denote-explore-network-directory' in the
 	  (user-error "No output file produced"))
       (user-error "GraphViz image generation unsuccessful"))))
 
-(defun denote-explore-network-display-json (json)
-  "Convert GraphViz JSON to an HTML file and display in external browser.
+(defun denote-explore-network-display-json (json-file)
+  "Convert GraphViz JSON-FILE to an D3.js HTML file and display in system browser.
 Output is saved to `denote-explore-network-directory'."
   ;; Add variable for template file.
   (let* ((template-file denote-explore-network-d3-template)
 	 (output-file (expand-file-name (concat denote-explore-network-filename ".html")
 					denote-explore-network-directory))
          (json-content (with-temp-buffer
-                         (insert-file-contents json)
+                         (insert-file-contents json-file)
                          (buffer-string)))
 	 (json-object (json-parse-string json-content))
 	 (type (car (split-string
