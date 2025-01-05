@@ -492,35 +492,13 @@ Duplicate files are displayed `find-dired'."
 				  zero-keywords))
     (message "All files have keywords.")))
 
-(defun denote-explore--alphabetical-p (str-list)
-  "Check if the list of strings STR-LIST is sorted alphabetically."
-  (let ((sorted t))
-    (while (and str-list (cdr str-list) sorted)
-      (unless (string< (car str-list) (cadr str-list))
-        (setq sorted nil))
-      (setq str-list (cdr str-list)))
-    sorted))
+(define-obsolete-function-alias
+  'denote-explore--alphabetical-p
+  nil "3.3")
 
-;;;###autoload
-(defun denote-explore-sort-keywords ()
-  "Order the file keywords of all Denote files alphabetically.
-
-This function extracts the keywords from the filename. When the keywords are not
-in alphabetical order, the file is renamed. The front matter for notes is left
-as is. Use `denote-explore-sync-metadata' to synchronise filenames and front
-matter."
-  (interactive)
-  (let ((denote-rename-confirmations '(modify-file-name))
-	(notes (denote-directory-files nil nil t)))
-    (dolist (file notes)
-      (when-let ((file-keywords (denote-retrieve-filename-keywords file))
-		 (file-type (denote-filetype-heuristics file)))
-	(when (not (denote-explore--alphabetical-p (split-string file-keywords "_")))
-	  (denote-rename-file file
-	 		      (denote-retrieve-title-or-filename file file-type)
-	 		      (denote-keywords-sort (split-string file-keywords "_"))
-			      (denote-retrieve-filename-signature file))))))
-  (message "All keywords ordered alphabetically"))
+(define-obsolete-function-alias
+  'denote-explore-sort-keywords
+  'denote-explore-sync-metadata "3.3")
 
 ;;;###autoload
 (defun denote-explore-rename-keyword ()
