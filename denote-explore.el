@@ -969,7 +969,7 @@ Optionally analyse TEXT-ONLY files."
 		(or (string= (cdr (assoc 'source edge)) id)
 		    (string= (cdr (assoc 'target edge)) id))) edges))
 
-(defun denote-explore-network--unique-edges (edges-a edges-b)
+(defun denote-explore--network-unique-edges (edges-a edges-b)
   "Return a list of unique edges from EDGES-A and EDGES-B."
   (let ((edges (append edges-a edges-b))
         (seen '())
@@ -978,48 +978,102 @@ Optionally analyse TEXT-ONLY files."
       (unless (member edge seen)
         (push edge seen)
         (push edge unique)))
-    (nreverse unique)))
+    unique))
 
-(defun denote-explore--network-neighbourhood-edges (id depth search-space)
-  "Search for all edges originating from ID to DEPTH within SEARCH-SPACE."
-  (let ((current-ids (list id))
-	(edges '())
-	(new-edges '()))
-    ;; Search depth steps deep
-    (dotimes (_ depth edges)
-      (setq new-edges (apply #'append
-			     (mapcar (lambda (id)
-				       (denote-explore--network-find-edges id search-space))
-				     current-ids)))
-      (setq edges (denote-explore-network--unique-edges edges new-edges))
-      (setq current-ids (seq-filter
-			 (lambda (element)
-			   (not (member element current-ids)))
-			 (denote-explore--network-extract-unique-nodes edges))))))
+(defun denote-explore--network-neighbourhood-edges (file depth text-only)
+  "Itteratively Find all links to and from FILE up to DEPTH or less.
+Optionally include TEXT-ONLY files."
+  ;; Set initial conditions and define all edges as search space
+  (let* ((all-files (denote-directory-files nil nil text-only))
+	 (ids (mapcar #'denote-retrieve-filename-identifier all-files))
+	 (all-file-edges (denote-explore--network-extract-edges all-files))
+	 ;; Remove dead links (where target does not exist)
+	 (all-edges (seq-filter (lambda (pair)
+				  (member (cdr (assoc 'target pair)) ids))
+				all-file-edges))
+	 (current-files (list file))
+	 (ids (mapcar #'denote-retrieve-filename-identifier current-files))
+	 (neighbourhood-edges '())
+         (current-depth 0))
+    ;; Loop through until all steps are done or no more new links
+    (while (and current-files (< current-depth depth))
+      ;; Find edges for each file
+      (let* ((new-edges (denote-explore--network-extract-neighbourhood-edges
+			 all-edges current-files))
+	     (edge-ids (denote-explore--network-extract-unique-nodes new-edges))
+	     ;; Remove files already analysed
+	     (new-ids (-difference edge-ids ids)))
+	;; Replace current files with new ids
+	(setq current-files (-filter
+			     (lambda (file)
+			       (-some (lambda (id) (string-match-p id file)) new-ids))
+			     all-files))
+	;; Append ids allready analysed
+	(setq ids (append ids new-ids))
+	;; Add new edges to neighbourhood
+	(setq neighbourhood-edges (denote-explore--network-unique-edges
+				   neighbourhood-edges new-edges))
+	(setq current-depth (1+ current-depth)))
+      (message "Itteration %s: %s nodes and %s edges identifed"
+	       current-depth (length ids)(length neighbourhood-edges)))
+    neighbourhood-edges))
 
-(defun denote-explore-network-neighbourhood ()
-  "Obtain inputs to define neighbourhood graph.
-Uses the ID of the current Denote buffer or user selects via completion menu."
-  (let*  ((buffer (or (buffer-file-name) ""))
-	  (file (if (denote-file-is-note-p buffer)
-		    buffer
-		  (completing-read "Select Denote source file:"
-				   (denote-directory-files nil t t))))
-	  (depth (string-to-number (read-from-minibuffer "Search depth: ")))
-	  (id (denote-retrieve-filename-identifier file)))
+(defun denote-explore--network-extract-neighbourhood-edges (edges files)
+  "Generate alist of edges at one link deep for FILES using EDGES."
+  (let ((neighbourhood-edges '()))
+    (dolist (file files)
+      (let* ((id (denote-extract-id-from-string file))
+	     (f-target (delq nil
+			     (mapcar (lambda (entry)
+				       (when (equal (cdr (assoc 'source entry)) id)
+					 (cdr (assoc 'target entry))))
+				     edges)))
+	     (f-source (make-list (length f-target) id))
+	     (b-source (delq nil
+			     (mapcar (lambda (entry)
+				       (when (equal (cdr (assoc 'target entry)) id)
+					 (cdr (assoc 'source entry))))
+				     edges)))
+	     (b-target (make-list (length b-source) id))
+	     (source (append f-source b-source))
+	     (target (append f-target b-target))
+	     (new-edges (-map (lambda (pair)
+				`((source . ,(car pair)) (target . ,(cdr pair))))
+			      (-zip-pair source target))))
+	(setq neighbourhood-edges (append neighbourhood-edges new-edges))))
+    neighbourhood-edges))
+
+(defun denote-explore-network-neighbourhood (&optional text-only)
+  "Obtain inputs and define a neighbourhood graph association list.
+Uses the ID of the current Denote buffer, or user selects a root node.
+With TEXT-ONLY, exclude attachments in the network."
+  (let* ((buffer (or (buffer-file-name) ""))
+	 ;; If buffer is a Denote file use it, else use non-isolated notes
+         (file (if (denote-file-is-note-p buffer)
+                   buffer
+		 (let* ((isolated (denote-explore--idenitfy-isolated t))
+			(notes (denote-directory-files nil t t))
+			(candidates (cl-set-difference notes isolated)))
+		   (completing-read "Select file: " candidates))))
+         (depth (let ((input (read-from-minibuffer
+			      "Search depth (default 2, integer >= 1): " "2")))
+                  (max 1 (string-to-number (if (string-empty-p input) "2" input)))))
+         (id (denote-retrieve-filename-identifier file)))
     (setq denote-explore-network-previous `("Neighbourhood" (,id ,depth)))
-    (denote-explore-network-neighbourhood-graph `(,id ,depth))))
+    (denote-explore-network-neighbourhood-graph `(,id ,depth) text-only)))
 
-(defun denote-explore-network-neighbourhood-graph (id-depth)
-  "Generate Denote graph object from the neighbourhood with ID-DEPTH.
-ID-DEPTH is a list containing the starting ID and the DEPTH of the links."
-  (if-let* ((id (car id-depth))
-	    (depth (nth 1 id-depth))
-	    (text-files (denote-explore--network-filter-files
-			 (denote-directory-files nil nil t)))
-	    (denote-edges (denote-explore--network-extract-edges text-files))
-	    (edges (denote-explore--network-neighbourhood-edges id depth denote-edges))
+(defun denote-explore-network-neighbourhood-graph (parameters &optional text-only)
+  "Generate Denote neighbourhood graph with PARAMETERS.
+PARAMETERS is a list of the root note identifier and the depth.
+When TEXT-ONLY, exclude attachments from the graph."
+  (if-let* ((id (car parameters))
+	    (depth (cadr parameters))
+	    (meta-alist `((directed . t) (type . "Neighbourhood") (parameters ,id ,depth)))
+ 	    (root (car (denote-directory-files id)))
+	    ;; Find edges from root at depth
+	    (edges (denote-explore--network-neighbourhood-edges root depth text-only))
 	    (edges-alist (denote-explore--network-count-edges edges))
+	    ;; Extract IDs from edges and create nodes
 	    (ids (denote-explore--network-extract-unique-nodes edges-alist))
 	    (denote-files (denote-directory-files))
 	    (files (seq-filter
@@ -1028,8 +1082,7 @@ ID-DEPTH is a list containing the starting ID and the DEPTH of the links."
 		    denote-files))
 	    (nodes (mapcar #'denote-explore--network-extract-node files))
 	    (nodes-alist-degree (denote-explore--network-degree nodes edges-alist))
-	    (nodes-alist (denote-explore--network-backlinks nodes-alist-degree edges-alist))
-	    (meta-alist `((directed . t) (type . "Neighbourhood") (parameters ,id ,depth))))
+	    (nodes-alist (denote-explore--network-backlinks nodes-alist-degree edges-alist)))
       `((meta . ,meta-alist) (nodes . ,nodes-alist) (edges . ,edges-alist))
     (user-error "No network neighbourhood found")))
 
