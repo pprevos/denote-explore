@@ -247,7 +247,11 @@ Count only ATTACHMENTS by prefixing with universal argument."
 (defun denote-explore-count-keywords ()
   "Count distinct Denote keywords."
   (interactive)
-  (message "%s distinct keywords" (length (denote-keywords))))
+  (let ((all-keywords (length (mapcan #'denote-extract-keywords-from-path
+				      (denote-directory-files))))
+	(distinct-keywords (length (denote-keywords))))
+    (message "%s used keywords (%s distinct keywords)"
+	     all-keywords distinct-keywords)))
 
 ;;; RANDOM WALKS
 ;; Jump to a random note, random linked note or random note with selected tag(s).
