@@ -468,24 +468,29 @@ Duplicate files are displayed `find-dired'."
 (defun denote-explore-single-keywords ()
   "Select a note or attachment with a keyword that is only used once."
   (interactive)
-  (let* ((keywords-count (denote-explore--table (denote--inferred-keywords)))
-	 (single-keywords (mapcar #'car (cl-remove-if
-					 (lambda (pair) (> (cdr pair) 1))
-					 keywords-count)))
-	 (selected-keyword (completing-read "Select single keyword: "
-					    single-keywords)))
-    (find-file (car (denote-directory-files (concat "_" selected-keyword))))))
+  ;; Count keywords and find singles
+  (if-let* ((keywords (mapcan #'denote-extract-keywords-from-path
+			      (denote-directory-files)))
+	    (keywords-count (denote-explore--table keywords))
+	    (single-keywords (mapcar #'car (cl-remove-if-not
+					    (lambda (note)
+					      (= (cdr note) 1))
+					    keywords-count)))
+	    (selected-keyword (if single-keywords
+				  (completing-read "Select single keyword: "
+						   single-keywords))))
+      (find-file (car (denote-directory-files (concat "_" selected-keyword))))
+    (message "No single keywords in use.")))
 
 ;;;###autoload
 (defun denote-explore-zero-keywords ()
   "Select a note or attachment without any keywords."
   (interactive)
-  (let* ((with-keyword-regex "--\\([[:alnum:][:nonascii:]-]*_\\)")
-	 (keywords (denote-directory-files with-keyword-regex))
-	 (zero-keywords (seq-remove (lambda (note)
-				      (member note keywords))
-				    (denote-directory-files))))
-    (find-file (completing-read "Select file with zero keywords: " zero-keywords))))
+  ;; Find all notes without an underscore
+  (if-let* ((zero-keywords (denote-directory-files "^[^_]*$")))
+      (find-file (completing-read "Select file with zero keywords: "
+				  zero-keywords))
+    (message "All files have keywords.")))
 
 (defun denote-explore--alphabetical-p (str-list)
   "Check if the list of strings STR-LIST is sorted alphabetically."
