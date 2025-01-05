@@ -213,8 +213,18 @@ PROPERTY-LIST is a plist that consists of three elements:
     ("Keywords"
      :description "Relationships between keywords"
      :generate denote-explore-network-keywords
-     :regenerate denote-explore-network-keywords-graph))
-  "List of network types and their (re)generation functions.")
+     :regenerate denote-explore-network-keywords-graph)
+    ("Sequence"
+     :description "Hierarchical relationship between signatures"
+     :generate denote-explore-network-sequence
+     :regenerate denote-explore-network-sequence-graph))
+  "List of network types and their (re)generation functions.
+
+PROPERTY-LIST is a plist that consists of three elements:
+
+- `:description' Short explanation of graph type.
+- `:generate': Function to select options and geenrate graph.
+- `:regenerate': Function to regenerate graph from previous options.")
 
 (define-obsolete-variable-alias
   'denote-explore-load-directory
@@ -223,10 +233,11 @@ PROPERTY-LIST is a plist that consists of three elements:
 (defvar denote-explore-network-previous
   nil
   "Store the previous network configuration to regenerate the last graph.
-Parameters define the previous network, e.g.:
-- `(keywords)'
-- `(neighbourhood \"20240101T084408\" 3)'
-- `(community \"_regex\")'")
+Parameters define the previous network, i.e.:
+- `(\"keywords\")'
+- `(\"neighbourhood\" \"20240101T084408\" 3)'
+- `(\"community\" \"regex\")'
+- `(\"sequence) \"root signature\"'")
 
 ;;; STATISTICS
 ;; Count number of notes, attachments and keywords
@@ -1071,6 +1082,71 @@ When TEXT-ONLY, exclude attachments from the graph."
 	    (nodes-alist (denote-explore--network-backlinks nodes-alist-degree edges-alist)))
       `((meta . ,meta-alist) (nodes . ,nodes-alist) (edges . ,edges-alist))
     (user-error "No network neighbourhood found")))
+
+;; Sequence Graphs
+(defun denote-explore-network-sequence (text-only)
+  "Generate a graph of signature sequences from a selected root node.
+Optionally analyse TEXT-ONLY files."
+  (let* ((signature-files (denote-explore--network-filter-files
+		    (denote-directory-files denote-signature-regexp nil text-only)))
+	 (signatures (mapcar #'denote-retrieve-filename-signature signature-files))
+	 (root (completing-read "Select root node (empty for all)" signatures)))
+    (setq denote-explore-network-previous `("Sequence" ,root))
+    (denote-explore-network-sequence-graph root text-only)))
+
+(defun denote-explore-network-sequence-graph (root text-only)
+  "Generate a Denote graph object from signature sequences for ROOT.
+Optionally analyse TEXT-ONLY files."
+  (let* ((all-files (denote-directory-files (concat "==" root) nil text-only))
+	 (files (denote-explore--network-filter-files all-files))
+	 (sequences (denote-explore--network-sequence-edges files))
+	 (edges (denote-explore--network-edges-from-sequences sequences files))
+	 (edges-alist (denote-explore--network-count-edges edges))
+	 (nodes (mapcar #'denote-explore--network-extract-node files))
+	 (nodes-degrees (denote-explore--network-degree nodes edges-alist))
+	 (nodes-alist (denote-explore--network-backlinks nodes-degrees edges-alist))
+	 (meta-alist `((directed . t)
+		       (type . ,(car denote-explore-network-previous))
+		       (parameters ,(cadr denote-explore-network-previous)))))
+      `((meta . ,meta-alist) (nodes . ,nodes-alist) (edges . ,edges-alist))))
+
+(defun denote-explore--network-sequence-edges (files)
+  "Create an edgle list of signatures from FILES."
+  (if-let ((sequences (mapcar #'denote-retrieve-filename-signature files))
+	   ((> (length files) 1)))
+      ;; Extract edges from signatures
+      (let ((result '()))
+	(dolist (sequence sequences)
+	  (let* ((parts (split-string sequence "="))
+		 (target sequence)
+		 (source (when (> (length parts) 1)
+			   (mapconcat 'identity (butlast parts) "="))))
+            (when source
+	      (push `((source . ,source) (target . ,target)) result))))
+	result)
+    (user-error "Root node has no children")))
+
+(defun denote-explore--network-edges-from-sequences (sequences files)
+  "Replace signatures in SEQUENCES edge list with identifiers from FILES."
+  (let* ((signature-map (build-signature-identifier-map files))
+	 (edges (mapcar (lambda (seq)
+		   (let ((source-id (cdr (assoc (cdr (assoc 'source seq)) signature-map)))
+			 (target-id (cdr (assoc (cdr (assoc 'target seq)) signature-map))))
+                     `((source . ,source-id) (target . ,target-id))))
+		  sequences)))
+    (seq-filter (lambda (seq)
+                (let ((source (cdr (assoc 'source seq))))
+                  (and source (not (string= source "")))))
+              edges)))
+
+(defun denote-explore--network-signature-identifier-map (files)
+  "Map signatures to identifiers from a list of FILES."
+  (let (result)
+    (dolist (file files result)
+      (let ((signature (denote-retrieve-filename-signature file))
+            (identifier (denote-retrieve-filename-identifier file)))
+        (when (and signature identifier)
+          (push (cons signature identifier) result))))))
 
 ;;; SAVE GRAPH
 (defun denote-explore-network-encode-json (graph)
