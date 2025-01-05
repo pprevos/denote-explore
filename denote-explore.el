@@ -253,6 +253,24 @@ Count only ATTACHMENTS by prefixing with universal argument."
     (message "%s used keywords (%s distinct keywords)"
 	     all-keywords distinct-keywords)))
 
+;;;###autoload
+(defun denote-explore-barchart-timeline ()
+  "Draw a column chart with the number of notes per year."
+  (interactive)
+  (let* ((files (denote-directory-files))
+	 (file-names (mapcar #'file-name-nondirectory files))
+	 ;; Extract years from file names
+	 (years (mapcar (lambda (file)
+			  (substring file 0 4))
+			file-names))
+	 (years-table (denote-explore--table years))
+	 (years-table-sorted (sort years-table
+				   (lambda (a b)
+				     (string< (car a) (car b))))))
+    (denote-explore--barchart years-table-sorted
+			      "Year"
+			      "Denote notes and attachments timeline")))
+
 ;;; RANDOM WALKS
 ;; Jump to a random note, random linked note or random note with selected tag(s).
 ;; With universal argument the sample includes attachments.
