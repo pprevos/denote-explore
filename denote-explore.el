@@ -1,10 +1,10 @@
 ;;; denote-explore.el --- Explore and visualise Denote files -*- lexical-binding: t -*-
 ;;
-;; Copyright (C) 2023-2024 Peter Prevos
+;; Copyright (C) 2023-2025 Peter Prevos
 ;;
 ;; Author: Peter Prevos <peter@prevos.net>
 ;; URL: https://github.com/pprevos/denote-explore/
-;; Version: 3.2
+;; Version: 3.3
 ;; Package-Requires: ((emacs "29.1") (denote "3.1") (dash "2.19.1"))
 ;;
 ;; This file is NOT part of GNU Emacs.
@@ -47,7 +47,7 @@
 (require 'json)
 (require 'browse-url)
 
-;;; Customisation
+;;; CUSTOMISATION
 
 (defgroup denote-explore ()
   "Explore and visualise Denote file collections."
@@ -175,7 +175,7 @@ See graphviz.org for detailed documentation."
 	  (const :tag "Portable Network Graphics (PNG)" "png")
 	  (string :tag "Other option")))
 
-;;; Internal variables
+;;; INTERNAL VARIABLES
 
 (defvar denote-explore-network-graph-formats
   '((graphviz
@@ -244,7 +244,7 @@ Parameters define the previous network, i.e.:
 
 ;;;###autoload
 (defun denote-explore-count-notes (&optional attachments)
-  "Count number of Denote text files and attachments.
+  "Count number of Denote notes and attachments.
 A note is defined by `denote-file-types', anything else is an attachment.
 Count only ATTACHMENTS by prefixing with universal argument."
   (interactive "P")
@@ -432,7 +432,7 @@ suspected duplicates."
         (insert "\n\nThe following "
 		(number-to-string (length duplicates)) " " mode
 		(if (> (length duplicates) 1) " are duplicates\n" " is duplicated\n"))
-		(insert "\n")
+	(insert "\n")
 	(if filenames
 	    (insert "Run without universal argument =C-u= to view duplicate Denote identifiers (include exported files).\n")
 	  (insert "Run with universal argument =C-u= to view duplicate filenames (exclude exported files.)\n"))
@@ -475,7 +475,7 @@ Duplicate files are displayed `find-dired'."
 (define-obsolete-function-alias
   'denote-explore-identify-duplicate-notes-dired
   'denote-explore-duplicate-notes-dired "3.3")
- 
+
 ;;;###autoload
 (defun denote-explore-single-keywords ()
   "Select a note or attachment with a keyword that is only used once."
@@ -663,7 +663,7 @@ types listed in `denote-file-type-extensions'."
   (interactive "P")
   (let* ((files (if attachments
 		    (cl-remove-if #'denote-file-is-note-p (denote-directory-files))
-		    (denote-directory-files)))
+		  (denote-directory-files)))
 	 (extensions (mapcar (lambda(file) (file-name-extension file))
 			     files))
 	 (ext-list (if attachments
@@ -714,9 +714,9 @@ The universal argument includes TEXT-ONLY files in the analyis."
 (defun denote-explore-barchart-backlinks (n)
   "Visualise the number of backlinks for N nodes in the Denote network."
   (interactive "nNumber of nodes: ")
-  (message "Analysing Denote network.")
-  (let* ((graph (denote-explore-network-community-graph ""))
-	     (nodes (cdr (assoc 'nodes graph)))
+  (message "Analysing Denote network ...")
+  (let* ((graph (denote-explore-network-community-graph "" t))
+	 (senodes (cdr (assoc 'nodes graph)))
          (backlinks (mapcar (lambda (node)
                               (cons
                                (cdr (assq 'name node))
@@ -1088,7 +1088,7 @@ When TEXT-ONLY, exclude attachments from the graph."
   "Generate a graph of signature sequences from a selected root node.
 Optionally analyse TEXT-ONLY files."
   (let* ((signature-files (denote-explore--network-filter-files
-		    (denote-directory-files denote-signature-regexp nil text-only)))
+			   (denote-directory-files denote-signature-regexp nil text-only)))
 	 (signatures (mapcar #'denote-retrieve-filename-signature signature-files))
 	 (root (completing-read "Select root node (empty for all)" signatures)))
     (setq denote-explore-network-previous `("Sequence" ,root))
@@ -1108,7 +1108,7 @@ Optionally analyse TEXT-ONLY files."
 	 (meta-alist `((directed . t)
 		       (type . ,(car denote-explore-network-previous))
 		       (parameters ,(cadr denote-explore-network-previous)))))
-      `((meta . ,meta-alist) (nodes . ,nodes-alist) (edges . ,edges-alist))))
+    `((meta . ,meta-alist) (nodes . ,nodes-alist) (edges . ,edges-alist))))
 
 (defun denote-explore--network-sequence-edges (files)
   "Create an edgle list of signatures from FILES."
@@ -1130,14 +1130,14 @@ Optionally analyse TEXT-ONLY files."
   "Replace signatures in SEQUENCES edge list with identifiers from FILES."
   (let* ((signature-map (denote-explore--network-signature-identifier-map files))
 	 (edges (mapcar (lambda (seq)
-		   (let ((source-id (cdr (assoc (cdr (assoc 'source seq)) signature-map)))
-			 (target-id (cdr (assoc (cdr (assoc 'target seq)) signature-map))))
-                     `((source . ,source-id) (target . ,target-id))))
-		  sequences)))
+			  (let ((source-id (cdr (assoc (cdr (assoc 'source seq)) signature-map)))
+				(target-id (cdr (assoc (cdr (assoc 'target seq)) signature-map))))
+			    `((source . ,source-id) (target . ,target-id))))
+			sequences)))
     (seq-filter (lambda (seq)
-                (let ((source (cdr (assoc 'source seq))))
-                  (and source (not (string= source "")))))
-              edges)))
+                  (let ((source (cdr (assoc 'source seq))))
+                    (and source (not (string= source "")))))
+		edges)))
 
 (defun denote-explore--network-signature-identifier-map (files)
   "Map signatures to identifiers from a list of FILES."
