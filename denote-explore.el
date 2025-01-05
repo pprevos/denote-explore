@@ -718,20 +718,25 @@ types listed in `denote-file-type-extensions'."
   'denote-explore-backlinks-barchart
   'denote-explore-barchart-backlinks "3.0")
 
-;;;###autoload
-(defun denote-explore-isolated-notes (&optional include-attachments)
-  "Identify Denote files without (back)links and optionally INCLUDE-ATTACHMENTS.
-Using the universal argument includes attachments."
-  (interactive "P")
-  (let* ((files (denote-directory-files nil nil (not include-attachments)))
+(defun denote-explore--idenitfy-isolated (&optional text-only)
+  "Identify Denote files without (back)links.
+Using the universal argument provides TEXT-ONLY files (excludes attachments)."
+  (let* ((files (denote-directory-files nil nil text-only))
 	 (all-ids (mapcar #'denote-retrieve-filename-identifier files))
 	 (edges (denote-explore--network-extract-edges files))
 	 (linked-ids (denote-explore--network-extract-unique-nodes edges))
-	 (isolated-ids (seq-remove (lambda (id) (member id linked-ids)) all-ids))
-	 (regex (mapconcat (lambda (item) (concat "\\b" item "\\b"))
-			   isolated-ids "\\|"))
-	 (isolated-files (seq-filter (lambda (item) (string-match regex item)) files)))
-    (find-file (completing-read "Select isolated file: " isolated-files))))
+	 (isolated-ids (seq-remove (lambda (id) (member id linked-ids)) all-ids)))
+    (-map (lambda (id) (-filter (lambda (f) (string-match-p id f)) files))
+	  isolated-ids)))
+
+;;;###autoload
+(defun denote-explore-isolated-files (&optional text-only)
+  "Identify Denote files without (back)links.
+Using the universal argument excludes attachments (TEXT-ONLY)."
+  (interactive "P")
+  (message "Searching for isolated files ...")
+  (let ((isolated (denote-explore--idenitfy-isolated text-only)))
+    (find-file (completing-read "Select isolated file: " isolated))))
 
 ;;; DEFINE GRAPHS
 ;; Define various graph types as an association list
