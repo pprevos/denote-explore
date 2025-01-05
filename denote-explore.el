@@ -503,35 +503,42 @@ Duplicate files are displayed `find-dired'."
 ;;;###autoload
 (defun denote-explore-rename-keyword ()
   "Rename or remove keyword(s) across the Denote collection.
+
+Use an empty string as new keyword to remove the selection.
+
 When selecting more than one existing keyword, all selections are renamed
-to the new version. Use an empty string as new keyword to remove the selection.
-The filename is taken as the source of truth for metadata.
-Use `denote-explore-sync-metadata' to synchronise filenames with frontmatter.
-All open Denote buffers need to be saved for this function to work reliably."
+to the new version or removed.
+
+The filename is taken as the source of truth for attchments and the front matter
+for notes.
+
+All open Denote note buffers should be saved for this function to work reliably."
   (interactive)
   ;; Save any open Denote files
   (save-some-buffers nil #'(lambda ()
-                             (denote-filename-is-note-p buffer-file-name)))
-  (let* ((denote-rename-confirmations '(modify-file-name))
-         (denote-sort-keywords t)
-         (selected (denote-keywords-prompt "Keyword to rename"))
+			     (denote-filename-is-note-p buffer-file-name)))
+  ;; Select keywords and file candidates
+  (let* ((selected-keyword (denote-keywords-prompt "Keyword(s) to rename"))
          (new-keyword (read-from-minibuffer "New keyword: "))
          (keywords-regex (mapconcat
-			  (lambda (keyword) (concat "_" keyword)) selected "\\|"))
+			  (lambda (keyword) (concat "_" keyword)) selected-keyword "\\|"))
          (files (denote-directory-files keywords-regex)))
+    ;; Loop through candidates
     (dolist (file files)
-      (let* ((file-type (denote-filetype-heuristics file))
-	     (file-keywords (denote-retrieve-filename-keywords file))
-	     (current-keywords (split-string file-keywords "_"))
-             (new-keywords (if (equal new-keyword "")
-                               (cl-set-difference current-keywords selected :test 'string=)
-                             (mapcar (lambda (keyword)
-                                       (if (member keyword selected) new-keyword keyword))
-                                     current-keywords))))
+      (let* ((denote-rename-confirmations '(rewrite-front-matter modify-file-name))
+             (denote-sort-keywords t)
+	     (denote-known-keywords nil)
+	     (current-keywords (denote-explore--retrieve-keywords file))
+	     (new-keywords (if (equal new-keyword "")
+			       (cl-set-difference current-keywords selected :test 'string=)
+			     (mapcar (lambda (keyword)
+				       (if (member keyword selected-keyword) new-keyword keyword))
+				     current-keywords)))
+	     (file-type (denote-filetype-heuristics file)))
         (denote-rename-file file
 	 		    (denote-retrieve-title-or-filename file file-type)
-                            (if (equal new-keywords nil) "" new-keywords)
-                            (denote-retrieve-filename-signature file))))))
+			    (if (equal new-keywords nil) "" (delete-dups new-keywords))
+			    (denote-retrieve-filename-signature file))))))
 
 (define-obsolete-function-alias
   'denote-explore--retrieve-title
