@@ -762,10 +762,10 @@ File: denote-explore.info,  Node: Installation and Package Configuration,  Next:
 This package is available through MELPA.
 
    The configuration below customises all available variables and binds
-all available commands to the ‘C-c e’ prefix.  This example also
-includes all configurable variables.  To get started you don't need to
-configure anything.  You should modify this configuration to suit your
-needs, as one person's sensible defaults are another person's nightmare.
+all available commands to the ‘C-c e’ prefix.  To get started you don't
+need to configure anything.  You should modify this configuration to
+suit your needs, as one person's sensible defaults are another person's
+nightmare.
 
      (use-package denote-explore
        :custom
@@ -874,8 +874,8 @@ Node: GraphViz28561
 Node: Graph Exchange XML Format30429
 Node: Analysing the Denote Network31468
 Node: Installation and Package Configuration33997
-Node: Acknowledgements36823
-Node: License37517
+Node: Acknowledgements36767
+Node: License37461
 
 End Tag Table
 

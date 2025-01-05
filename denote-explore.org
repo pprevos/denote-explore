@@ -304,7 +304,7 @@ The importance of a note is directly related to the number of backlinks. The ~de
 * Installation and Package Configuration
 This package is available through MELPA.
 
-The configuration below customises all available variables and binds all available commands to the =C-c e= prefix. This example also includes all configurable variables. To get started you don't need to configure anything. You should modify this configuration to suit your needs, as one person's sensible defaults are another person's nightmare.
+The configuration below customises all available variables and binds all available commands to the =C-c e= prefix. To get started you don't need to configure anything. You should modify this configuration to suit your needs, as one person's sensible defaults are another person's nightmare.
 
 #+begin_src elisp
   (use-package denote-explore

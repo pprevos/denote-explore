@@ -1,21 +1,61 @@
-#+title:  Denote Explore: Explore your Denote Digital Garden
+#+title:  Denote Explorer: Explore your Denote Digital Garden
 #+author: Peter Prevos
 
-The Denote-Explore package provides auxiliary functions to maintain and explore your collection of Denote files. Denote-Explore provides three groups of Emacs commands:
+The Denote-Explorer package provides auxiliary functions to maintain and explore your collection of Denote files. Denote-Explore provides three groups of Emacs commands:
 
 1. /Summary statistics/: Count and visualise notes, attachments and keywords.
 2. /Random walks/: Generate new ideas using serendipity.
 3. /Janitor/: Manage your denote collection.
 4. /Knowledge graphs/: Visualise your Denote network  as a network graph.
 
-Read the [[https://lucidmanager.org/productivity/denote-explore][denote-explore manual]] for a comprehensive explanation of all functionality (=C-h R denote-explore=).
+Read the [[https://lucidmanager.org/productivity/denote-explore][Denote-Explorer manual]] for a comprehensive explanation of all functionality (=C-h R denote-explore=).
 
-Visualising networks of Denote files with SVG or PDF files will require the GraphViz package to be available. Other visualisation types have no external dependencies.
+Visualising networks of Denote files with SVG or PDF files will require the [[https://graphviz.org/][GraphViz]] package to be available. The D3.js visualisation type downloads an external JavaScript file from [[https://d3js.org/][d3js.org]].
 
-Denote-Explore package is available on MELPA and is easily installed with the ~use-package~ macro.
+Denote-Explore package is available on MELPA and is easily installed with the ~use-package~ macro:
 
-#+begin_src elisp :results none
-  (use-package denote-explore)
+The configuration below customises all available variables and binds all available commands to the =C-c e= prefix. To get started you don't need to configure anything. You should modify this configuration to suit your needs, as one person's sensible defaults are another person's nightmare.
+
+#+begin_src elisp
+  (use-package denote-explore
+    :custom
+    ;; Where to store network data and in which format
+    (denote-explore-network-directory "<folder>")
+    (denote-explore-network-filename "denote-network")
+    (denote-explore-network-keywords-ignore "<keywords list>")
+    (denote-explore-network-regex-ignore "<regex>")
+    (denote-explore-network-format 'd3.js)
+    (denote-explore-network-d3-colours 'SchemeObservable10)
+    (denote-explore-network-d3-js "https://d3js.org/d3.v7.min.js")
+    (denote-explore-network-d3-template "<file path>")
+    (denote-explore-network-graphviz-header "<header strings>")
+    (denote-explore-network-graphviz-filetype 'svg)
+    :bind
+    (;; Statistics
+     ("C-c e s n" . denote-explore-count-notes)
+     ("C-c e s k" . denote-explore-count-keywords)
+     ("C-c e s e" . denote-explore-barchart-filetypes)
+     ("C-c e s w" . denote-explore-barchart-keywords)
+     ("C-c e s t" . denote-explore-barchart-timeline)
+     ;; Random walks
+     ("C-c e w n" . denote-explore-random-note)
+     ("C-c e w r" . denote-explore-random-regex)
+     ("C-c e w l" . denote-explore-random-link)
+     ("C-c e w k" . denote-explore-random-keyword)
+     ;; Denote Janitor
+     ("C-c e j d" . denote-explore-duplicate-notes)
+     ("C-c e j D" . denote-explore-duplicate-notes-dired)
+     ("C-c e j l" . denote-explore-dead-links)
+     ("C-c e j z" . denote-explore-zero-keywords)
+     ("C-c e j s" . denote-explore-single-keywords)
+     ("C-c e j r" . denote-explore-rename-keywords)
+     ("C-c e j y" . denote-explore-sync-metadata)
+     ("C-c e j i" . denote-explore-isolated-files)
+     ;; Visualise denote
+     ("C-c e n" . denote-explore-network)
+     ("C-c e r" . denote-explore-network-regenerate)
+     ("C-c e d" . denote-explore-barchart-degree)
+     ("C-c e b" . denote-explore-barchart-backlinks)))
 #+end_src
 
 Alternatively, you can install it directly from GitHub:
@@ -30,9 +70,34 @@ Alternatively, you can install it directly from GitHub:
 * Change Log
 Major version numbers coincide with Denote major versions.
 
+** Version 3.3
++ Knowledge Graphs
+  - New visualisation type: Sequences of Denote signatures
+    - Changed GraphViz geometry for sequence graphs
+  - Full rewrite of most functions.
+    - Increased efficiency in detecting edges (links between files)
+    - Ability to draw graphs without attachments by using the universal argument when generating and regenerating graphs
+  - D3.js Visualisations
+    - New slider to change the number of node labels (from none to every node)
+    - Added number of isolated notes to info tooltip (when isolated nodes > 0)
++ Janitor
+  - New function ~denote-explore-dead-links~ to find dead links
+  - Optimised single and zero keywords detection
+  - Change behaviour and optimisation for ~denote-explore-isolated-notes~
+  - ~denote-explore-sort-keywords~ replaced by ~denote-explore-sync-metadata~
+  - Refactored ~denote-explore-rename-keyword~
+  - Renamed duplicate notes functions to remove double verb and UI improvements.
+  - ~denote-explore-sync-metadata~ bug fix
++ Statistics
+  - New function ~denote-explore-barchart-timeline~ to show number of nodes and/or attachment created per year
+  - The File type bar chart can also show only attachments.
+  - ~denote-explore-barchart-degree~ allows text-only option
+  - Added all used keywords to ~denote-explore-count-keywords~
+  - Fixed bug in random walk functions
+
 ** Version 3.2
 - First version formally registered (for inclusion in Guin)
-- D3.js functionality
+- D3.js Visualisation
   - Community graphs can filter out nodes where degree = 0 (isolated notes)
   - Preview images and PDF files in tooltips
 - Updated manual
@@ -119,7 +184,7 @@ Major version numbers coincide with Denote major versions.
 ** Version 1.0
 This version is a complete rewrite of the code to improve coding quality and compatibility with internal changes since Denote version 2.2.
 
-Also major changes to the network visualisation, which can now take a regular expression for partial networks. Most of the code is now undertaken in Emacs Lisp, which saves that Denote notes and attachment structures in JSON format.
+Also major changes to the network visualisation, which can now take a regular expression for partial networks. Most of the code is now undertaken in Emacs Lisp, which saves the network in JSON format.
 
 The functionality for a Dashboard widget has been moved to a separate file to not enforce the requirements for those users not seeking to implement the widget.
 
@@ -132,16 +197,11 @@ New functionality since the previous version:
 - ~denote-explore-sync-metadata~: Synchronise the filenames with the metadata for all Denote files.
 
 * Ideas for future development
-Some random ideas for future development.
+Some random ideas for future development. Feel free to suggest other ideas.
 
-- [ ] Create a Denote widget for the Emacs Dashboard with links to statistics.
 - [ ] Functions to rename Denote attachments using EXIF metadata.
-- [ ] Jump to random note within a time frame
-
-** Visualising Denote
 - [ ] Store the Denote metadata in a [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Hash-Tables.html][hash table]] that is updated after every modification to a Denote file for more efficient visualisation.
 - [ ] Ring of previously-generated networks instead of overwriting ~denote-explore-network-previous~
 - [ ] Use [[https://github.com/alphapapa/org-graph-view/][org-graph-view]] for live neighbourhood view of the current buffer
 - [ ] [[https://graphviz.org/pdf/cluster.1.pdf][Community detection]]?
-- [ ] Visualise signatures ([[https://zettelkasten.de/introduction/2020-08-13_folgezettel-sequence.png][example]])
-- [ ] Plain text time series graph of the creation of new notes.
+- [ ] Create a Denote widget for the Emacs Dashboard with links to statistics.
