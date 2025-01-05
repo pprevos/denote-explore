@@ -89,7 +89,7 @@ File type defined by `denote-explore-network-format'."
 	  (const :tag "GraphViz (Dot)" graphviz)
 	  (const :tag "Graph Exchange XML Format (GEXF)" gexf)))
 
-(defcustom denote-explore-network-keywords-ignore '("bib")
+(defcustom denote-explore-network-keywords-ignore '()
   "List of keywords to be ignored in the keywords graph."
   :group 'denote-explore
   :package-version '(denote-explore . "1.3")
