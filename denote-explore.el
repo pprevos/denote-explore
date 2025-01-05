@@ -297,18 +297,20 @@ With universal argument the sample includes attachments."
     (user-error "No Denote files found")))
 
 ;;;###autoload
-(defun denote-explore-random-link (&optional include-attachments)
-  "Jump to a random linked note and optionally INCLUDE-ATTACHMENTS.
-With universal argument the sample includes links to attachments."
+(defun denote-explore-random-link (&optional attachments)
+  "Jump to a random linked from current buffer note.
+With universal argument the sample includes links to ATTACHMENTS."
   (interactive "P")
+  ;; Gather links
   (let* ((forward-links (denote-link-return-links))
 	 (back-links (denote-link-return-backlinks))
 	 (all-links (append forward-links back-links))
-	 (links (if include-attachments
+	 (links (if attachments
 		    all-links
 		  (seq-filter #'denote-file-is-note-p all-links))))
-    (if links (denote-explore--jump links)
-      (user-error "Not a Denote file or no (back)links in or to this buffer"))))
+    (if links
+	(denote-explore--jump links)
+      (message "Not a Denote file or no (back)links in or to this buffer"))))
 
 (defun denote-explore--retrieve-keywords (file)
   "Retrieve alphabetised list of keywords from Denote FILE.
@@ -349,8 +351,7 @@ Uses front matter for notes and the filename for attachments."
 - Use \"*\" to select all listed keywords.
 
 Selecting multiple keywords requires `denote-sort-keywords' to be non-nil
-or the target keywords are in the same order as the selection. Alternatively,
-use `denote-explore-sort-keywords' to order keywords in all Denote files.
+or the target keywords are in the same order as the selection.
 
 With universal argument the sample will INCLUDE-ATTACHMENTS."
   (interactive "P")
@@ -363,7 +364,7 @@ With universal argument the sample will INCLUDE-ATTACHMENTS."
   "Jump to a random not matching a regular expression REGEX.
 Use Universal Argument to INCLUDE-ATTACHMENTS"
   (interactive "sRegular expression: \nP")
-  (if-let* ((sample (denote-directory-files regex t (not include-attachments))))
+  (if-let ((sample (denote-directory-files regex t (not include-attachments))))
       (denote-explore--jump sample)
     (message "No matching Denote files found")))
 
