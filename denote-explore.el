@@ -541,29 +541,29 @@ All open Denote buffers need to be saved for this function to work reliably."
 ;;;###autoload
 (defun denote-explore-sync-metadata ()
   "Synchronise filenames with the metadata for all Denote notes.
-The front matter is used as the source of truth.
-All open Denote buffers need to be saved for this function to work reliably."
+The front matter is the source of truth. Keywords are saved alphabetically.
+All open Denote note buffers need to be saved before invoking this function."
   (interactive)
-    (save-some-buffers nil #'(lambda ()
+  ;; Save open Denote notes
+  (save-some-buffers nil #'(lambda ()
                              (denote-filename-is-note-p buffer-file-name)))
-  (let ((denote-rename-confirmations '(modify-file-name))
+  (let ((denote-rename-confirmations '(rewrite-front-matter modify-file-name))
 	(denote-sort-keywords t)
 	(notes (denote-directory-files nil nil t)))
+    ;; Construct new file names and rename when different
     (dolist (file notes)
-      ;; Construct file name from front matter (except the ID)
-      (let* ((file-type (denote-filetype-heuristics file))
-	     (directory (file-name-directory file))
+      (let* ((dir (file-name-directory file))
+	     (file-type (denote-filetype-heuristics file))
 	     (id (denote-retrieve-filename-identifier file))
-	     (keywords (denote-retrieve-front-matter-keywords-value file file-type))
 	     (title (denote-retrieve-front-matter-title-value file file-type))
-	     (extension (file-name-extension file :include-period))
 	     (signature (denote-retrieve-filename-signature file))
-	     (new-name (denote-format-file-name directory id keywords title extension signature)))
-	;; Rename when new name is not the same as current name
-	(when (not (string= file new-name))
-	  (progn (message file)
-	(denote-rename-file-using-front-matter file))))))
-    (message "Integrity check completed"))
+	     (keywords (denote-retrieve-front-matter-keywords-value file file-type))
+	     (file-keywords (mapconcat #'identity keywords "_"))
+	     (ext (file-name-extension file t))
+	     (file-name (denote-format-file-name dir id keywords title ext signature)))
+	(if (not (string= file file-name))
+	    (denote-rename-file-using-front-matter file))))
+    (message "Integrity check completed")))
 
 ;;;###autoload
 (defun denote-explore-dead-links ()
