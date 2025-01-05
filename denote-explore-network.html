@@ -71,20 +71,20 @@
       .info-button {
 	  position: fixed;
 	  top: 10px;
-      left: 10px;
-      width: 50px;
-      height: 50px;
-      background-color: #007BFF;
-      color: white;
-      font-size: 24px;
-      font-weight: bold;
-      text-align: center;
-      line-height: 50px;
-      border-radius: 25px;
-      cursor: pointer;
-      z-index: 1000;
-      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
-      transition: transform 0.2s, box-shadow 0.2s;
+	  left: 10px;
+	  width: 50px;
+	  height: 50px;
+	  background-color: #007BFF;
+	  color: white;
+	  font-size: 24px;
+	  font-weight: bold;
+	  text-align: center;
+	  line-height: 50px;
+	  border-radius: 25px;
+	  cursor: pointer;
+	  z-index: 1000;
+	  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+	  transition: transform 0.2s, box-shadow 0.2s;
       }
 
       .info-button:hover {
@@ -102,19 +102,19 @@
       }
 
       .info-tooltip {
-      position: absolute;
-      top: 60px;
-      left: 10px;
-      background-color: white;
-      color: black;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 15px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      max-width: 600px; /* Prevents it from growing too wide */
-      overflow: auto;
-      display: none;
-      z-index: 99999;
+	  position: absolute;
+	  top: 60px;
+	  left: 10px;
+	  background-color: white;
+	  color: black;
+	  border: 1px solid #ddd;
+	  border-radius: 8px;
+	  padding: 15px;
+	  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	  max-width: 600px; /* Prevents it from growing too wide */
+	  overflow: auto;
+	  display: none;
+	  z-index: 99999;
       }
       
       .info-tooltip .title {
@@ -140,13 +140,14 @@
 	  border-radius: 8px;
 	  background-color: #f8f8f8;
       }
+      
       .metadata-container {
-      margin-bottom: 10px;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      background-color: #f8f8f8; /* Matches the existing tooltip and legend background */
-      font-size: 18px; /* Matches the metadata text size */
+	  margin-bottom: 10px;
+	  padding: 10px;
+	  border: 1px solid #ddd;
+	  border-radius: 8px;
+	  background-color: #f8f8f8; /* Matches the existing tooltip and legend background */
+	  font-size: 18px; /* Matches the metadata text size */
       }
 
       .metadata {
@@ -161,6 +162,7 @@
     <div id="info-button" class="info-button" title="Click for more information">ℹ</div>
     <!-- Tooltip Container -->
     <div class="info-tooltip"></div>
+</div>
     <script src="{{d3-js}}"></script>
     <script>
       const data = {{json-content}}
@@ -171,6 +173,8 @@
       const color = d3.scaleOrdinal(d3.{{d3-colourscheme}});
       const links = data.edges; // Array of edges
       const nodes = data.nodes; // Array of nodes
+      // Variable to hold the current minimum degree tag value
+      let minDegreeTag = 2;
 
       // Create a tooltip div
       const tooltip = d3.select("body")
@@ -297,8 +301,10 @@
       <div class="keywords">${d.keywords && d.keywords.length > 0 ? d.keywords.map(keyword =>
         `<span>${keyword}</span>`).join('') :
         '<div class="metadata">No keywords</div>'}</div>
-      ${isImage 
-      ? `<img src="${d.filename}" alt="${d.name}" style="max-width: 100%; height: auto; margin-top: 10px;">`
+      ${isImage
+      ? `<img src="${d.filename}" alt="${d.name}" 
+	  onload="if(this.naturalHeight > this.naturalWidth) this.style.maxHeight='500px';"
+	  style="max-width: 100%; height: auto; margin-top: 10px;">`
         : isPDF 
       ? `<iframe src="${d.filename}?toolbar=0&navpanes=0&scrollbar=0#view=FitH"
 		 style="width: 100%; height: 500px; margin-top: 10px; border: none;"></iframe>`
@@ -345,10 +351,10 @@
       .on("drag", dragged)
       .on("end", dragended));
 
-      // Add labels for nodes with degree > 2
+      // Add labels for nodes with degree > minDegreeTag
       const labels = svgGroup.append("g")
       .selectAll("text")
-      .data(nodes.filter(d => d.degree > 2)) // Filter nodes based on degree
+      .data(nodes.filter(d => d.degree > minDegreeTag)) // Filter nodes based on degree
       .join("text")
       .attr("dx", 10)
       .attr("dy", ".35em")
@@ -416,6 +422,7 @@
       event.subject.fy = null;
       }
 
+      
       const infoButton = document.getElementById("info-button");
       const infoTooltip = document.querySelector(".info-tooltip");
 
@@ -490,8 +497,11 @@
 
 	  infoTooltip.appendChild(metadataContainer);
 
+	  // Calculate the number of singular nodes
+	  const singularNodeCount = data.nodes.filter(node => node.degree === 0).length;
+
 	  // Add a toggle button
-	  if (data.meta.type === "Community") {
+	  if (data.meta.type === "Community" && singularNodeCount !== 0) {
 	      const buttonContainer = document.createElement("div");
 	      buttonContainer.className = "metadata-container";
 
@@ -522,8 +532,16 @@
 		  toggleButton.textContent = isVisible ? "Show Isolated Nodes" : "Hide Isolated Nodes";
 	      });
 
-	      buttonContainer.appendChild(toggleButton); // Add the button to the container
-	      infoTooltip.appendChild(buttonContainer);  // Append the container to the tooltip
+	      // Create a comment element to display the count
+	      const singularNodeComment = document.createElement("div");
+	      singularNodeComment.className = "metadata";
+	      singularNodeComment.textContent = `${singularNodeCount} isolated notes`;
+
+	      // Append this comment above the toggle button
+	      buttonContainer.appendChild(singularNodeComment);
+
+	      buttonContainer.appendChild(toggleButton);
+	      infoTooltip.appendChild(buttonContainer); 
 	  }
 
 	  
