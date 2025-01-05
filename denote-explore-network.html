@@ -709,6 +709,50 @@
       
       });
 
+	
+      // Label density
+      // Add a slider element to the top-right corner
+      const sliderContainer = d3.select('body').append('div')
+	    .style('position', 'fixed')
+	    .style('top', '10px')
+	    .style('right', '10px')
+	    .style('z-index', '1000');
+
+      sliderContainer.append('label')
+    .text('Label density: ')
+    .style('margin-right', '10px');
+
+      const slider = sliderContainer.append('input')
+	    .attr('type', 'range')
+	    .attr('min', 0)
+	    .attr('max', d3.max(nodes, d => d.degree))
+	    .attr('value', minDegreeTag)
+	    .style('width', '150px')
+	    .on('input', function () {
+		minDegreeTag = d3.max(nodes, d => d.degree) - +this.value;
+		updateLabels();
+	    });
+
+      // Function to update labels based on the slider value
+      function updateLabels() {
+	  labels = svgGroup.selectAll('text')
+              .data(nodes.filter(d => d.degree > minDegreeTag), d => d.id)
+              .join(
+		  enter => enter.append('text')
+                      .attr('x', d => d.x)
+                      .attr('y', d => d.y)
+                      .attr('dx', 10)
+                      .attr('dy', '.35em')
+                      .style('font-size', `${fontSize}px`)
+                      .style('font-family', 'Arial, sans-serif')
+                      .style('fill', '#333')
+                      .text(d => d.name),
+		  update => update.attr('x', d => d.x).attr('y', d => d.y),
+		  exit => exit.remove()
+              );
+	  simulation.alpha(1).restart();
+      }
+
     </script>
   </body>
 </html>
