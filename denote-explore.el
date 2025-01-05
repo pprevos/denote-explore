@@ -148,7 +148,7 @@ Refer to URL `https://d3js.org/d3-scale-chromatic/categorical' for details."
     "overlap=scale"
     "sep=1"
     "node[label=\"\" style=filled color=lightskyblue fillcolor=lightskyblue3
-shape=circle fontsize=80 fontcolor=gray10 fontname = \"Helvetica, Arial, sans-serif\"]"
+shape=circle fontsize=40 fontcolor=gray10 fontname = \"Helvetica, Arial, sans-serif\"]"
     "edge[arrowsize=3 color=gray30]")
   "List of strings for the header of a GraphViz DOT file.
 
@@ -1157,13 +1157,19 @@ Optionally analyse TEXT-ONLY files."
 (defun denote-explore-network-encode-graphviz (graph)
   "Encode a Denote GRAPH object to GraphViz and insert in a file."
   (let* ((meta (cdr (assoc 'meta graph)))
+	 (type (cdr (assoc 'type meta)))
 	 (nodes (cdr (assoc 'nodes graph)))
          (edges (cdr (assoc 'edges graph)))
 	 (directed (cdr (assoc 'directed meta)))
 	 (graphtype (list (if directed "digraph Denote {" "graph Denote {")))
-         (dot-header (append graphtype denote-explore-network-graphviz-header))
+         (dot-header-all (append graphtype denote-explore-network-graphviz-header))
+	 (dot-header (if (not (string= type "Sequence"))
+			 dot-header-all
+		       (cl-remove-if (lambda (x) (string-match-p "layout=neato" x))
+				     (mapcar (lambda (x)
+					       (replace-regexp-in-string "circle" "square" x))
+					     dot-header-all))))
 	 (dot-content '())
-	 (type (cdr (assoc 'type meta)))
 	 (nb-core (when (string-match denote-id-regexp type) (match-string 0 type))))
     ;; Nodes
     (dolist (node nodes)
@@ -1171,16 +1177,19 @@ Optionally analyse TEXT-ONLY files."
 	     (core (if (equal nb-core id) "fillcolor=darkorchid" ""))
              (name (replace-regexp-in-string (rx ?\") "\\\\\"" (cdr (assoc 'name node))))
 	     (degree (cdr (assoc 'degree node)))
-	     (label (if (or (> degree 2) (equal nb-core id)) name ""))
+	     (signature (cdr (assoc 'signature node)))
+	     (label (if (string= type "Sequence")
+			(concat "label=\"" signature "\"")
+		      (if (or (> degree 2) (equal nb-core id)) (concat "xlabel=\"" name "\"") "")))
              (tags (mapconcat 'identity (cdr (assoc 'keywords node)) ", "))
              (type (cdr (assoc 'type node)))
 	     (width (sqrt (+ degree 1)))
 	     (file-name (cdr (assoc 'filename node)))
 	     (hyperlink (if file-name file-name "#")))
-	(push (format (concat "%S [xlabel=%S tooltip=\"ID: %s\\nTitle: "
-			      "%s\\nKeywords: %s\\nType: %s\\nDegree: %s\" "
-			      "width=%s %s URL=\"%s\"]\n")
-                      id label id name tags type degree width core hyperlink)
+	(push (format (concat "%S [%s tooltip=\"ID: %s\\nTitle: "
+			      "%s\\nKeywords: %s\\nSignature: %s\\nType: %s\\n"
+			      "Degree: %s\" width=%s %s URL=\"%s\"]\n")
+                      id label id name tags signature type degree width core hyperlink)
 	      dot-content)))
     ;; Edges
     (dolist (edge edges)
