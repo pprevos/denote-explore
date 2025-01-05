@@ -374,7 +374,7 @@ Use Universal Argument to INCLUDE-ATTACHMENTS"
 (defun denote-explore--table (list)
   "Generate an ordered frequency table from a LIST."
   (sort (-frequencies list)
-        (lambda (a b) (> (cdr a) (cdr b)))))
+	(lambda (a b) (> (cdr a) (cdr b)))))
 
 (defun denote-explore--duplicate-notes (strict-filenames-p)
   "Find duplicate Denote IDs.
@@ -620,12 +620,13 @@ VAR and TITLE used for display."
 (defun denote-explore-barchart-keywords (n)
   "Create a barchart with the top N most used Denote keywords."
   (interactive "nNumber of keywords: ")
-  (denote-explore--barchart
-   (denote-explore--table
-    (denote--inferred-keywords))
-   (concat "Top-" (number-to-string n) " Denote Keywords")
-   (concat "Total Denote keywords: "
-	   (number-to-string (length (denote-keywords)))) n))
+  (let* ((keywords (mapcan #'denote-extract-keywords-from-path
+			   (denote-directory-files)))
+	 (keywords-table (denote-explore--table keywords)))
+    (denote-explore--barchart
+     keywords-table
+     (concat "Top-" (number-to-string n) " Denote Keywords")
+     (denote-explore-count-keywords) n)))
 
 (define-obsolete-function-alias
   'denote-explore-keywords-barchart
@@ -637,19 +638,19 @@ VAR and TITLE used for display."
 With universal argument only visualises ATTACHMENTS, which excludes file
 types listed in `denote-file-type-extensions'."
   (interactive "P")
-  (let* ((files (denote-directory-files))
-	 (extensions (mapcar (lambda(file)
-			       (file-name-extension file t)) files))
+  (let* ((files (if attachments
+		    (cl-remove-if #'denote-file-is-note-p (denote-directory-files))
+		    (denote-directory-files)))
+	 (extensions (mapcar (lambda(file) (file-name-extension file))
+			     files))
 	 (ext-list (if attachments
-		       (cl-set-difference extensions (denote-file-type-extensions) :test 'equal)
+		       (cl-set-difference extensions
+					  (denote-file-type-extensions)
+					  :test 'equal)
 		     extensions))
 	 (title (if attachments
 		    (denote-explore-count-notes :attachments)
 		  (denote-explore-count-notes))))
-    (setq ext-list (mapcar (lambda (extension)
-			     (if (null extension)
-				 "nil" extension))
-			   ext-list))
     (denote-explore--barchart
      (denote-explore--table ext-list) "Denote file extensions" title)))
 
