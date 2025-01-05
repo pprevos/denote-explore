@@ -530,6 +530,48 @@ All open Denote buffers need to be saved for this function to work reliably."
 	(denote-rename-file-using-front-matter file))))))
     (message "Integrity check completed"))
 
+;;;###autoload
+(defun denote-explore-dead-links ()
+  "Check all Denote links in the `denote-directory'."
+  (interactive)
+  (message "Identifying dead links ...")
+  (if-let* ((files (denote-directory-files))
+	    (ids (mapcar #'denote-retrieve-filename-identifier files))
+	    (links (denote-explore--network-extract-edges files))
+	    (dead-links (seq-filter
+			 (lambda (link)
+			   (not (member (cdr (assoc 'target link)) ids)))
+			 links)))
+      (with-current-buffer-window "*Denote dead links*" nil nil
+	(org-mode)
+	(insert "#+title: List of dead Denote links\n")
+	(insert "#+date: ") (org-insert-time-stamp (current-time) t t)
+	(insert (format "\n\n%s dead links identified\n\n"
+			(length dead-links))
+		"Follow the hyperlinks to remove or repair dead links.\n\n"
+		"To disable confirmations, customise ~org-link-elisp-confirm-function~\n\n")
+	(insert "| Source | Target |\n")
+	(insert "|--------|--------|\n")
+	(dolist (link dead-links)
+	  (let* ((source (cdr (assoc 'source link)))
+		 (target (cdr (assoc 'target link)))
+		 (file (car (denote-directory-files source)))
+		 (file-type (denote-filetype-heuristics file))
+		 (title (denote-retrieve-front-matter-title-value file file-type)))
+	    (insert "|")
+	    (insert "[[elisp:(denote-explore--review-dead-link \""
+		    source "\" \"" target "\")][" title "]]")
+	    (insert "|" target "|\n")))
+	(org-table-align))
+    (message "No dead Denote links found")))
+
+(defun denote-explore--review-dead-link (source target)
+  "Jump to the location of a dead link to TARGET found in SOURCE."
+  (let ((file (car (denote-directory-files source))))
+    (find-file file)
+    (org-toggle-link-display)
+    (search-forward-regexp target)))
+
 ;;; VISUALISATION
 
 ;; Bar charts
