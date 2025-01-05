@@ -1128,7 +1128,7 @@ Optionally analyse TEXT-ONLY files."
 
 (defun denote-explore--network-edges-from-sequences (sequences files)
   "Replace signatures in SEQUENCES edge list with identifiers from FILES."
-  (let* ((signature-map (build-signature-identifier-map files))
+  (let* ((signature-map (denote-explore--network-signature-identifier-map files))
 	 (edges (mapcar (lambda (seq)
 		   (let ((source-id (cdr (assoc (cdr (assoc 'source seq)) signature-map)))
 			 (target-id (cdr (assoc (cdr (assoc 'target seq)) signature-map))))
