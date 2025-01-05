@@ -542,8 +542,7 @@ All open Denote note buffers should be saved for this function to work reliably.
 
 (define-obsolete-function-alias
   'denote-explore--retrieve-title
-  'denote-retrieve-title-or-filename
-  "1.4.2")
+  'denote-retrieve-title-or-filename "1.4.2")
 
 ;;;###autoload
 (defun denote-explore-sync-metadata ()
@@ -743,39 +742,37 @@ Using the universal argument excludes attachments (TEXT-ONLY)."
 ;; Define various graph types as an association list
 
 ;; Community graph
-(defun denote-explore--network-zip-alists (source target)
-  "Combine two lists into an alists, pairing SOURCE and TARGET, defining edges."
-  (let ((result nil))
-    (while (and source target)
-      (let ((pair (list (cons 'source (car source))
-			(cons 'target (car target)))))
-        (push pair result)
-        (setq source (cdr source))
-        (setq target (cdr target))))
-    (nreverse result)))
+(define-obsolete-function-alias
+  'denote-explore--network-zip-alists
+  'nil "3.3")
 
 (defun denote-explore--network-extract-edges (files)
-  "Extract Denote network links as network edges from FILES."
-  (when-let* ((links-xref (xref-matches-in-files
-			   "\\[denote:[0-9]\\{8\\}" files))
-	      (source (mapcar #'denote-retrieve-filename-identifier
-			      (mapcar
-			       #'xref-location-group
-			       (mapcar #'xref-match-item-location
-				       links-xref))))
-	      (links (mapcar #'substring-no-properties
-			     (mapcar #'xref-match-item-summary
-				     links-xref)))
-	      (target (mapcar
-		       (lambda (str)
-			 (when (string-match denote-id-regexp str)
-			   (match-string 0 str))) links)))
-    (denote-explore--network-zip-alists source target)))
+  "Extract forward links as network edges from FILES."
+  (let* ((text-files (seq-filter #'denote-file-is-note-p files))
+	 (links-xref (xref-matches-in-files
+		      "\\[denote:[0-9]\\{8\\}T[0-9]\\{6\\}" text-files))
+	 (source (mapcar #'denote-retrieve-filename-identifier
+			 (mapcar
+			  #'xref-location-group
+			  (mapcar #'xref-match-item-location
+				  links-xref))))
+	 (links (mapcar #'substring-no-properties
+			(mapcar #'xref-match-item-summary
+				links-xref)))
+	 (target (mapcar
+		  (lambda (str)
+		    (when (string-match denote-id-regexp str)
+		      (match-string 0 str)))
+		  links))
+	 ;; Zip this lists as an alist (((source . "a") (target "b")) (...))
+	 (all-edges (-map (lambda (pair)
+			    `((source . ,(car pair)) (target . ,(cdr pair))))
+			  (-zip-pair source target))))
+    all-edges))
 
 (define-obsolete-function-alias
   'denote-explore--extract-vertices
-  'denote-explore--network-extract-node
-  "1.2")
+  'denote-explore--network-extract-node "1.2")
 
 (defun denote-explore--network-extract-node (file)
   "Extract metadata for note or attachment FILE."
@@ -802,28 +799,20 @@ Prunes any edges that link to outside a community of NODES."
     (nreverse filtered-edges)))
 
 (defun denote-explore--network-count-edges (edges)
-  "Count occurrences of EDGES to set their weight."
-  (let (result)
-    (dolist (edge edges)
-      (let* ((source (cdr (assoc 'source edge)))
-             (target (cdr (assoc 'target edge)))
-             (key (format "%s-%s" source target))
-             (found (assoc key result)))
-        (if found
-            (setcdr found (1+ (cdr found)))
-          (push (cons key 1) result))))
-    ;; Transform the list back into the desired format
-    (let (final-result)
-      (dolist (item result final-result)
-        (let* ((key (car item))
-               (weight (cdr item))
-               (parts (split-string key "-"))
-               (source (nth 0 parts))
-               (target (nth 1 parts)))
-          (push (list (cons 'source source)
-                      (cons 'target target)
-                      (cons 'weight weight))
-		final-result))))))
+  "Count occurrences of EDGES to set their weight.
+
+The result is an association list of all edges and their weights:
+`((source . id1) (source . id2) (weight . w))'."
+  (let* ((edges-count (-frequencies edges))
+	 (edges-alist (mapcar (lambda (item)
+				(let ((source (cdr (assoc 'source (car item))))
+				      (target (cdr (assoc 'target (car item))))
+				      (weight (cdr item)))
+				  `((source . ,source)
+				    (target . ,target)
+				    (weight . ,weight))))
+			      edges-count)))
+    edges-alist))
 
 (defun denote-explore--network-degree (nodes edges)
   "Calculate the degree of nodes in a network graph NODES and EDGES.
@@ -836,10 +825,11 @@ of a file."
                 (when (or (string= node-id (cdr (assoc 'source edge)))
                           (string= node-id (cdr (assoc 'target edge))))
                   (setq degree (+ degree 1))))
-	      (append node (list (cons 'degree degree))))) nodes))
+	      (append node (list (cons 'degree degree)))))
+	  nodes))
 
 (defun denote-explore--network-backlinks (nodes edges)
-"Calculate the number of backlinks for NODES and EDGES."
+  "Calculate the number of backlinks for NODES and EDGES."
   (mapcar (lambda (node)
             (let ((node-id (cdr (assoc 'id node)))
                   (backlinks 0))
@@ -847,7 +837,7 @@ of a file."
                 (when (string= node-id (cdr (assoc 'target edge)))
                   (setq backlinks (+ backlinks (cdr (assoc 'weight edge))))))
               (append node (list (cons 'backlinks backlinks)))))
-        nodes))
+          nodes))
 
 (defun denote-explore--network-filter-files (files)
   "Remove files matching `denote-explore-network-regex-ignore' from Denote FILES.
@@ -953,21 +943,16 @@ Optionally analyse TEXT-ONLY files."
     `((meta . ,meta-alist) (nodes . ,nodes-alist) (edges . ,edges-alist))))
 
 ;;; Neighbourhood Graph
-(defun denote-explore--network-extract-unique-nodes (edges)
-  "Extract all unique `source' and `target' nodes from EDGES."
-  (let ((nodes '()))
-    (dolist (edge edges)
-      (dolist (key '(source target))
-        (let ((node (cdr (assoc key edge))))
-          (unless (member node nodes)
-            (push node nodes)))))
-    (nreverse nodes)))
+(defun denote-explore--network-extract-unique-nodes (edges-alist)
+  "Extract all unique `source' and `target' nodes from EDGES-ALIST."
+  (delete-dups
+   (mapcan (lambda (entry)
+	     (list (cdr (assoc 'source entry))
+		   (cdr (assoc 'target entry))))
+	   edges-alist)))
 
-(defun denote-explore--network-find-edges (id edges)
-  "Find edges matching ID as source or target node among alist of EDGES."
-  (seq-filter (lambda (edge)
-		(or (string= (cdr (assoc 'source edge)) id)
-		    (string= (cdr (assoc 'target edge)) id))) edges))
+(define-obsolete-function-alias
+  'denote-explore--network-find-edges nil "3.2.1")
 
 (defun denote-explore--network-unique-edges (edges-a edges-b)
   "Return a list of unique edges from EDGES-A and EDGES-B."
