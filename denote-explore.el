@@ -275,9 +275,16 @@ Count only ATTACHMENTS by prefixing with universal argument."
 ;; Jump to a random note, random linked note or random note with selected tag(s).
 ;; With universal argument the sample includes attachments.
 
-(defun denote-explore--jump (sample)
-  "Jump to a random note in the SAMPLE file list.
-Used in `denote-explore-random-*' functions."
+(defun denote-explore--jump (denote-sample)
+  "Jump to a random note in the DENOTE-SAMPLE file list.
+
+- `denote-explore-random-note': Jump to a random Denote file.
+- `denote-explore-random-regex': Jump to a random Denote file that matches a
+  regular expression.
+- `denote-explore-random-link': Jump to a random linked note (either forward or
+  backward) or attachments (forward only).
+- `denote-explore-random-keyword': Jump to a random Denote file with the same
+  selected keyword(s)."
   (find-file (nth (random (length denote-sample)) denote-sample)))
 
 ;;;###autoload
