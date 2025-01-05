@@ -1266,15 +1266,20 @@ Output is saved to `denote-explore-network-directory'."
       (funcall display-fn graph-file))))
 
 ;;;###autoload
-(defun denote-explore-network ()
+(defun denote-explore-network (&optional text-only)
   "Generate a network of Denote files or keywords by selecting a type.
 
 - Community: Network of notes matching a regular expression.
   Links to notes not matching the regular expression are pruned.
-- Neighbourhood: Generate a network of notes from a parent at a given depth.
-  Depth = 1 shows linked notes; depth 2 all notes linked to linked notes etc.
-- Keywords: Generate network of keywords.  Each note with two or more keywords
+- Neighbourhood: Network of notes from a root at a given depth.
+  Depth = 1 notes linked to root; depth 2: notes linked to linked notes, etc.
+- Sequence: Hierarchy of signatures, split at the = symbol.
+- Keywords: Network of keywords.  Each note with two or more keywords
   forms a complete graph, which are merged into a weighted undirected graph.
+
+Refer to the manual for a more detailed explanation.
+
+Using the universal argument excludes attachments from the analysis (TEXT-ONLY).
 
 The code generates a nested association list that holds all relevant metadata
 for the selected graph:
@@ -1292,27 +1297,27 @@ for the selected graph:
 
 This list is passed on to an encoding function to generate the desired graph
 format.  In the last step, a visualisation function displays the graph in the
-external web browser.
+external web browser, except for the GEXF format.
 
 The parameters for the generated graph are stored in
-`denote-explore-network-previous`, which is used to renegerate the same graph
-after making changes to notes with `denote-explore-network-regenerate`.
+`denote-explore-network-previous', which is used to renegerate the same graph
+after making changes to notes with `denote-explore-network-regenerate'.
 
 The `denote-explore-graph-types' variable stores the functions required to
 generate and regenerate graphs.
 
 The `denote-explore-network-graph-formats' variable contains a list of functions
 to encode and display each graph format."
-  (interactive)
+  (interactive "P")
   (let* ((options (mapcar (lambda (type)
-		   (format "%s (%s)" (car type)
-			   (plist-get (cdr type) :description)))
-		 denote-explore-graph-types))
+			    (format "%s (%s)" (car type)
+				    (plist-get (cdr type) :description)))
+			  denote-explore-graph-types))
 	 (selection (completing-read "Network type?" options))
 	 (graph-type (substring selection 0 (string-match " " selection)))
 	 (config (assoc graph-type denote-explore-graph-types))
-	 (generate-fn (plist-get (cdr config) :generate))
-	 (graph (funcall generate-fn)))
+	 (generate-graph (plist-get (cdr config) :generate))
+	 (graph (funcall generate-graph text-only)))
     (denote-explore--network-save graph)
     (denote-explore-network-view)))
 
@@ -1320,14 +1325,16 @@ to encode and display each graph format."
   'denote-explore-network-r
   'denote-explore-network "1.3")
 
-(defun denote-explore-network-regenerate ()
-  "Recreate the most recent Denote graph with external software."
-  (interactive)
+;;;###autoload
+(defun denote-explore-network-regenerate (&optional text-only)
+  "Recreate the most recent Denote graph with external software.
+Universal argument excludes attachments from the analysis (TEXT-ONLY)."
+  (interactive "P")
   (if-let* ((graph-type (car denote-explore-network-previous))
 	    (query (car (cdr denote-explore-network-previous)))
 	    (config (assoc graph-type denote-explore-graph-types))
 	    (regenerate-fn (plist-get (cdr config) :regenerate))
-	    (graph (funcall regenerate-fn query)))
+	    (graph (funcall regenerate-fn query text-only)))
       (progn (denote-explore--network-save graph)
 	     (denote-explore-network-view))
     (message "No previous network defined")))
