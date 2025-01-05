@@ -916,13 +916,14 @@ In a complete graph (network), all  nodes are connected to each other."
 			(cons 'target target)) network)))))
     network))
 
-(defun denote-explore-network-keywords ()
-  "Enter a positive integer for a minimum weight and generate a keywords graph."
+(defun denote-explore-network-keywords (&optional text-only)
+  "Enter a positive integer for a minimum weight and generate a keywords graph.
+Optionally analyse TEXT-ONLY files."
   (let ((min-weight (read-number "Enter min-weight (integer > 0): " 1)))
     (while (<= min-weight 0)
       (setq min-weight (read-number "Invalid input. Enter an integer > 0: " 1)))
     (setq denote-explore-network-previous `("Keywords" ,min-weight))
-    (denote-explore-network-keywords-graph min-weight)))
+    (denote-explore-network-keywords-graph min-weight text-only)))
 
 (defun denote-explore--network-keywords-flatten-edges (edges)
   "Flatten list of network EDGES."
@@ -932,9 +933,10 @@ In a complete graph (network), all  nodes are connected to each other."
 	(push edge edges-alist)))
     edges-alist))
 
-(defun denote-explore-network-keywords-graph (min-weight)
-  "Generate Denote graph object from keywords with MIN-WEIGHT edges."
-  (let* ((files (denote-directory-files))
+(defun denote-explore-network-keywords-graph (min-weight text-only)
+  "Generate Denote graph object from keywords with MIN-WEIGHT edges.
+Optionally analyse TEXT-ONLY files."
+  (let* ((files (denote-directory-files nil nil text-only))
 	 (keywords (denote-explore--network-keywords-extract files))
 	 (edges (mapcar #'denote-explore--network-keyword-edges keywords))
 	 (all-edges-alist (denote-explore--network-count-edges
