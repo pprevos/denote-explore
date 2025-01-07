@@ -100,6 +100,8 @@ These functions are informative, but a graph says more than a thousand numbers. 
 @code{denote-explore-barchart-timeline}: Visualise notes created by year
 @end enumerate
 
+The @code{denote-excluded-files-regexp} variable can contain a regular expression of files that are excluded from these statistical functions.
+
 @node Random Walks
 @chapter Random Walks
 
@@ -120,7 +122,7 @@ The Denote-Explorer package provides three commands to inject some randomness in
 @code{denote-explore-random-keyword}: Jump to a random Denote file with the same selected keyword(s). 
 @end enumerate
 
-The default state is that these functions jump to any Denote text file (plain text, Markdown or Org-mode). Prefixing the universal argument (@samp{C-u}) includes attachments in the sample for a random jump, otherwise the walk remains within the collection of notes.
+The default state is that these functions jump to any Denote text file (plain text, Markdown or Org-mode). Prefixing the universal argument (@samp{C-u}) includes attachments in the sample for a random jump, otherwise the walk remains within the collection of notes. The @code{denote-excluded-files-regexp} variable can contain a regular expression of files excluded from the sample of files to jump to.
 
 Jumping to a note that matches a regular expression lets you find random notes matching a search string. For example, to find a note you wrote in May 2022, use @samp{^202205} and using @samp{202305.*_journal} jumps to a random journal entry in May 2023.
 
@@ -157,6 +159,8 @@ Additionally, the @code{denote-explore-identify-duplicate-notes-dired} command d
 
 With the universal argument (@samp{C-u}), these commands looks for duplicated filenames without extensions instead of identifiers. This option ignores any duplicated identifiers created when exporting Denote Org mode files.
 
+The @code{denote-excluded-files-regexp} variable can contain a regular expression of files that are excluded from duplicate detection.  When using the archive functionality for Denote files you might set this variable to @samp{"^.+\.org_archive"} so they are not marked as duplicates.
+
 Be careful when changing the identifier of a Denote file, as it can destroy the integrity of your links. Please ensure that the file you rename does not have any links pointing to it. You can use the @code{denote-find-link} and @code{denote-find-backlink} commands to check a file for links, or use the Denote Explorer link checker.
 
 @node Missing Links
@@ -170,6 +174,8 @@ The link contains an Elisp function and Emacs will ask for confirmation every ti
 
 When no link is found a message pops up in the echo area.
 
+The @code{denote-excluded-files-regexp} variable can contain a regular expression of files that are excluded from the search for missing links.
+
 @node Managing Keywords
 @section Managing Keywords
 
@@ -181,12 +187,16 @@ You can also find notes or attachments without keywords with the @code{denote-ex
 
 You can rename or remove keywords with @code{denote-explore-rename-keyword}. Select one or more existing keywords from the completion list and enter the new keyword. This function renames all chosen keywords or removes the original keyword from all existing notes when you enter an empty string as new keyword. This function cycles through all notes and attachments containing one or more selected keywords and asks for confirmation before making any changes. The new keyword list is stored alphabetically. This function uses the front matter as the source of truth for notes and the file name for attachments.
 
+The @code{denote-excluded-files-regexp} variable can contain a regular expression of files that are excluded from the purview of these functions.
+
 @node Synchronising Meta Data
 @section Synchronising Meta Data
 
 Denote stores the metadata for each note in the filename using its ingenious format. Some of this metadata is copied to the front matter of a note, which can lead to discrepancies between the two metadata sources.
 
 The @code{denote-explore-sync-metadata} function checks all notes and asks the user to rename any file where the front matter data differs from the file name. The front matter data is the source of truth for the title and keywords. This function also enforces the alphabetisation of keywords, which assists with finding notes.
+
+The @code{denote-excluded-files-regexp} variable can contain a regular expression of files that are excluded from this synchronisation.
 
 @node Knowledge Graphs
 @chapter Knowledge Graphs
@@ -225,7 +235,7 @@ You create a network with the @code{denote-explore-network} command. This comman
 
 The @code{denote-explore-network-regenerate} command recreates the previous graph with the same parameters, which is useful when changing the structure of your notes and you like to see the result visualised without having to re-enter the parameters.
 
-Using the universal argument @samp{C-u} before issuing these two command (re)generates a network excluding attachments.
+Using the universal argument @samp{C-u} before issuing these two command (re)generates a network excluding attachments. The @code{denote-excluded-files-regexp} variable can contain a regular expression of files that are excluded from visualisation.
 
 @menu
 * Community of Notes::
@@ -512,7 +522,9 @@ You can use the most recent development version directly from GitHub (Emacs 29.1
 
 This code would only have existed with the help of Protesilaos Stavrou, developer of Denote.
 
-In addition, Jakub Szczerbowski, Samuel W@. Flint, Ad (skissue), Vedang Manerikar, Jousimies, and Alexis Praga made significant contributions and suggestions. Noor Us Sabah on Fiverr wrote the first version of the D3.JS template file. All enhancements were generated with the assistance of ChatGPT@.
+In addition, Jakub Szczerbowski, Samuel W@. Flint, Ad (skissue), Vedang Manerikar, Jousimies, Alexis Praga, and Dav1d23 made significant contributions and suggestions.
+
+Noor Us Sabah on Fiverr wrote the first version of the D3.JS template file. All enhancements were generated with the assistance of ChatGPT@.
 
 Feel free to raise an issue here on GitHub if you have any questions or find bugs or suggestions for enhanced functionality.
 

@@ -95,6 +95,9 @@ commands are available in Denote-Explorer to visualise basic statistics:
   2. ‘denote-explore-barchart-keywords’: Visualise the top-n keywords
   3. ‘denote-explore-barchart-timeline’: Visualise notes created by year
 
+   The ‘denote-excluded-files-regexp’ variable can contain a regular
+expression of files that are excluded from these statistical functions.
+
 
 File: denote-explore.info,  Node: Random Walks,  Next: Janitor,  Prev: Descriptive Statistics,  Up: Top
 
@@ -126,7 +129,9 @@ randomness into your explorations:
    The default state is that these functions jump to any Denote text
 file (plain text, Markdown or Org-mode).  Prefixing the universal
 argument (‘C-u’) includes attachments in the sample for a random jump,
-otherwise the walk remains within the collection of notes.
+otherwise the walk remains within the collection of notes.  The
+‘denote-excluded-files-regexp’ variable can contain a regular expression
+of files excluded from the sample of files to jump to.
 
    Jumping to a note that matches a regular expression lets you find
 random notes matching a search string.  For example, to find a note you
@@ -205,6 +210,11 @@ duplicated filenames without extensions instead of identifiers.  This
 option ignores any duplicated identifiers created when exporting Denote
 Org mode files.
 
+   The ‘denote-excluded-files-regexp’ variable can contain a regular
+expression of files that are excluded from duplicate detection.  When
+using the archive functionality for Denote files you might set this
+variable to ‘"^.+\.org_archive"’ so they are not marked as duplicates.
+
    Be careful when changing the identifier of a Denote file, as it can
 destroy the integrity of your links.  Please ensure that the file you
 rename does not have any links pointing to it.  You can use the
@@ -235,6 +245,9 @@ warnings by temporary setting ‘org-link-elisp-confirm-function’ to
 ‘nil’.
 
    When no link is found a message pops up in the echo area.
+
+   The ‘denote-excluded-files-regexp’ variable can contain a regular
+expression of files that are excluded from the search for missing links.
 
 
 File: denote-explore.info,  Node: Managing Keywords,  Next: Synchronising Meta Data,  Prev: Missing Links,  Up: Janitor
@@ -268,6 +281,10 @@ The new keyword list is stored alphabetically.  This function uses the
 front matter as the source of truth for notes and the file name for
 attachments.
 
+   The ‘denote-excluded-files-regexp’ variable can contain a regular
+expression of files that are excluded from the purview of these
+functions.
+
 
 File: denote-explore.info,  Node: Synchronising Meta Data,  Prev: Managing Keywords,  Up: Janitor
 
@@ -284,6 +301,9 @@ the user to rename any file where the front matter data differs from the
 file name.  The front matter data is the source of truth for the title
 and keywords.  This function also enforces the alphabetisation of
 keywords, which assists with finding notes.
+
+   The ‘denote-excluded-files-regexp’ variable can contain a regular
+expression of files that are excluded from this synchronisation.
 
 
 File: denote-explore.info,  Node: Knowledge Graphs,  Next: Installation and Package Configuration,  Prev: Janitor,  Up: Top
@@ -348,7 +368,9 @@ the structure of your notes and you like to see the result visualised
 without having to re-enter the parameters.
 
    Using the universal argument ‘C-u’ before issuing these two command
-(re)generates a network excluding attachments.
+(re)generates a network excluding attachments.  The
+‘denote-excluded-files-regexp’ variable can contain a regular expression
+of files that are excluded from visualisation.
 
 * Menu:
 
@@ -825,10 +847,11 @@ This code would only have existed with the help of Protesilaos Stavrou,
 developer of Denote.
 
    In addition, Jakub Szczerbowski, Samuel W.  Flint, Ad (skissue),
-Vedang Manerikar, Jousimies, and Alexis Praga made significant
-contributions and suggestions.  Noor Us Sabah on Fiverr wrote the first
-version of the D3.JS template file.  All enhancements were generated
-with the assistance of ChatGPT.
+Vedang Manerikar, Jousimies, Alexis Praga, and Dav1d23 made significant
+contributions and suggestions.
+
+   Noor Us Sabah on Fiverr wrote the first version of the D3.JS template
+file.  All enhancements were generated with the assistance of ChatGPT.
 
    Feel free to raise an issue here on GitHub if you have any questions
 or find bugs or suggestions for enhanced functionality.
@@ -857,25 +880,25 @@ General Public License for more details.
 Tag Table:
 Node: Top251
 Node: Descriptive Statistics1968
-Node: Random Walks3324
-Node: Janitor6036
-Node: Duplicate notes6612
-Node: Missing Links8556
-Node: Managing Keywords9691
-Node: Synchronising Meta Data11209
-Node: Knowledge Graphs11915
-Node: Community of Notes15344
-Node: Note Neighbourhood16987
-Node: Sequences Network19129
-Node: Keyword Network20789
-Node: Network Layout and Presentation23461
-Node: D3js25390
-Node: GraphViz28561
-Node: Graph Exchange XML Format30429
-Node: Analysing the Denote Network31468
-Node: Installation and Package Configuration33997
-Node: Acknowledgements36767
-Node: License37461
+Node: Random Walks3470
+Node: Janitor6319
+Node: Duplicate notes6895
+Node: Missing Links9126
+Node: Managing Keywords10408
+Node: Synchronising Meta Data12075
+Node: Knowledge Graphs12920
+Node: Community of Notes16478
+Node: Note Neighbourhood18121
+Node: Sequences Network20263
+Node: Keyword Network21923
+Node: Network Layout and Presentation24595
+Node: D3js26524
+Node: GraphViz29695
+Node: Graph Exchange XML Format31563
+Node: Analysing the Denote Network32602
+Node: Installation and Package Configuration35131
+Node: Acknowledgements37901
+Node: License38607
 
 End Tag Table
 
