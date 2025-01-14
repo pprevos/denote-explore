@@ -388,54 +388,60 @@ Use Universal Argument to INCLUDE-ATTACHMENTS"
   (sort (-frequencies list)
 	(lambda (a b) (> (cdr a) (cdr b)))))
 
-(defun denote-explore--duplicate-notes (filenames)
+(defun denote-explore--filter-duplicates (tally)
+  "Filter duplicates from an alist TALLY with frequencies.
+Generate tally with `denote-explore-table'."
+  (mapcar #'car (cl-remove-if-not
+                   (lambda (note)
+		     (> (cdr note) 1))
+		   tally)))
+
+(defun denote-explore--duplicate-notes (exports)
   "Find duplicate Denote files.
-When FILENAMES, use complete filenames, else use Denote identifeirs
+When EXPORTS, use complete filenames, else use Denote identifiers
 and exclude exported Org files."
   ;; Count each unique identifier or filename
   (let* ((files (denote-directory-files))
-         (candidates (if filenames
-                         (mapcar (lambda (path)
-				   (file-name-nondirectory path))
-				 files)
-                       (mapcar #'denote-retrieve-filename-identifier
-			       files)))
-         (tally (denote-explore--table candidates)))
-    ;; Find duplicates
-    (mapcar #'car (cl-remove-if-not
-                   (lambda (note)
-		     (> (cdr note) 1))
-		   tally))))
+	 (filenames (mapcar (lambda (path)
+				   (file-name-sans-extension
+				    (file-name-nondirectory path)))
+				 files))
+	 (ids (mapcar #'denote-retrieve-filename-identifier files))
+	 (id-count (denote-explore--table ids))
+	 (duplicate-ids (denote-explore--filter-duplicates id-count))
+	 (file-count (denote-explore--table filenames))
+	 (duplicate-filenames (denote-explore--filter-duplicates file-count))
+	 (duplicate-filenames-ids (mapcar #'denote-retrieve-filename-identifier
+					  duplicate-filenames)))
+    (if exports
+	(cl-set-difference duplicate-ids duplicate-filenames-ids :test 'string=)
+      duplicate-ids)))
 
 ;;;###autoload
-(defun denote-explore-duplicate-notes (&optional filenames)
-  "Identify duplicate Denote IDs or FILENAMES.
+(defun denote-explore-duplicate-notes (&optional exclude-exports)
+  "Identify duplicate Denote IDs and EXCLUDE-EXPORTS.
 
-If FILENAMES is nil, check Denote IDs, otherwise use complete file names.
-Using the FILENAMES option (or using the universal argument) excludes
-exported Denote files from duplicate detection.
+If EXCLUDE-EXPORTS is nil, check Denote IDs, otherwise use file names without
+extension. Using the universal argument excludes exported Denote files from
+duplicate detection.
 
 Duplicate files are displayed in a temporary buffer with links to the
 suspected duplicates."
   (interactive "P")
   (message "Finding duplicated notes")
-  (if-let* ((duplicates (denote-explore--duplicate-notes filenames))
-	    (mode-tmp (if filenames "filename" "identifier"))
-	    (mode (if (> (length duplicates) 1)
-		      (concat mode-tmp "s")
-		    mode-tmp)))
+  (if-let* ((duplicates (denote-explore--duplicate-notes exclude-exports)))
       (with-current-buffer-window "*denote-duplicates*" nil nil
         (erase-buffer)
-	(insert "#+title: Duplicate Denote " mode "\n")
-	(insert "#+date: ")
+	(insert "#+title: Duplicate Denote files ")
+	(if exclude-exports
+	    (insert "(Excluding exports)")
+	  (insert "(Including exports)"))
+	(insert "\n#+date: ")
 	(org-insert-time-stamp (current-time) t t)
-        (insert "\n\nThe following "
-		(number-to-string (length duplicates)) " " mode
-		(if (> (length duplicates) 1) " are duplicates\n" " is duplicated\n"))
-	(insert "\n")
-	(if filenames
-	    (insert "Run without universal argument =C-u= to view duplicate Denote identifiers (include exported files).\n")
-	  (insert "Run with universal argument =C-u= to view duplicate filenames (exclude exported files.)\n"))
+	(insert "\n\n")
+	(if exclude-exports
+	    (insert "Run without universal argument =C-u= to include exported files.\n")
+	  (insert "Run with universal argument =C-u= to exclude exported files.\n"))
         (dolist (id duplicates)
           (insert (format "\n* Note ID [[denote:%s]]\n\n" id))
           (dolist (filename (denote-directory-files id))
