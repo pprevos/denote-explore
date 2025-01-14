@@ -65,11 +65,11 @@ The Denote identifier is a unique string constructed of the note's creation date
 
 The file's creation date and time are not always relevant for attachments. For example, when adding scanned historical records, the identifier might be centuries ago, so it must be added manually.
 
-The ~denote-explore-identify-duplicate-notes~ command lists all duplicate identifiers in a popup org buffer, which includes links to the suspected duplicate notes and attachments.
+The ~denote-explore-identify-duplicate-notes~ command lists all duplicate Denote files in a popup org buffer, which includes links to the suspected duplicate notes and attachments.
 
 Additionally, the ~denote-explore-identify-duplicate-notes-dired~ command displays files with duplicate identifiers in a Dired buffer. You can directly change filenames in the Dired buffer with ~dired-toggle-read-only~ (=C-x C-q=) or remove duplicates with =D= (~dired-do-delete~). Note that this function shows files in the denote directory and not its subdirectories or symbolic links.
 
-With the universal argument (=C-u=), these commands looks for duplicated filenames without extensions instead of identifiers. This option ignores any duplicated identifiers created when exporting Denote Org mode files.
+With the universal argument (=C-u=), these commands ignore any duplicated identifiers created when exporting Denote Org mode files.
 
 The ~denote-excluded-files-regexp~ variable can contain a regular expression of files that are excluded from duplicate detection.  When using the archive functionality for Denote files you might set this variable to ="^.+\.org_archive"= so they are not marked as duplicates.
 

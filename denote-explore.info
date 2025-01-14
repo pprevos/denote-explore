@@ -195,8 +195,8 @@ attachments.  For example, when adding scanned historical records, the
 identifier might be centuries ago, so it must be added manually.
 
    The ‘denote-explore-identify-duplicate-notes’ command lists all
-duplicate identifiers in a popup org buffer, which includes links to the
-suspected duplicate notes and attachments.
+duplicate Denote files in a popup org buffer, which includes links to
+the suspected duplicate notes and attachments.
 
    Additionally, the ‘denote-explore-identify-duplicate-notes-dired’
 command displays files with duplicate identifiers in a Dired buffer.
@@ -205,10 +205,8 @@ You can directly change filenames in the Dired buffer with
 (‘dired-do-delete’).  Note that this function shows files in the denote
 directory and not its subdirectories or symbolic links.
 
-   With the universal argument (‘C-u’), these commands looks for
-duplicated filenames without extensions instead of identifiers.  This
-option ignores any duplicated identifiers created when exporting Denote
-Org mode files.
+   With the universal argument (‘C-u’), these commands ignore any
+duplicated identifiers created when exporting Denote Org mode files.
 
    The ‘denote-excluded-files-regexp’ variable can contain a regular
 expression of files that are excluded from duplicate detection.  When
@@ -883,22 +881,22 @@ Node: Descriptive Statistics1968
 Node: Random Walks3470
 Node: Janitor6319
 Node: Duplicate notes6895
-Node: Missing Links9126
-Node: Managing Keywords10408
-Node: Synchronising Meta Data12075
-Node: Knowledge Graphs12920
-Node: Community of Notes16478
-Node: Note Neighbourhood18121
-Node: Sequences Network20263
-Node: Keyword Network21923
-Node: Network Layout and Presentation24595
-Node: D3js26524
-Node: GraphViz29695
-Node: Graph Exchange XML Format31563
-Node: Analysing the Denote Network32602
-Node: Installation and Package Configuration35131
-Node: Acknowledgements37901
-Node: License38607
+Node: Missing Links9039
+Node: Managing Keywords10321
+Node: Synchronising Meta Data11988
+Node: Knowledge Graphs12833
+Node: Community of Notes16391
+Node: Note Neighbourhood18034
+Node: Sequences Network20176
+Node: Keyword Network21836
+Node: Network Layout and Presentation24508
+Node: D3js26437
+Node: GraphViz29608
+Node: Graph Exchange XML Format31476
+Node: Analysing the Denote Network32515
+Node: Installation and Package Configuration35044
+Node: Acknowledgements37814
+Node: License38520
 
 End Tag Table
 
