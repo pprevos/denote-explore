@@ -349,7 +349,8 @@ circles.
 the relationships between your thoughts:
   1. Community: Notes matching a regular expression
   2. Neighbourhood: Search n-deep in a selected note
-  3. Keywords: Relationships between keywords
+  3. Sequence: Visualise a hierarchical sequence
+  4. Keywords: Relationships between keywords
 
    The package exports and displays these in one of three formats, with
 JSON displayed in HTML / D3.js files as the default.  Other options are
@@ -885,18 +886,18 @@ Node: Missing Links9039
 Node: Managing Keywords10321
 Node: Synchronising Meta Data11988
 Node: Knowledge Graphs12833
-Node: Community of Notes16391
-Node: Note Neighbourhood18034
-Node: Sequences Network20176
-Node: Keyword Network21836
-Node: Network Layout and Presentation24508
-Node: D3js26437
-Node: GraphViz29608
-Node: Graph Exchange XML Format31476
-Node: Analysing the Denote Network32515
-Node: Installation and Package Configuration35044
-Node: Acknowledgements37814
-Node: License38520
+Node: Community of Notes16440
+Node: Note Neighbourhood18083
+Node: Sequences Network20225
+Node: Keyword Network21885
+Node: Network Layout and Presentation24557
+Node: D3js26486
+Node: GraphViz29657
+Node: Graph Exchange XML Format31525
+Node: Analysing the Denote Network32564
+Node: Installation and Package Configuration35093
+Node: Acknowledgements37863
+Node: License38569
 
 End Tag Table
 

@@ -226,6 +226,8 @@ Community: Notes matching a regular expression
 @item
 Neighbourhood: Search n-deep in a selected note
 @item
+Sequence: Visualise a hierarchical sequence
+@item
 Keywords: Relationships between keywords
 @end enumerate
 

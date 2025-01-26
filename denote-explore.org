@@ -126,7 +126,8 @@ A network diagram has nodes (vertices) and edges. Each node represents a note or
 Denote-Explorer provides three types of network diagrams to explore the relationships between your thoughts:
 1. Community: Notes matching a regular expression
 2. Neighbourhood: Search n-deep in a selected note
-3. Keywords: Relationships between keywords
+3. Sequence: Visualise a hierarchical sequence
+4. Keywords: Relationships between keywords
 
 The package exports and displays these in one of three formats, with JSON displayed in HTML / D3.js files as the default. Other options are GraphViz and GEXF.
 
