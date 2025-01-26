@@ -722,7 +722,7 @@ The universal argument includes TEXT-ONLY files in the analyis."
   (interactive "nNumber of nodes: ")
   (message "Analysing Denote network ...")
   (let* ((graph (denote-explore-network-community-graph "" t))
-	 (senodes (cdr (assoc 'nodes graph)))
+	 (nodes (cdr (assoc 'nodes graph)))
          (backlinks (mapcar (lambda (node)
                               (cons
                                (cdr (assq 'name node))
