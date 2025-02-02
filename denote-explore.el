@@ -4,7 +4,7 @@
 ;;
 ;; Author: Peter Prevos <peter@prevos.net>
 ;; URL: https://github.com/pprevos/denote-explore/
-;; Version: 3.3
+;; Version: 3.3.1
 ;; Package-Requires: ((emacs "29.1") (denote "3.1") (dash "2.19.1"))
 ;;
 ;; This file is NOT part of GNU Emacs.
@@ -38,8 +38,8 @@
 ;; The Denote-Explore manual is available in info-mode
 ;; (info "denote-explore") `C-h R denote-explore`
 ;;
-;;; Code:
 
+;;; Code:
 (require 'denote)
 (require 'dash)
 (require 'chart)
@@ -102,6 +102,13 @@ File type defined by `denote-explore-network-format'."
   :type '(choice (const :tag "No Ignore Regexp" nil)
                  (regexp :tag "Ignore using Regexp")))
 
+(defcustom denote-explore-random-regex-ignore '()
+  "Regular expression to exclude form random walks."
+  :group 'denote-explore
+  :package-version '(denote-explore . "3.3.1")
+  :type '(choice (const :tag "No Ignored Regexp" nil)
+                 (regexp :tag "Ignore using Regexp")))
+
 (defcustom denote-explore-network-d3-template
   nil
   "Fully qualified path of the D3.JS HTML template file."
@@ -161,8 +168,7 @@ Properties for specific edges and nodes, as defined by the
   :package-version '(denote-explore . "1.3")
   :type '(repeat string))
 
-(defcustom denote-explore-network-graphviz-filetype
-  "svg"
+(defcustom denote-explore-network-graphviz-filetype "svg"
   "Output file type for Denote GraphViz network files.
 
 Use SVG or for interactivity (tootltips and hyperlinks).
@@ -287,8 +293,10 @@ Count only ATTACHMENTS by prefixing with universal argument."
 ;; Jump to a random note, random linked note or random note with selected tag(s).
 ;; With universal argument the sample includes attachments.
 
-(defun denote-explore--jump (denote-sample)
-  "Jump to a random note in the DENOTE-SAMPLE file list.
+(defun denote-explore--jump (files)
+  "Jump to a random note in the FILES file list.
+
+Exclude riles matching regx in `denote-explore-random-regex-ignore'.
 
 - `denote-explore-random-note': Jump to a random Denote file.
 - `denote-explore-random-regex': Jump to a random Denote file that matches a
@@ -297,7 +305,11 @@ Count only ATTACHMENTS by prefixing with universal argument."
   backward) or attachments (forward only).
 - `denote-explore-random-keyword': Jump to a random Denote file with the same
   selected keyword(s)."
-  (find-file (nth (random (length denote-sample)) denote-sample)))
+  (let* ((ignore (if denote-explore-random-regex-ignore
+		     (denote-directory-files denote-explore-random-regex-ignore)
+		   nil))
+	(denote-sample (cl-set-difference files ignore :test 'string=)))
+    (find-file (nth (random (length denote-sample)) denote-sample))))
 
 ;;;###autoload
 (defun denote-explore-random-note (&optional include-attachments)

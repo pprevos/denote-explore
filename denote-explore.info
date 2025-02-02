@@ -130,8 +130,8 @@ randomness into your explorations:
 file (plain text, Markdown or Org-mode).  Prefixing the universal
 argument (‘C-u’) includes attachments in the sample for a random jump,
 otherwise the walk remains within the collection of notes.  The
-‘denote-excluded-files-regexp’ variable can contain a regular expression
-of files excluded from the sample of files to jump to.
+‘denote-explore-random-regex-ignore’ variable can contain a regular
+expression of files excluded from the sample of files to jump to.
 
    Jumping to a note that matches a regular expression lets you find
 random notes matching a search string.  For example, to find a note you
@@ -347,6 +347,7 @@ circles.
 
    Denote-Explorer provides three types of network diagrams to explore
 the relationships between your thoughts:
+
   1. Community: Notes matching a regular expression
   2. Neighbourhood: Search n-deep in a selected note
   3. Sequence: Visualise a hierarchical sequence
@@ -880,24 +881,24 @@ Tag Table:
 Node: Top251
 Node: Descriptive Statistics1968
 Node: Random Walks3470
-Node: Janitor6319
-Node: Duplicate notes6895
-Node: Missing Links9039
-Node: Managing Keywords10321
-Node: Synchronising Meta Data11988
-Node: Knowledge Graphs12833
-Node: Community of Notes16440
-Node: Note Neighbourhood18083
-Node: Sequences Network20225
-Node: Keyword Network21885
-Node: Network Layout and Presentation24557
-Node: D3js26486
-Node: GraphViz29657
-Node: Graph Exchange XML Format31525
-Node: Analysing the Denote Network32564
-Node: Installation and Package Configuration35093
-Node: Acknowledgements37863
-Node: License38569
+Node: Janitor6325
+Node: Duplicate notes6901
+Node: Missing Links9045
+Node: Managing Keywords10327
+Node: Synchronising Meta Data11994
+Node: Knowledge Graphs12839
+Node: Community of Notes16447
+Node: Note Neighbourhood18090
+Node: Sequences Network20232
+Node: Keyword Network21892
+Node: Network Layout and Presentation24564
+Node: D3js26493
+Node: GraphViz29664
+Node: Graph Exchange XML Format31532
+Node: Analysing the Denote Network32571
+Node: Installation and Package Configuration35100
+Node: Acknowledgements37870
+Node: License38576
 
 End Tag Table
 

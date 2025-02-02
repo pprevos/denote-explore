@@ -70,6 +70,12 @@ Alternatively, you can install it directly from GitHub:
 * Change Log
 Major version numbers coincide with Denote major versions.
 
+** Version 3.3.1
+- Fixed issues in the manual.
+- Clarified duplicate detection.
+- Fixed bug in ~denote-explore-barchart-backlinks~.
+- Added ~denote-explore-random-regex-ignore~ variable to exclude files from random walks.
+
 ** Version 3.3
 + Knowledge Graphs
   - New visualisation type: Sequences of Denote signatures

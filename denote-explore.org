@@ -45,7 +45,7 @@ The Denote-Explorer package provides three commands to inject some randomness in
 3. ~denote-explore-random-link~: Jump to a random linked note (either forward or backward) or attachments (forward only).
 4. ~denote-explore-random-keyword~: Jump to a random Denote file with the same selected keyword(s). 
 
-The default state is that these functions jump to any Denote text file (plain text, Markdown or Org-mode). Prefixing the universal argument (=C-u=) includes attachments in the sample for a random jump, otherwise the walk remains within the collection of notes. The ~denote-excluded-files-regexp~ variable can contain a regular expression of files excluded from the sample of files to jump to.
+The default state is that these functions jump to any Denote text file (plain text, Markdown or Org-mode). Prefixing the universal argument (=C-u=) includes attachments in the sample for a random jump, otherwise the walk remains within the collection of notes. The ~denote-explore-random-regex-ignore~ variable can contain a regular expression of files excluded from the sample of files to jump to.
 
 Jumping to a note that matches a regular expression lets you find random notes matching a search string. For example, to find a note you wrote in May 2022, use =^202205= and using =202305.*_journal= jumps to a random journal entry in May 2023.
 
@@ -124,6 +124,7 @@ A network diagram has nodes (vertices) and edges. Each node represents a note or
 #+end_example
 
 Denote-Explorer provides three types of network diagrams to explore the relationships between your thoughts:
+
 1. Community: Notes matching a regular expression
 2. Neighbourhood: Search n-deep in a selected note
 3. Sequence: Visualise a hierarchical sequence
