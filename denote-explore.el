@@ -4,7 +4,7 @@
 ;;
 ;; Author: Peter Prevos <peter@prevos.net>
 ;; URL: https://github.com/pprevos/denote-explore/
-;; Version: 3.3.1
+;; Version: 3.3.2
 ;; Package-Requires: ((emacs "29.1") (denote "3.1") (dash "2.19.1"))
 ;;
 ;; This file is NOT part of GNU Emacs.
@@ -613,34 +613,40 @@ All open Denote note buffers need to be saved before invoking this function."
 			 (lambda (link)
 			   (not (member (cdr (assoc 'target link)) ids)))
 			 links)))
-      (with-current-buffer-window "*Denote dead links*" nil nil
-	(org-mode)
-	(insert "#+title: List of dead Denote links\n")
-	(insert "#+date: ") (org-insert-time-stamp (current-time) t t)
-	(insert (format "\n\n%s dead links identified\n\n"
-			(length dead-links))
-		"Follow the hyperlinks to remove or repair dead links.\n\n"
-		"To disable confirmations, customise ~org-link-elisp-confirm-function~\n\n")
-	(insert "| Source | Target |\n")
-	(insert "|--------|--------|\n")
-	(dolist (link dead-links)
-	  (let* ((source (cdr (assoc 'source link)))
-		 (target (cdr (assoc 'target link)))
-		 (file (car (denote-directory-files source)))
-		 (file-type (denote-filetype-heuristics file))
-		 (title (denote-retrieve-front-matter-title-value file file-type)))
-	    (insert "|")
-	    (insert "[[elisp:(denote-explore--review-dead-link \""
-		    source "\" \"" target "\")][" title "]]")
-	    (insert "|" target "|\n")))
-	(org-table-align))
-    (message "No dead Denote links found")))
+      (let ((buffer (get-buffer-create "*Denote dead links*")))
+	(pop-to-buffer buffer)
+	(with-current-buffer buffer
+	  (org-mode)
+	  (insert "#+title: List of dead Denote links\n")
+	  (insert "#+date: ") (org-insert-time-stamp (current-time) t t)
+	  (insert (format "\n\n%s dead links identified\n\n"
+			  (length dead-links))
+		  "Follow the hyperlinks to remove or repair dead links.\n\n"
+		  "To disable confirmations, customise ~org-link-elisp-confirm-function~\n\n")
+	  (insert "| Source | Target |\n")
+	  (insert "|--------|--------|\n")
+	  (dolist (link dead-links)
+	    (let* ((source (cdr (assoc 'source link)))
+		   (target (cdr (assoc 'target link)))
+		   (file (car (denote-directory-files source)))
+		   (file-type (denote-filetype-heuristics file))
+		   (title (denote-retrieve-front-matter-title-value file file-type)))
+	      (insert "|")
+	      (insert "[[elisp:(denote-explore--review-dead-link \""
+		      source "\" \"" target "\")][" title "]]")
+	      (insert "|" target "|\n")))
+	  (org-table-align))
+	(message "No dead Denote links found"))))
+
+(defalias #'denote-explore-missing-links #'denote-explore-dead-links)
 
 (defun denote-explore--review-dead-link (source target)
   "Jump to the location of a dead link to TARGET found in SOURCE."
-  (let ((file (car (denote-directory-files source))))
+  (let* ((file (car (denote-directory-files source)))
+	 (buffer (find-file-noselect file)))
+    (pop-to-buffer buffer)
     (find-file file)
-    (org-toggle-link-display)
+    (when org-link-descriptive (org-toggle-link-display))
     (search-forward-regexp target)))
 
 ;;; VISUALISATION
