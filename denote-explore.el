@@ -616,6 +616,7 @@ All open Denote note buffers need to be saved before invoking this function."
       (let ((buffer (get-buffer-create "*Denote dead links*")))
 	(pop-to-buffer buffer)
 	(with-current-buffer buffer
+	  (erase-buffer)
 	  (org-mode)
 	  (insert "#+title: List of dead Denote links\n")
 	  (insert "#+date: ") (org-insert-time-stamp (current-time) t t)
@@ -635,8 +636,12 @@ All open Denote note buffers need to be saved before invoking this function."
 	      (insert "[[elisp:(denote-explore--review-dead-link \""
 		      source "\" \"" target "\")][" title "]]")
 	      (insert "|" target "|\n")))
-	  (org-table-align))
-	(message "No dead Denote links found"))))
+	  (org-table-align)
+	  (goto-char (point-min))
+          (when (re-search-forward "Source" nil t)
+            (forward-line 2)
+	    (org-cycle))))
+	(message "No dead Denote links found")))
 
 (defalias #'denote-explore-missing-links #'denote-explore-dead-links)
 
@@ -646,6 +651,7 @@ All open Denote note buffers need to be saved before invoking this function."
 	 (buffer (find-file-noselect file)))
     (pop-to-buffer buffer)
     (find-file file)
+    (goto-char (point-min))
     (when org-link-descriptive (org-toggle-link-display))
     (search-forward-regexp target)))
 
