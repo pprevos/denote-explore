@@ -230,22 +230,26 @@ active even when you change their name.  But missing or dead links might
 still appear in your network of notes when you delete redundant
 information or you manually rename a file and change its identifier.
 
-   Using ‘denote-explore-dead-links’ lists all links to non-existing
-notes or attachments in your Denote directory.  This function creates a
-read-only Org mode file with a table of source documents and the missing
-linked document.  You can click on the links to jump to the source file
-at the missing link location and either remove or edit it.  Links will
-appear in their literal form, i.e.  ‘[[<link>][<description>]]’.
+   Using ‘denote-explore-missing-links’ lists all links to non-existing
+notes, attachments and links to other files (such as images) in your
+Denote directory.
+
+   This function creates a read-only Org mode file with two tables of
+source documents and the missing linked document.  You can click on the
+links to jump to the source file at the missing link location and either
+remove or edit it.  Links will appear in their literal form, i.e.
+‘[[<link>][<description>]]’.
 
    The link contains an Elisp function and Emacs will ask for
-confirmation every time you click a link.  You can disable these
+confirmation every time you follow a link.  You can disable these
 warnings by temporary setting ‘org-link-elisp-confirm-function’ to
 ‘nil’.
 
    When no link is found a message pops up in the echo area.
 
    The ‘denote-excluded-files-regexp’ variable can contain a regular
-expression of files that are excluded from the search for missing links.
+expression of files that are excluded from the search for missing Denote
+links.
 
 
 File: denote-explore.info,  Node: Managing Keywords,  Next: Synchronising Meta Data,  Prev: Missing Links,  Up: Janitor
@@ -884,21 +888,21 @@ Node: Random Walks3470
 Node: Janitor6325
 Node: Duplicate notes6901
 Node: Missing Links9045
-Node: Managing Keywords10327
-Node: Synchronising Meta Data11994
-Node: Knowledge Graphs12839
-Node: Community of Notes16447
-Node: Note Neighbourhood18090
-Node: Sequences Network20232
-Node: Keyword Network21892
-Node: Network Layout and Presentation24564
-Node: D3js26493
-Node: GraphViz29664
-Node: Graph Exchange XML Format31532
-Node: Analysing the Denote Network32571
-Node: Installation and Package Configuration35100
-Node: Acknowledgements37870
-Node: License38576
+Node: Managing Keywords10383
+Node: Synchronising Meta Data12050
+Node: Knowledge Graphs12895
+Node: Community of Notes16503
+Node: Note Neighbourhood18146
+Node: Sequences Network20288
+Node: Keyword Network21948
+Node: Network Layout and Presentation24620
+Node: D3js26549
+Node: GraphViz29720
+Node: Graph Exchange XML Format31588
+Node: Analysing the Denote Network32627
+Node: Installation and Package Configuration35156
+Node: Acknowledgements37926
+Node: License38632
 
 End Tag Table
 

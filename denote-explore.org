@@ -78,13 +78,15 @@ Be careful when changing the identifier of a Denote file, as it can destroy the 
 ** Missing Links
 The file identifier in Denote is the bit of information that keeps links active even when you change their name. But missing or dead links might still appear in your network of notes when you delete redundant information or you manually rename a file and change its identifier.
 
-Using ~denote-explore-dead-links~ lists all links to non-existing notes or attachments in your Denote directory. This function creates a read-only Org mode file with a table of source documents and the missing linked document. You can click on the links to jump to the source file at the missing link location and either remove or edit it. Links will appear in their literal form, i.e. =[[<link>][<description>]]=.
+Using ~denote-explore-missing-links~ lists all links to non-existing notes, attachments and links to other files (such as images) in your Denote directory.
 
-The link contains an Elisp function and Emacs will ask for confirmation every time you click a link. You can disable these warnings by temporary setting ~org-link-elisp-confirm-function~ to =nil=.
+This function creates a read-only Org mode file with two tables of source documents and the missing linked document. You can click on the links to jump to the source file at the missing link location and either remove or edit it. Links will appear in their literal form, i.e. =[[<link>][<description>]]=.
+
+The link contains an Elisp function and Emacs will ask for confirmation every time you follow a link. You can disable these warnings by temporary setting ~org-link-elisp-confirm-function~ to =nil=.
 
 When no link is found a message pops up in the echo area.
 
-The ~denote-excluded-files-regexp~ variable can contain a regular expression of files that are excluded from the search for missing links.
+The ~denote-excluded-files-regexp~ variable can contain a regular expression of files that are excluded from the search for missing Denote links.
 
 ** Managing Keywords
 Denote keywords connect notes with similar content. Keywords should not exist in solitude because a category with only one member is not informative. Single keywords can arise because topics need to be fully developed or due to a typo.

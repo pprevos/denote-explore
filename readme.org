@@ -45,7 +45,7 @@ The configuration below customises all available variables and binds all availab
      ;; Denote Janitor
      ("C-c e j d" . denote-explore-duplicate-notes)
      ("C-c e j D" . denote-explore-duplicate-notes-dired)
-     ("C-c e j l" . denote-explore-dead-links)
+     ("C-c e j l" . denote-explore-missing-links)
      ("C-c e j z" . denote-explore-zero-keywords)
      ("C-c e j s" . denote-explore-single-keywords)
      ("C-c e j r" . denote-explore-rename-keywords)
@@ -69,6 +69,11 @@ Alternatively, you can install it directly from GitHub:
 
 * Change Log
 Major version numbers coincide with Denote major versions.
+
+** version 3.3.2
+- Refactoring of missing links functionality
+- Added table of missing file links in Denote files
+- Renamed ~denote-explore-dead-links~ to ~denote-explore-missing-links~
 
 ** Version 3.3.1
 - Fixed issues in the manual.

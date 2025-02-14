@@ -4,7 +4,7 @@
 ;;
 ;; Author: Peter Prevos <peter@prevos.net>
 ;; URL: https://github.com/pprevos/denote-explore/
-;; Version: 3.3.2
+;; Version: 3.3.3
 ;; Package-Requires: ((emacs "29.1") (denote "3.1") (dash "2.19.1"))
 ;;
 ;; This file is NOT part of GNU Emacs.
@@ -602,48 +602,87 @@ All open Denote note buffers need to be saved before invoking this function."
     (message "Integrity check completed")))
 
 ;;;###autoload
-(defun denote-explore-dead-links ()
-  "Check all Denote links in the `denote-directory'."
-  (interactive)
-  (message "Identifying dead links ...")
-  (if-let* ((files (denote-directory-files))
-	    (ids (mapcar #'denote-retrieve-filename-identifier files))
-	    (links (denote-explore--network-extract-edges files))
-	    (dead-links (seq-filter
-			 (lambda (link)
-			   (not (member (cdr (assoc 'target link)) ids)))
-			 links)))
-      (let ((buffer (get-buffer-create "*Denote dead links*")))
-	(pop-to-buffer buffer)
-	(with-current-buffer buffer
-	  (erase-buffer)
-	  (org-mode)
-	  (insert "#+title: List of dead Denote links\n")
-	  (insert "#+date: ") (org-insert-time-stamp (current-time) t t)
-	  (insert (format "\n\n%s dead links identified\n\n"
-			  (length dead-links))
-		  "Follow the hyperlinks to remove or repair dead links.\n\n"
-		  "To disable confirmations, customise ~org-link-elisp-confirm-function~\n\n")
-	  (insert "| Source | Target |\n")
-	  (insert "|--------|--------|\n")
-	  (dolist (link dead-links)
-	    (let* ((source (cdr (assoc 'source link)))
-		   (target (cdr (assoc 'target link)))
-		   (file (car (denote-directory-files source)))
-		   (file-type (denote-filetype-heuristics file))
-		   (title (denote-retrieve-front-matter-title-value file file-type)))
-	      (insert "|")
-	      (insert "[[elisp:(denote-explore--review-dead-link \""
-		      source "\" \"" target "\")][" title "]]")
-	      (insert "|" target "|\n")))
-	  (org-table-align)
-	  (goto-char (point-min))
-          (when (re-search-forward "Source" nil t)
-            (forward-line 2)
-	    (org-cycle))))
-	(message "No dead Denote links found")))
+(defun denote-explore--missing-denote-links ()
+  "List all missing Denote link targets as an association list."
+  (let* ((files (denote-directory-files))
+	 (ids (mapcar #'denote-retrieve-filename-identifier files))
+	 (links (denote-explore--network-extract-edges files)))
+    (seq-filter
+     (lambda (link)
+       (not (member (cdr (assoc 'target link)) ids)))
+     links)))
 
-(defalias #'denote-explore-missing-links #'denote-explore-dead-links)
+(defun denote-explore--missing-file-links ()
+  "List all missing file links in Denote notes as association lists."
+  (let* ((files (denote-directory-files nil nil t))
+         (matches
+          (mapcar (lambda (match)
+                    (cons (xref-location-group (xref-match-item-location match))
+                          (xref-match-item-summary match)))
+                  (xref-matches-in-files "\\[\\[file:.*?\\]\\]" files))))
+    (seq-filter 'identity
+                (apply 'append
+                       (mapcar (lambda (pair)
+                                 (let* ((source-file (car pair))
+                                        (match-text (cdr pair))
+                                        (filenames (when match-text
+                                                     (let (results)
+                                                       (while (string-match "\\[\\[\\(?:file:\\)?\\(.*?\\.[^]]+\\)\\]\\]" match-text)
+                                                         (push (match-string 1 match-text) results)
+                                                         (setq match-text (substring match-text (match-end 0))))
+                                                       (reverse results)))))
+                                   (mapcar (lambda (filename)
+                                             (let ((clean-filename (expand-file-name filename denote-directory)))
+                                               (when (not (file-exists-p clean-filename))
+                                                 (list (cons 'source (denote-retrieve-filename-identifier source-file))
+                                                       (cons 'target clean-filename)))))
+                                           filenames)))
+                               matches)))))
+
+(defun denote-explore-missing-links ()
+  "Display a read-only Org buffer with missing Denote and file links."
+  (interactive)
+  (message "Searching for missing Denote and file links")
+  (let ((missing-denote-links (denote-explore--missing-denote-links))
+        (missing-file-links (denote-explore--missing-file-links))
+	(missing-links-buffer "*Missing Denote and file links*"))
+    (with-current-buffer-window  missing-links-buffer nil nil
+      (erase-buffer)
+      (org-mode)
+      (insert "#+title: List of missing Denote and file links\n"
+	      "#+date: ")
+      (org-insert-time-stamp (current-time) t t)
+      (insert "\n\nFollow the hyperlinks to remove or repair dead links.\n\n"
+	      "To disable confirmations, customise ~org-link-elisp-confirm-function~.\n")
+      (denote-explore--insert-missing-links "Denote" missing-denote-links)
+      (denote-explore--insert-missing-links "file" missing-file-links))
+    (pop-to-buffer missing-links-buffer)))
+
+(defun denote-explore--insert-missing-links (type missing-links)
+  "Insert table of MISSING-LINKS of TYPE (Denote or file) in an Org mode buffer."
+  (let ((plural-p (if (> (length missing-links) 1) "s" "")))
+    (insert (format "\n* Missing %s link%s\n\n" type plural-p))
+    (insert (format "%s missing %s link%s\n\n"
+		    (length missing-links) type plural-p))
+    (insert "|-\n| Source | Target |\n|-\n")
+    (dolist (link missing-links)
+      (let* ((source (cdr (assoc 'source link)))
+	     (target-raw (cdr (assoc 'target link)))
+	     (target (if (eq type "Denote")
+			 target-raw
+		       (file-name-nondirectory target-raw)))
+	     (file (car (denote-directory-files source)))
+	     (file-type (denote-filetype-heuristics file))
+	     (title (denote-retrieve-front-matter-title-value file file-type)))
+	(insert "|[[elisp:(denote-explore--review-dead-link \""
+		source "\" \"" target "\")][" title "]]")
+	(insert "|" target "|\n")))
+    (insert "|-\n"))
+  (org-table-align))
+
+(define-obsolete-function-alias
+  'denote-explore-dead-links
+  'denote-explore-missing-links "3.3.2")
 
 (defun denote-explore--review-dead-link (source target)
   "Jump to the location of a dead link to TARGET found in SOURCE."
