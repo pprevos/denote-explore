@@ -601,7 +601,6 @@ All open Denote note buffers need to be saved before invoking this function."
 	    (denote-rename-file-using-front-matter file))))
     (message "Integrity check completed")))
 
-;;;###autoload
 (defun denote-explore--missing-denote-links ()
   "List all missing Denote link targets as an association list."
   (let* ((files (denote-directory-files))
@@ -639,8 +638,11 @@ All open Denote note buffers need to be saved before invoking this function."
                                            filenames)))
                                matches)))))
 
+;;;###autoload
 (defun denote-explore-missing-links ()
-  "Display a read-only Org buffer with missing Denote and file links."
+  "Display a read-only Org buffer with missing Denote and file links.
+
+Follow the links in the tables to review the suspect links."
   (interactive)
   (message "Searching for missing Denote and file links")
   (let ((missing-denote-links (denote-explore--missing-denote-links))
