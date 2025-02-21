@@ -560,7 +560,7 @@ All open Denote note buffers should be saved for this function to work reliably.
 	     (denote-known-keywords nil)
 	     (current-keywords (denote-explore--retrieve-keywords file))
 	     (new-keywords (if (equal new-keyword "")
-			       (cl-set-difference current-keywords selected :test 'string=)
+			       (cl-set-difference current-keywords selected-keyword :test 'string=)
 			     (mapcar (lambda (keyword)
 				       (if (member keyword selected-keyword) new-keyword keyword))
 				     current-keywords)))
