@@ -694,7 +694,9 @@ Follow the links in the tables to review the suspect links."
     (find-file file)
     (goto-char (point-min))
     (when org-link-descriptive (org-toggle-link-display))
-    (search-forward-regexp target)))
+    (if (search-forward-regexp target nil t)
+	(message "Missing link found")
+      (message "Link not found: %s" target))))
 
 ;;; VISUALISATION
 
