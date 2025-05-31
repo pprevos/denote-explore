@@ -549,10 +549,10 @@ All open Denote note buffers should be saved for this function to work reliably.
 			     (denote-filename-is-note-p buffer-file-name)))
   ;; Select keywords and file candidates
   (let* ((selected-keyword (denote-keywords-prompt "Keyword(s) to rename"))
-         (new-keyword (read-from-minibuffer "New keyword: "))
          (keywords-regex (mapconcat
 			  (lambda (keyword) (concat "_" keyword)) selected-keyword "\\|"))
-         (files (denote-directory-files keywords-regex)))
+         (files (denote-directory-files keywords-regex))
+	 (new-keyword (read-from-minibuffer "New keyword: ")))
     ;; Loop through candidates
     (dolist (file files)
       (let* ((denote-rename-confirmations '(rewrite-front-matter modify-file-name))
@@ -565,10 +565,11 @@ All open Denote note buffers should be saved for this function to work reliably.
 				       (if (member keyword selected-keyword) new-keyword keyword))
 				     current-keywords)))
 	     (file-type (denote-filetype-heuristics file)))
-        (denote-rename-file file
+1        (denote-rename-file file
 	 		    (denote-retrieve-title-or-filename file file-type)
 			    (if (equal new-keywords nil) "" (delete-dups new-keywords))
-			    (denote-retrieve-filename-signature file))))))
+			    (or (denote-retrieve-filename-signature file) "")
+			    (denote-retrieve-filename-identifier file))))))
 
 (define-obsolete-function-alias
   'denote-explore--retrieve-title
