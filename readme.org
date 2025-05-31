@@ -12,15 +12,15 @@ Read the [[https://lucidmanager.org/productivity/denote-explore][Denote-Explorer
 
 Visualising networks of Denote files with SVG or PDF files will require the [[https://graphviz.org/][GraphViz]] package to be available. The D3.js visualisation type downloads an external JavaScript file from [[https://d3js.org/][d3js.org]].
 
-Denote-Explore package is available on MELPA and is easily installed with the ~use-package~ macro:
+Denote-Explore package is available on MELPA and is easily installed with the ~use-package~ macro.
 
-The configuration below customises all available variables and binds all available commands to the =C-c e= prefix. To get started you don't need to configure anything. You should modify this configuration to suit your needs, as one person's sensible defaults are another person's nightmare.
+The configuration below customises all available variables and binds all available commands to the =C-c e= prefix. Modify this configuration to suit your needs, as one person's sensible defaults are another person's nightmare. To get started you don't need to configure anything, so ~(use-package denote-explore)~ is sufficient. 
 
 #+begin_src elisp
   (use-package denote-explore
     :custom
     ;; Where to store network data and in which format
-    (denote-explore-network-directory "<folder>")
+    (denote-explore-network-directory "<your preferred folder>")
     (denote-explore-network-filename "denote-network")
     (denote-explore-network-keywords-ignore "<keywords list>")
     (denote-explore-network-regex-ignore "<regex>")
@@ -69,6 +69,17 @@ Alternatively, you can install it directly from GitHub:
 
 * Change Log
 Major version numbers coincide with Denote major versions.
+
+** Version 4.0
+- Compatibility check with Denote 4
+  - Minor update to denoter-explore-sync-metadata
+  - Updated denote-explore-rename-keyword
+- Clarifications in the manual
+- Added error message when 'missing' link is not found in buffer
+- Clarifications in the manual
+
+** Version 3.3.3
+- Fixed bug in keyword renaming function. 
 
 ** version 3.3.2
 - Refactoring of missing links functionality
