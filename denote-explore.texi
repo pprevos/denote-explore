@@ -39,6 +39,7 @@ Janitor: Maintain your denote collection.
 @item
 Knowledge Graphs: Visualise and analyse your Denote files as a network.
 @end enumerate
+
 @end ifnottex
 
 @menu
@@ -62,6 +63,7 @@ Janitor
 
 Knowledge Graphs
 
+* Principles of Knowledge Graphs::
 * Community of Notes::
 * Note Neighbourhood::
 * Sequences Network::
@@ -84,7 +86,7 @@ After a day of working hard on your digital knowledge garden, you can count the 
 
 @enumerate
 @item
-@code{denote-explore-count-notes}: Count the number of notes and attachments. 
+@code{denote-explore-count-notes}: Count the number of notes and attachments. With universal argument, only count notes.
 @item
 @code{denote-explore-count-keywords}: Count the number of distinct Denote keywords. 
 @end enumerate
@@ -100,7 +102,7 @@ These functions are informative, but a graph says more than a thousand numbers. 
 @code{denote-explore-barchart-timeline}: Visualise notes created by year
 @end enumerate
 
-The @code{denote-excluded-files-regexp} variable can contain a regular expression of files that are excluded from these statistical functions.
+The @code{denote-excluded-files-regexp} variable can contain a regular expression of files excluded from these statistical functions.
 
 @node Random Walks
 @chapter Random Walks
@@ -147,7 +149,7 @@ After hoarding Denote files for a while, you may need a janitor to organise your
 @node Duplicate notes
 @section Duplicate notes
 
-The Denote package prevents duplicate identifiers when creating a new note, but when assigning filenames manually, or when exporting org files, duplicates might occur.
+The Denote package prevents duplicate identifiers when creating a new note, but when assigning filenames manually, or when exporting org files, duplicates might appear.
 
 The Denote identifier is a unique string constructed of the note's creation date and time in ISO 8601 format (e.g., @samp{2024035T203312}). Denote either uses the current date and time when generating a new note or the date and time the file was created on the file system.
 
@@ -155,26 +157,26 @@ The file's creation date and time are not always relevant for attachments. For e
 
 The @code{denote-explore-identify-duplicate-notes} command lists all duplicate Denote files in a popup org buffer, which includes links to the suspected duplicate notes and attachments.
 
-Additionally, the @code{denote-explore-identify-duplicate-notes-dired} command displays files with duplicate identifiers in a Dired buffer. You can directly change filenames in the Dired buffer with @code{dired-toggle-read-only} (@samp{C-x C-q}) or remove duplicates with @samp{D} (@code{dired-do-delete}). Note that this function shows files in the denote directory and not its subdirectories or symbolic links.
+Additionally, the @code{denote-explore-identify-duplicate-notes-dired} command displays files with duplicate identifiers in a Dired buffer. You can directly change filenames in the Dired buffer with @code{dired-toggle-read-only} (@samp{C-x C-q}) or remove individual duplicates with @samp{D} (@code{dired-do-delete}). Note that this function only shows files in the denote directory and not its subdirectories or symbolic links.
 
 With the universal argument (@samp{C-u}), these commands ignore any duplicated identifiers created when exporting Denote Org mode files.
 
-The @code{denote-excluded-files-regexp} variable can contain a regular expression of files that are excluded from duplicate detection.  When using the archive functionality for Denote files you might set this variable to @samp{"^.+\.org_archive"} so they are not marked as duplicates.
+The @code{denote-excluded-files-regexp} variable can contain a regular expression of files excluded from duplicate detection. 
 
-Be careful when changing the identifier of a Denote file, as it can destroy the integrity of your links. Please ensure that the file you rename does not have any links pointing to it. You can use the @code{denote-find-link} and @code{denote-find-backlink} commands to check a file for links, or use the Denote Explorer link checker.
+Be careful when manually changing the identifier of a Denote file, as it can destroy the integrity of your links. Please ensure that the file you rename does not have any links pointing to it. You can use the @code{denote-find-link} and @code{denote-find-backlink} commands to check a file for links, or use the Denote Explorer link checker.
 
 @node Missing Links
 @section Missing Links
 
-The file identifier in Denote is the bit of information that keeps links active even when you change their name. But missing or dead links might still appear in your network of notes when you delete redundant information or you manually rename a file and change its identifier.
+The Denote identifier keeps links active even when you change the file name, tags or signature. But missing or dead links might still appear in your network of notes when you delete redundant information or you manually change an identifier.
 
 Using @code{denote-explore-missing-links} lists all links to non-existing notes, attachments and links to other files (such as images) in your Denote directory.
 
-This function creates a read-only Org mode file with two tables of source documents and the missing linked document. You can click on the links to jump to the source file at the missing link location and either remove or edit it. Links will appear in their literal form, i.e. @samp{[[<link>][<description>]]}.
+This function creates a read-only Org mode file with two tables of source documents and the missing linked Denote file or other linked files. You can click on the links to jump to the source file at the missing link location and either remove or edit it. Links will appear in their literal form, i.e. @samp{[[<link>][<description>]]}. You can toggle this behaviour with @code{org-toggle-link-display} to show the formatted links.
 
-The link contains an Elisp function and Emacs will ask for confirmation every time you follow a link. You can disable these warnings by temporary setting @code{org-link-elisp-confirm-function} to @samp{nil}.
+The link contains an Elisp function to open the linked document and find the relevant link. Emacs will ask for confirmation every time you follow such a link. You can disable these warnings by setting @code{org-link-elisp-confirm-function} to @samp{nil}.
 
-When no link is found a message pops up in the echo area.
+When the missing link is found because perhaps you already removed it, an error message pops up in the echo area.
 
 The @code{denote-excluded-files-regexp} variable can contain a regular expression of files that are excluded from the search for missing Denote links.
 
@@ -204,6 +206,22 @@ The @code{denote-excluded-files-regexp} variable can contain a regular expressio
 @chapter Knowledge Graphs
 
 Emacs is a text processor with limited graphical capabilities. However, committing your ideas to text requires a linear way of thinking since you can only process one word at a time. Visual thinking through tools such as mind maps or network diagrams is another way to approach your ideas. One of the most common methods to visualise interlinked documents is in a network or a personal knowledge graph, or in more general terms, a network diagram.
+
+@menu
+* Principles of Knowledge Graphs::
+* Community of Notes::
+* Note Neighbourhood::
+* Sequences Network::
+* Keyword Network::
+* Network Layout and Presentation::
+* D3.js: D3js. 
+* GraphViz::
+* Graph Exchange XML Format::
+* Analysing the Denote Network::
+@end menu
+
+@node Principles of Knowledge Graphs
+@section Principles of Knowledge Graphs
 
 Denote implements a linking mechanism that connects notes (either Org, Markdown, or plain text files) to other notes or attachments. This mechanism allows the user to visualise all notes as a network diagram.
 
@@ -241,18 +259,6 @@ You create a network with the @code{denote-explore-network} command. This comman
 The @code{denote-explore-network-regenerate} command recreates the previous graph with the same parameters, which is useful when changing the structure of your notes and you like to see the result visualised without having to re-enter the parameters.
 
 Using the universal argument @samp{C-u} before issuing these two command (re)generates a network excluding attachments. The @code{denote-excluded-files-regexp} variable can contain a regular expression of files that are excluded from visualisation.
-
-@menu
-* Community of Notes::
-* Note Neighbourhood::
-* Sequences Network::
-* Keyword Network::
-* Network Layout and Presentation::
-* D3.js: D3js. 
-* GraphViz::
-* Graph Exchange XML Format::
-* Analysing the Denote Network::
-@end menu
 
 @node Community of Notes
 @section Community of Notes
@@ -308,18 +314,20 @@ The @code{denote-explore-network-regex-ignore} variable lets you define a regula
 @node Sequences Network
 @section Sequences Network
 
-Denote signatures can define a hierarchical sequence of notes, for example a note with signature @samp{1=1} is the child of a note with signature @samp{1} and a note with signature @samp{1=2} is its sibling. The note with signature @samp{1=1=a} is the child of @samp{1=1} and the grandchild of @samp{1}, and so forth. In a sequence network, links exist independent of any Denote links inside a note, the relationship is only based on the hierarchy of the signatures.
+Denote signatures can define a hierarchical sequence of notes, using a family analogy. For example a note with signature @samp{1=a} is the child of a note with signature @samp{1} and a note with signature @samp{1=b} is its sibling. The note with signature @samp{1=a=1} is the child of @samp{1=a} and the grandchild of @samp{1}, and so forth. In a sequence network, links exist independent of any Denote links inside a note, the relationship is only based on the hierarchy of the signatures.
 
 @example
 ┌─────┐    ┌─────┐    ┌─────┐  
-|  1  ├───►│ 1=1 ├───►│1=1=a│ 
+|  1  ├───►│ 1=a ├───►│1=a=1│ 
 └──┬──┘    └─────┘    └─────┘
    │       ┌─────┐ 
-   └──────►│ 1=2 │ 
+   └──────►│ 1=b │ 
            └─────┘
 @end example
 
 The content of the signatures can be either numbers or letters as the order of children is not taken into consideration. These sequences can go on to many generations, building a family tree of your notes. These sequences are the basic building block of the popular Zettelkasten methodology.
+
+The Denote-Sequence package provides specialised functions to manage hierarchical connections between files, @ref{Top,info denote-sequence,,denote-sequence,}. 
 
 To generate a sequence graph, use @code{denote-explore-network} and select the signature of the root node (note @samp{1} in the diagram). When not selecting any signature, all Denote files with a signature are included in the visualisation.
 
@@ -410,7 +418,7 @@ You can customise the output of the network files by modifying the template. The
 @item
 @samp{@{@{graph-type@}@}}: Type of graph, community, neighbourhood or network
 @item
-@samp{@{@{d3-js@}@}}: Content of the @code{denote-explore-network-d3-js} variable, which contains the URL of the D3 source code, which has to be version 7 or above. The default template fetches the JavaScript code from the @samp{d3js.org} website.
+@samp{@{@{d3-js@}@}}: Content of the @code{denote-explore-network-d3-js} variable, which contains the URL of the D3 source code, which has to be version 7 or above. The default template fetches the JavaScript code from the @samp{d3js.org} website. You can customise this variable to use a locally stored file.
 @item
 @samp{@{@{json-content@}@}}: The generated JSON file with the network definition
 @item
@@ -467,7 +475,7 @@ The importance of a note is directly related to the number of backlinks. The @co
 @node Installation and Package Configuration
 @chapter Installation and Package Configuration
 
-This package is available through MELPA@.
+This package is available from GitHub or through MELPA@.
 
 The configuration below customises all available variables and binds all available commands to the @samp{C-c e} prefix. To get started you don't need to configure anything. You should modify this configuration to suit your needs, as one person's sensible defaults are another person's nightmare.
 

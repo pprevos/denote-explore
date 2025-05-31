@@ -1,4 +1,4 @@
-This is denote-explore.info, produced by makeinfo version 7.1.1 from
+This is denote-explore.info, produced by makeinfo version 7.2 from
 denote-explore.texi.
 
 INFO-DIR-SECTION Emacs misc features
@@ -53,6 +53,7 @@ Janitor
 
 Knowledge Graphs
 
+* Principles of Knowledge Graphs::
 * Community of Notes::
 * Note Neighbourhood::
 * Sequences Network::
@@ -62,7 +63,6 @@ Knowledge Graphs
 * GraphViz::
 * Graph Exchange XML Format::
 * Analysing the Denote Network::
-
 
 
 File: denote-explore.info,  Node: Descriptive Statistics,  Next: Random Walks,  Prev: Top,  Up: Top
@@ -80,7 +80,7 @@ count the notes and attachments in your collection.  Two functions
 provide some basic statistics of your Denote files:
 
   1. ‘denote-explore-count-notes’: Count the number of notes and
-     attachments.
+     attachments.  With universal argument, only count notes.
   2. ‘denote-explore-count-keywords’: Count the number of distinct
      Denote keywords.
 
@@ -96,7 +96,7 @@ commands are available in Denote-Explorer to visualise basic statistics:
   3. ‘denote-explore-barchart-timeline’: Visualise notes created by year
 
    The ‘denote-excluded-files-regexp’ variable can contain a regular
-expression of files that are excluded from these statistical functions.
+expression of files excluded from these statistical functions.
 
 
 File: denote-explore.info,  Node: Random Walks,  Next: Janitor,  Prev: Descriptive Statistics,  Up: Top
@@ -183,7 +183,7 @@ File: denote-explore.info,  Node: Duplicate notes,  Next: Missing Links,  Up: Ja
 
 The Denote package prevents duplicate identifiers when creating a new
 note, but when assigning filenames manually, or when exporting org
-files, duplicates might occur.
+files, duplicates might appear.
 
    The Denote identifier is a unique string constructed of the note's
 creation date and time in ISO 8601 format (e.g., ‘2024035T203312’).
@@ -201,21 +201,19 @@ the suspected duplicate notes and attachments.
    Additionally, the ‘denote-explore-identify-duplicate-notes-dired’
 command displays files with duplicate identifiers in a Dired buffer.
 You can directly change filenames in the Dired buffer with
-‘dired-toggle-read-only’ (‘C-x C-q’) or remove duplicates with ‘D’
-(‘dired-do-delete’).  Note that this function shows files in the denote
-directory and not its subdirectories or symbolic links.
+‘dired-toggle-read-only’ (‘C-x C-q’) or remove individual duplicates
+with ‘D’ (‘dired-do-delete’).  Note that this function only shows files
+in the denote directory and not its subdirectories or symbolic links.
 
    With the universal argument (‘C-u’), these commands ignore any
 duplicated identifiers created when exporting Denote Org mode files.
 
    The ‘denote-excluded-files-regexp’ variable can contain a regular
-expression of files that are excluded from duplicate detection.  When
-using the archive functionality for Denote files you might set this
-variable to ‘"^.+\.org_archive"’ so they are not marked as duplicates.
+expression of files excluded from duplicate detection.
 
-   Be careful when changing the identifier of a Denote file, as it can
-destroy the integrity of your links.  Please ensure that the file you
-rename does not have any links pointing to it.  You can use the
+   Be careful when manually changing the identifier of a Denote file, as
+it can destroy the integrity of your links.  Please ensure that the file
+you rename does not have any links pointing to it.  You can use the
 ‘denote-find-link’ and ‘denote-find-backlink’ commands to check a file
 for links, or use the Denote Explorer link checker.
 
@@ -225,27 +223,30 @@ File: denote-explore.info,  Node: Missing Links,  Next: Managing Keywords,  Prev
 3.2 Missing Links
 =================
 
-The file identifier in Denote is the bit of information that keeps links
-active even when you change their name.  But missing or dead links might
-still appear in your network of notes when you delete redundant
-information or you manually rename a file and change its identifier.
+The Denote identifier keeps links active even when you change the file
+name, tags or signature.  But missing or dead links might still appear
+in your network of notes when you delete redundant information or you
+manually change an identifier.
 
    Using ‘denote-explore-missing-links’ lists all links to non-existing
 notes, attachments and links to other files (such as images) in your
 Denote directory.
 
    This function creates a read-only Org mode file with two tables of
-source documents and the missing linked document.  You can click on the
-links to jump to the source file at the missing link location and either
-remove or edit it.  Links will appear in their literal form, i.e.
-‘[[<link>][<description>]]’.
+source documents and the missing linked Denote file or other linked
+files.  You can click on the links to jump to the source file at the
+missing link location and either remove or edit it.  Links will appear
+in their literal form, i.e.  ‘[[<link>][<description>]]’.  You can
+toggle this behaviour with ‘org-toggle-link-display’ to show the
+formatted links.
 
-   The link contains an Elisp function and Emacs will ask for
-confirmation every time you follow a link.  You can disable these
-warnings by temporary setting ‘org-link-elisp-confirm-function’ to
-‘nil’.
+   The link contains an Elisp function to open the linked document and
+find the relevant link.  Emacs will ask for confirmation every time you
+follow such a link.  You can disable these warnings by setting
+‘org-link-elisp-confirm-function’ to ‘nil’.
 
-   When no link is found a message pops up in the echo area.
+   When the missing link is found because perhaps you already removed
+it, an error message pops up in the echo area.
 
    The ‘denote-excluded-files-regexp’ variable can contain a regular
 expression of files that are excluded from the search for missing Denote
@@ -321,8 +322,27 @@ ideas.  One of the most common methods to visualise interlinked
 documents is in a network or a personal knowledge graph, or in more
 general terms, a network diagram.
 
-   Denote implements a linking mechanism that connects notes (either
-Org, Markdown, or plain text files) to other notes or attachments.  This
+* Menu:
+
+* Principles of Knowledge Graphs::
+* Community of Notes::
+* Note Neighbourhood::
+* Sequences Network::
+* Keyword Network::
+* Network Layout and Presentation::
+* D3.js: D3js.
+* GraphViz::
+* Graph Exchange XML Format::
+* Analysing the Denote Network::
+
+
+File: denote-explore.info,  Node: Principles of Knowledge Graphs,  Next: Community of Notes,  Up: Knowledge Graphs
+
+4.1 Principles of Knowledge Graphs
+==================================
+
+Denote implements a linking mechanism that connects notes (either Org,
+Markdown, or plain text files) to other notes or attachments.  This
 mechanism allows the user to visualise all notes as a network diagram.
 
    Network visualisation in Denote is not just a feature but a powerful
@@ -376,22 +396,10 @@ without having to re-enter the parameters.
 ‘denote-excluded-files-regexp’ variable can contain a regular expression
 of files that are excluded from visualisation.
 
-* Menu:
-
-* Community of Notes::
-* Note Neighbourhood::
-* Sequences Network::
-* Keyword Network::
-* Network Layout and Presentation::
-* D3.js: D3js.
-* GraphViz::
-* Graph Exchange XML Format::
-* Analysing the Denote Network::
-
 
-File: denote-explore.info,  Node: Community of Notes,  Next: Note Neighbourhood,  Up: Knowledge Graphs
+File: denote-explore.info,  Node: Community of Notes,  Next: Note Neighbourhood,  Prev: Principles of Knowledge Graphs,  Up: Knowledge Graphs
 
-4.1 Community of Notes
+4.2 Community of Notes
 ======================
 
 A community graph displays all notes matching a regular expression and
@@ -427,7 +435,7 @@ customising this variable to the relevant regular expression.
 
 File: denote-explore.info,  Node: Note Neighbourhood,  Next: Sequences Network,  Prev: Community of Notes,  Up: Knowledge Graphs
 
-4.2 Note Neighbourhood
+4.3 Note Neighbourhood
 ======================
 
 The neighbourhood of a note consists of all files linked to it at one or
@@ -477,22 +485,22 @@ regular expression of notes exclude from neighbourhood networks.
 
 File: denote-explore.info,  Node: Sequences Network,  Next: Keyword Network,  Prev: Note Neighbourhood,  Up: Knowledge Graphs
 
-4.3 Sequences Network
+4.4 Sequences Network
 =====================
 
-Denote signatures can define a hierarchical sequence of notes, for
-example a note with signature ‘1=1’ is the child of a note with
-signature ‘1’ and a note with signature ‘1=2’ is its sibling.  The note
-with signature ‘1=1=a’ is the child of ‘1=1’ and the grandchild of ‘1’,
-and so forth.  In a sequence network, links exist independent of any
-Denote links inside a note, the relationship is only based on the
-hierarchy of the signatures.
+Denote signatures can define a hierarchical sequence of notes, using a
+family analogy.  For example a note with signature ‘1=a’ is the child of
+a note with signature ‘1’ and a note with signature ‘1=b’ is its
+sibling.  The note with signature ‘1=a=1’ is the child of ‘1=a’ and the
+grandchild of ‘1’, and so forth.  In a sequence network, links exist
+independent of any Denote links inside a note, the relationship is only
+based on the hierarchy of the signatures.
 
      ┌─────┐    ┌─────┐    ┌─────┐
-     |  1  ├───►│ 1=1 ├───►│1=1=a│
+     |  1  ├───►│ 1=a ├───►│1=a=1│
      └──┬──┘    └─────┘    └─────┘
         │       ┌─────┐
-        └──────►│ 1=2 │
+        └──────►│ 1=b │
                 └─────┘
 
    The content of the signatures can be either numbers or letters as the
@@ -500,6 +508,10 @@ order of children is not taken into consideration.  These sequences can
 go on to many generations, building a family tree of your notes.  These
 sequences are the basic building block of the popular Zettelkasten
 methodology.
+
+   The Denote-Sequence package provides specialised functions to manage
+hierarchical connections between files, *note info denote-sequence:
+(denote-sequence)Top.
 
    To generate a sequence graph, use ‘denote-explore-network’ and select
 the signature of the root node (note ‘1’ in the diagram).  When not
@@ -512,7 +524,7 @@ regular expression of notes exclude from neighbourhood networks.
 
 File: denote-explore.info,  Node: Keyword Network,  Next: Network Layout and Presentation,  Prev: Sequences Network,  Up: Knowledge Graphs
 
-4.4 Keyword Network
+4.5 Keyword Network
 ===================
 
 The last available method to visualise your Denote collection is to
@@ -565,7 +577,7 @@ variable lists keywords ignored in this visualisation.
 
 File: denote-explore.info,  Node: Network Layout and Presentation,  Next: D3js,  Prev: Keyword Network,  Up: Knowledge Graphs
 
-4.5 Network Layout and Presentation
+4.6 Network Layout and Presentation
 ===================================
 
 Emacs cannot independently generate graphics and thus relies on external
@@ -602,7 +614,7 @@ GEXF, discussed in detail below.
 
 File: denote-explore.info,  Node: D3js,  Next: GraphViz,  Prev: Network Layout and Presentation,  Up: Knowledge Graphs
 
-4.6 D3.js
+4.7 D3.js
 =========
 
 D3.js (https://d3js.org/) is a JavaScript library for visualising data.
@@ -653,7 +665,8 @@ own versions.  This file contains several shortcodes:
    • ‘{{d3-js}}’: Content of the ‘denote-explore-network-d3-js’
      variable, which contains the URL of the D3 source code, which has
      to be version 7 or above.  The default template fetches the
-     JavaScript code from the ‘d3js.org’ website.
+     JavaScript code from the ‘d3js.org’ website.  You can customise
+     this variable to use a locally stored file.
    • ‘{{json-content}}’: The generated JSON file with the network
      definition
    • ‘{{d3-colourscheme}}’: Content of
@@ -667,7 +680,7 @@ own versions.  This file contains several shortcodes:
 
 File: denote-explore.info,  Node: GraphViz,  Next: Graph Exchange XML Format,  Prev: D3js,  Up: Knowledge Graphs
 
-4.7 GraphViz
+4.8 GraphViz
 ============
 
 GraphViz (https://graphviz.org/) is an open-source graph visualisation
@@ -710,7 +723,7 @@ results.
 
 File: denote-explore.info,  Node: Graph Exchange XML Format,  Next: Analysing the Denote Network,  Prev: GraphViz,  Up: Knowledge Graphs
 
-4.8 Graph Exchange XML Format
+4.9 Graph Exchange XML Format
 =============================
 
 The first two formats an insight into parts of your knowledge network,
@@ -734,8 +747,8 @@ and the edges and their weights.
 
 File: denote-explore.info,  Node: Analysing the Denote Network,  Prev: Graph Exchange XML Format,  Up: Knowledge Graphs
 
-4.9 Analysing the Denote Network
-================================
+4.10 Analysing the Denote Network
+=================================
 
 A well-trodden trope in network analysis is that all people are linked
 within six degrees of separation.  This may also be the case for your
@@ -785,7 +798,7 @@ File: denote-explore.info,  Node: Installation and Package Configuration,  Next:
 5 Installation and Package Configuration
 ****************************************
 
-This package is available through MELPA.
+This package is available from GitHub or through MELPA.
 
    The configuration below customises all available variables and binds
 all available commands to the ‘C-c e’ prefix.  To get started you don't
@@ -879,34 +892,35 @@ General Public License for more details.
    For a full copy of the GNU General Public License, see
 <https://www.gnu.org/licenses/>.
 
-
 
 Tag Table:
-Node: Top251
-Node: Descriptive Statistics1968
-Node: Random Walks3470
-Node: Janitor6325
-Node: Duplicate notes6901
-Node: Missing Links9045
-Node: Managing Keywords10383
-Node: Synchronising Meta Data12050
-Node: Knowledge Graphs12895
-Node: Community of Notes16503
-Node: Note Neighbourhood18146
-Node: Sequences Network20288
-Node: Keyword Network21948
-Node: Network Layout and Presentation24620
-Node: D3js26549
-Node: GraphViz29720
-Node: Graph Exchange XML Format31588
-Node: Analysing the Denote Network32627
-Node: Installation and Package Configuration35156
-Node: Acknowledgements37926
-Node: License38632
+Node: Top249
+Node: Descriptive Statistics2000
+Node: Random Walks3537
+Node: Janitor6392
+Node: Duplicate notes6968
+Node: Missing Links8980
+Node: Managing Keywords10507
+Node: Synchronising Meta Data12174
+Node: Knowledge Graphs13019
+Node: Principles of Knowledge Graphs13897
+Node: Community of Notes16848
+Node: Note Neighbourhood18530
+Node: Sequences Network20672
+Node: Keyword Network22520
+Node: Network Layout and Presentation25192
+Node: D3js27121
+Node: GraphViz30360
+Node: Graph Exchange XML Format32228
+Node: Analysing the Denote Network33267
+Node: Installation and Package Configuration35798
+Node: Acknowledgements38583
+Node: License39289
 
 End Tag Table
 
 
 Local Variables:
 coding: utf-8
+Info-documentlanguage: en
 End:
