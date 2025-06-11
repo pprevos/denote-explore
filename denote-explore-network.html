@@ -5,7 +5,7 @@
     <title>Denote Explore {{graph-type}} Network</title>
     <style>
       body {
-          font-family: Arial, sans-serif;
+          font-family: sans-serif;
           margin: 0;
           padding: 0;
           display: flex;
@@ -36,7 +36,7 @@
       .lighter {
 	  color: #888;
       }
-      
+
       .tooltip .title {
           font-weight: bold;
           margin-bottom: 10px;
@@ -67,7 +67,7 @@
       .hidden {
           display: none;
       }
-      
+
       .info-button {
 	  position: fixed;
 	  top: 10px;
@@ -116,7 +116,7 @@
 	  display: none;
 	  z-index: 99999;
       }
-      
+
       .info-tooltip .title {
 	  font-weight: bold;
 	  margin-bottom: 10px;
@@ -130,7 +130,7 @@
       }
 
       #keyword-chart svg {
-	  font-family: Arial, sans-serif;
+	  font-family: sans-serif;
       }
 
       .legend-container .chart-container {
@@ -140,7 +140,7 @@
 	  border-radius: 8px;
 	  background-color: #f8f8f8;
       }
-      
+
       .metadata-container {
 	  margin-bottom: 10px;
 	  padding: 10px;
@@ -247,10 +247,10 @@
       .attr("stroke-width", d => weightScale(d.weight || 1))
       // Add arrow markers
       .attr("marker-end", (d, i) => data.meta.directed ? `url(#arrow-${i})` : null)
-      
+
       // Add hover interaction for edges
       .on("mouseover", (event, d) => {
-      if (data.meta.type === "Keywords") { 
+      if (data.meta.type === "Keywords") {
       // Generate content for the tooltip
       const tooltipContent = `
       <div class="metadata">From: ${d.source.name}</div>
@@ -274,7 +274,7 @@
       .selectAll("circle")
       .data(nodes)
       .join("circle")
-      .attr("r", d => isKeywordType ? 15 : radiusScale(d.degree)) 
+      .attr("r", d => isKeywordType ? 15 : radiusScale(d.degree))
       .attr("fill", d => color(d.type))
       .on("click", (event, d) => {
       if (!isKeywordType) { // Only open hyperlink if isKeywordType is false
@@ -302,10 +302,10 @@
         `<span>${keyword}</span>`).join('') :
         '<div class="metadata">No keywords</div>'}</div>
       ${isImage
-      ? `<img src="${d.filename}" alt="${d.name}" 
+      ? `<img src="${d.filename}" alt="${d.name}"
 	  onload="if(this.naturalHeight > this.naturalWidth) this.style.maxHeight='500px';"
 	  style="max-width: 100%; height: auto; margin-top: 10px;">`
-        : isPDF 
+        : isPDF
       ? `<iframe src="${d.filename}?toolbar=0&navpanes=0&scrollbar=0#view=FitH"
 		 style="width: 100%; height: 500px; margin-top: 10px; border: none;"></iframe>`
           : ''
@@ -359,10 +359,10 @@
       .attr("dx", 10)
       .attr("dy", ".35em")
       .style("font-size", `${fontSize}px`)
-      .style("font-family", "Arial, sans-serif")
+      .style("font-family", "sans-serif")
       .style("fill", "#333")
       .text(d => d.name);
-      
+
       // Set up force simulation
       const simulation = d3.forceSimulation(nodes)
       .force("link", d3.forceLink(links).id(d => d.id).distance(20)) // Link force
@@ -382,7 +382,7 @@
       const dx = d.target.x - d.source.x;
       const dy = d.target.y - d.source.y;
       const distance = Math.sqrt(dx * dx + dy * dy) || 1; // Avoid division by zero
-      const targetRadius = isKeywordType ? 15 : radiusScale(d.target.degree); 
+      const targetRadius = isKeywordType ? 15 : radiusScale(d.target.degree);
       const offsetX = (dx / distance) * targetRadius;
       return d.target.x - offsetX;
       })
@@ -422,7 +422,7 @@
       event.subject.fy = null;
       }
 
-      
+
       const infoButton = document.getElementById("info-button");
       const infoTooltip = document.querySelector(".info-tooltip");
 
@@ -514,7 +514,7 @@
 	      toggleButton.style.backgroundColor = "darkgrey";
 	      toggleButton.style.color = "white";
 	      toggleButton.style.cursor = "pointer";
-	      toggleButton.style.fontSize = "18px"; 
+	      toggleButton.style.fontSize = "18px";
 
 	      // Toggle button click event
 	      toggleButton.addEventListener("click", () => {
@@ -541,10 +541,10 @@
 	      buttonContainer.appendChild(singularNodeComment);
 
 	      buttonContainer.appendChild(toggleButton);
-	      infoTooltip.appendChild(buttonContainer); 
+	      infoTooltip.appendChild(buttonContainer);
 	  }
 
-	  
+
 	  // Add legend container
 	  const legendContainer = document.createElement("div");
 	  legendContainer.className = "metadata-container";
@@ -724,10 +724,10 @@
       generateTooltipContent();
       infoTooltip.style.display = "block";
       }
-      
+
       });
 
-	
+
       // Label density
       // Add a slider element to the top-right corner
       const sliderContainer = d3.select('body').append('div')
@@ -762,7 +762,7 @@
                       .attr('dx', 10)
                       .attr('dy', '.35em')
                       .style('font-size', `${fontSize}px`)
-                      .style('font-family', 'Arial, sans-serif')
+                      .style('font-family', 'sans-serif')
                       .style('fill', '#333')
                       .text(d => d.name),
 		  update => update.attr('x', d => d.x).attr('y', d => d.y),
