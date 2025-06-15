@@ -665,7 +665,7 @@ Follow the links in the tables to review the suspect links."
 (defun denote-explore--insert-missing-links (type missing-links)
   "Insert table of MISSING-LINKS of TYPE (Denote or file) in an Org mode buffer."
   (let ((plural-p (if (> (length missing-links) 1) "s" "")))
-    (insert (format "\n* Missing %s link%s\n\n" type plural-p))
+    (insert (format "\n* Missing %s link%s\n" type plural-p))
     (insert (format "%s missing %s link%s\n\n"
 		    (length missing-links) type plural-p))
     (insert "|-\n| Source | Target |\n|-\n")
