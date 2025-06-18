@@ -1337,7 +1337,7 @@ Optionally analyse TEXT-ONLY files."
 	 (convert-fn (plist-get (cdr format) :encode))
 	 (file-extension (plist-get (cdr format) :file-extension))
 	 (file-name (file-name-concat denote-explore-network-directory
-			    denote-explore-network-filename file-extension)))
+			    (concat denote-explore-network-filename file-extension))))
     (when (not (file-exists-p denote-explore-network-directory))
       (make-directory denote-explore-network-directory))
     (with-temp-file file-name (funcall convert-fn graph))
