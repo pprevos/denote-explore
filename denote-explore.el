@@ -805,7 +805,7 @@ The universal argument includes TEXT-ONLY files in the analyis."
   'denote-explore-backlinks-barchart
   'denote-explore-barchart-backlinks "3.0")
 
-(defun denote-explore--idenitfy-isolated (&optional text-only)
+(defun denote-explore--identify-isolated (&optional text-only)
   "Identify Denote files without (back)links.
 Using the universal argument provides TEXT-ONLY files (excludes attachments)."
   (let* ((files (denote-directory-files nil nil text-only))
@@ -822,7 +822,7 @@ Using the universal argument provides TEXT-ONLY files (excludes attachments)."
 Using the universal argument excludes attachments (TEXT-ONLY)."
   (interactive "P")
   (message "Searching for isolated files ...")
-  (let ((isolated (denote-explore--idenitfy-isolated text-only)))
+  (let ((isolated (denote-explore--identify-isolated text-only)))
     (find-file (completing-read "Select isolated file: " isolated))))
 
 ;;; DEFINE GRAPHS
@@ -1123,7 +1123,7 @@ With TEXT-ONLY, exclude attachments in the network."
 	 ;; If buffer is a Denote file use it, else use non-isolated notes
          (file (if (denote-file-is-note-p buffer)
                    buffer
-		 (let* ((isolated (denote-explore--idenitfy-isolated t))
+		 (let* ((isolated (denote-explore--identify-isolated t))
 			(notes (denote-directory-files nil t t))
 			(candidates (cl-set-difference notes isolated)))
 		   (completing-read "Select file: " candidates))))
