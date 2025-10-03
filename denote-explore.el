@@ -4,7 +4,8 @@
 ;;
 ;; Author: Peter Prevos <peter@prevos.net>
 ;; URL: https://github.com/pprevos/denote-explore/
-;; Version: 4
+;; Package-Version: 20250618.1002
+;; Package-Revision: 9d9a6399551d
 ;; Package-Requires: ((emacs "29.1") (denote "4.0") (dash "2.19.1"))
 ;;
 ;; This file is NOT part of GNU Emacs.
@@ -805,7 +806,7 @@ The universal argument includes TEXT-ONLY files in the analyis."
   'denote-explore-backlinks-barchart
   'denote-explore-barchart-backlinks "3.0")
 
-(defun denote-explore--identify-isolated (&optional text-only)
+(defun denote-explore--idenitfy-isolated (&optional text-only)
   "Identify Denote files without (back)links.
 Using the universal argument provides TEXT-ONLY files (excludes attachments)."
   (let* ((files (denote-directory-files nil nil text-only))
@@ -822,7 +823,7 @@ Using the universal argument provides TEXT-ONLY files (excludes attachments)."
 Using the universal argument excludes attachments (TEXT-ONLY)."
   (interactive "P")
   (message "Searching for isolated files ...")
-  (let ((isolated (denote-explore--identify-isolated text-only)))
+  (let ((isolated (denote-explore--idenitfy-isolated text-only)))
     (find-file (completing-read "Select isolated file: " isolated))))
 
 ;;; DEFINE GRAPHS
@@ -1123,7 +1124,7 @@ With TEXT-ONLY, exclude attachments in the network."
 	 ;; If buffer is a Denote file use it, else use non-isolated notes
          (file (if (denote-file-is-note-p buffer)
                    buffer
-		 (let* ((isolated (denote-explore--identify-isolated t))
+		 (let* ((isolated (denote-explore--idenitfy-isolated t))
 			(notes (denote-directory-files nil t t))
 			(candidates (cl-set-difference notes isolated)))
 		   (completing-read "Select file: " candidates))))
@@ -1484,6 +1485,54 @@ Universal argument excludes attachments from the analysis (TEXT-ONLY)."
       (progn (denote-explore--network-save graph)
 	     (denote-explore-network-view))
     (message "No previous network defined")))
+
+;;;###autoload
+(defun denote-explore-list-keywords ()
+  "List all Denote keywords with the number of notes that use each keyword.
+
+This command:
+- Scans `denote-directory` and collects per-note keywords.
+- Builds a (KEYWORD . COUNT) table, where COUNT is the number of notes
+  that include KEYWORD (one count per note, even if repeated in metadata).
+- Sorts by COUNT descending, then KEYWORD ascending.
+- When called interactively, displays a two-column table and appends
+  a footer with the total number of distinct keywords and the sum of counts.
+
+Return a plist for programmatic use:
+  (:table ALIST :keywords N-DISTINCT :notes SUM-OF-COUNTS)."
+  (interactive)
+  (require 'denote)
+  (declare-function denote-directory-files "denote")
+  (declare-function denote-extract-keywords-from-path "denote")
+  (declare-function denote-explore--table "denote-explore")
+
+  (let* ((keywords (mapcan #'denote-extract-keywords-from-path
+                           (denote-directory-files)))
+         ;; Use the module helper to build (KEYWORD . COUNT)
+         (raw (denote-explore--table keywords))
+         ;; Sort by count (desc) and then by keyword (asc)
+         (table (sort raw (lambda (a b)
+                            (if (/= (cdr a) (cdr b))
+                                (> (cdr a) (cdr b))
+                              (string-lessp (car a) (car b))))))
+         (n-distinct (length table))
+         (sum-counts (apply #'+ 0 (mapcar #'cdr table))) ;; <-- FIJO AQUÍ
+         (result `(:table ,table :keywords ,n-distinct :notes ,sum-counts)))
+    (when (called-interactively-p 'interactive)
+      (with-current-buffer (get-buffer-create "*Denote Keywords*")
+        (let ((inhibit-read-only t))
+          (erase-buffer)
+          (insert (format "%-40s %s\n" "Keyword" "Notes"))
+          (insert (make-string 52 ?-) "\n")
+          (dolist (kv table)
+            (insert (format "%-40s %d\n" (car kv) (cdr kv))))
+          (insert (make-string 52 ?-) "\n")
+          (insert (format "Total keywords: %d | Sum of notes: %d\n"
+                          n-distinct sum-counts))
+          (goto-char (point-min))
+          (view-mode 1))
+        (pop-to-buffer (current-buffer))))
+    result))
 
 (provide 'denote-explore)
 ;;; denote-explore.el ends here
