@@ -507,8 +507,7 @@ Duplicate files are displayed `find-dired'."
   "Select a note or attachment with a keyword that is only used once."
   (interactive)
   ;; Count keywords and find singles
-  (if-let* ((keywords (mapcan #'denote-extract-keywords-from-path
-			      (denote-directory-files)))
+  (if-let* ((keywords (denote-infer-keywords-from-files))
 	    (keywords-count (denote-explore--table keywords))
 	    (single-keywords (mapcar #'car (cl-remove-if-not
 					    (lambda (note)
