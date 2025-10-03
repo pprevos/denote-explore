@@ -182,6 +182,13 @@ See graphviz.org for detailed documentation."
 	  (const :tag "Portable Network Graphics (PNG)" "png")
 	  (string :tag "Other option")))
 
+(defcustom denote-explore-isolated-ignore-keywords (list)
+  "List of keywords to ignore when identifying isolated notes."
+  :group 'denote-explore
+  :type '(choice
+          (repeat :tag "List of Tags" (string :tag "Tag:"))
+          (const :tag "No Tags Ignored" nil)))
+
 ;;; INTERNAL VARIABLES
 
 (defvar denote-explore-network-graph-formats
@@ -809,7 +816,13 @@ The universal argument includes TEXT-ONLY files in the analyis."
 (defun denote-explore--idenitfy-isolated (&optional text-only)
   "Identify Denote files without (back)links.
 Using the universal argument provides TEXT-ONLY files (excludes attachments)."
-  (let* ((files (denote-directory-files nil nil text-only))
+  (let* ((all-files (denote-directory-files nil nil text-only))
+         (files (if denote-explore-isolated-ignore-keywords
+                    (-filter (lambda (filename)
+                               (not (string-match-p (rx-to-string '(and  ?_ (eval `(or ,@denote-explore-isolated-ignore-keywords))))
+                                                    filename)))
+                             all-files)
+                  all-files))
 	 (all-ids (mapcar #'denote-retrieve-filename-identifier files))
 	 (edges (denote-explore--network-extract-edges files))
 	 (linked-ids (denote-explore--network-extract-unique-nodes edges))
@@ -820,7 +833,10 @@ Using the universal argument provides TEXT-ONLY files (excludes attachments)."
 ;;;###autoload
 (defun denote-explore-isolated-files (&optional text-only)
   "Identify Denote files without (back)links.
-Using the universal argument excludes attachments (TEXT-ONLY)."
+Using the universal argument excludes attachments (TEXT-ONLY).
+
+Files which have keywords listed in
+`denote-explore-isolated-ignore-keywords' will not be included."
   (interactive "P")
   (message "Searching for isolated files ...")
   (let ((isolated (denote-explore--idenitfy-isolated text-only)))
