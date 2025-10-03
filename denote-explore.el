@@ -404,9 +404,15 @@ Use Universal Argument to INCLUDE-ATTACHMENTS"
 ;; The Janitor provides various functions to maintain a Denote file collection.
 
 (defun denote-explore--table (list)
-  "Generate an ordered frequency table from a LIST."
+  "Generate an ordered frequency table from LIST.
+Sorted first by descending count, then alphabetically by item."
   (sort (-frequencies list)
-	(lambda (a b) (> (cdr a) (cdr b)))))
+        (lambda (a b)
+          (let ((ca (cdr a))
+                (cb (cdr b)))
+            (if (/= ca cb)
+                (> ca cb)                          ; sort by count, descending
+              (string-lessp (car a) (car b)))))))  ; then by string, ascending
 
 (defun denote-explore--filter-duplicates (tally)
   "Filter duplicates from an alist TALLY with frequencies.
