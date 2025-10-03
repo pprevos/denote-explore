@@ -1508,7 +1508,7 @@ Universal argument excludes attachments from the analysis (TEXT-ONLY)."
     (message "No previous network defined")))
 
 ;;;###autoload
-(defun denote-explore-list-keywords ()
+(defun denote-explore-list-keywords (&optional alphabetically)
   "List all Denote keywords with the number of notes that use each keyword.
 
 This command:
@@ -1516,26 +1516,22 @@ This command:
 - Builds a (KEYWORD . COUNT) table, where COUNT is the number of notes
   that include KEYWORD (one count per note, even if repeated in metadata).
 - Sorts by COUNT descending, then KEYWORD ascending.
+- When called with universal argument, the table is sorted ALPHABETICALLY
 - When called interactively, displays a two-column table and appends
   a footer with the total number of distinct keywords and the sum of counts.
 
-Return a plist for programmatic use:
+Returns a plist for programmatic use:
   (:table ALIST :keywords N-DISTINCT :notes SUM-OF-COUNTS)."
-  (interactive)
-  (require 'denote)
-  (declare-function denote-directory-files "denote")
-  (declare-function denote-extract-keywords-from-path "denote")
-  (declare-function denote-explore--table "denote-explore")
-
-  (let* ((keywords (mapcan #'denote-extract-keywords-from-path
-                           (denote-directory-files)))
+  (interactive "P")
+  (let* ((keywords (denote-infer-keywords-from-files))
          ;; Use the module helper to build (KEYWORD . COUNT)
-         (raw (denote-explore--table keywords))
-         ;; Sort by count (desc) and then by keyword (asc)
-         (table (sort raw (lambda (a b)
-                            (if (/= (cdr a) (cdr b))
-                                (> (cdr a) (cdr b))
-                              (string-lessp (car a) (car b))))))
+         (table (denote-explore--table keywords))
+	 ;; If called with C-u, resort alphabetically by key
+         (table (if alphabetically
+                    (sort (copy-sequence table)
+                          (lambda (a b)
+                            (string-lessp (car a) (car b))))
+                  table))
          (n-distinct (length table))
          (sum-counts (apply #'+ 0 (mapcar #'cdr table))) ;; <-- FIJO AQUÍ
          (result `(:table ,table :keywords ,n-distinct :notes ,sum-counts)))
@@ -1548,7 +1544,7 @@ Return a plist for programmatic use:
           (dolist (kv table)
             (insert (format "%-40s %d\n" (car kv) (cdr kv))))
           (insert (make-string 52 ?-) "\n")
-          (insert (format "Total keywords: %d | Sum of notes: %d\n"
+          (insert (format "Unique keywords: %d | Used keywords: %d\n"
                           n-distinct sum-counts))
           (goto-char (point-min))
           (view-mode 1))
