@@ -308,10 +308,12 @@ Exclude riles matching regx in `denote-explore-random-regex-ignore'.
 - `denote-explore-random-note': Jump to a random Denote file.
 - `denote-explore-random-regex': Jump to a random Denote file that matches a
   regular expression.
+- `denote-explore-random-keyword': Jump to a random Denote file with the
+  selected keyword(s).
+- `denote-explore-random-signature': Jump to a random Denote file with matching
+  signature (or sequence when using Denote-Sequence).
 - `denote-explore-random-link': Jump to a random linked note (either forward or
-  backward) or attachments (forward only).
-- `denote-explore-random-keyword': Jump to a random Denote file with the same
-  selected keyword(s)."
+  backward) or attachments (forward only)."
   (let* ((ignore (if denote-explore-random-regex-ignore
 		     (denote-directory-files denote-explore-random-regex-ignore)
 		   nil))
