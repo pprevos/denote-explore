@@ -4,8 +4,7 @@
 ;;
 ;; Author: Peter Prevos <peter@prevos.net>
 ;; URL: https://github.com/pprevos/denote-explore/
-;; Package-Version: 20250618.1002
-;; Package-Revision: 9d9a6399551d
+;; Version: 4.1
 ;; Package-Requires: ((emacs "29.1") (denote "4.0") (dash "2.19.1"))
 ;;
 ;; This file is NOT part of GNU Emacs.
@@ -399,6 +398,12 @@ Use Universal Argument to INCLUDE-ATTACHMENTS"
   (if-let ((sample (denote-directory-files regex t (not include-attachments))))
       (denote-explore--jump sample)
     (message "No matching Denote files found")))
+
+(defun denote-explore-random-signature (signature &optional include-attachments)
+  "Jump to a random note with selected SIGNATURE or sequence.
+With universal argument the sample will INCLUDE-ATTACHMENTS."
+  (interactive "sPart of signature or sequence: \nP")
+  (denote-explore-random-regex (concat "==" signature)))
 
 ;;; JANITOR
 ;; The Janitor provides various functions to maintain a Denote file collection.
