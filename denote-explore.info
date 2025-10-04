@@ -15,16 +15,16 @@ Denote Explorer: Explore your Denote digital garden
 The Denote package by Protesilaos (Prot) Stavrou provides extensive
 functionality for creating, retrieving, managing, and linking files in
 plain text, Markdown, and Org Mode.  The most redeeming qualities of
-this package are its filename convention and modular simplicity.  Due to
-its reliance on file names, you can also use the package to access other
-file types, such as PDFs or multimedia files (which we call Denote
-attachments).  In this way, Denote becomes a fully-featured personal
-knowledge management system.
+this package are its filename convention and modular simplicity.
+
+   Due to its reliance on file names, you can also use the package to
+access other file types, such as PDFs or multimedia files (which we call
+Denote attachments).  In this way, Denote becomes a fully-featured
+personal knowledge management system.
 
    The Denote-Explorer package came into existence as my collection of
 Denote files grew.  I created some auxiliary functions to manage and
-explore my burgeoning Denote files.  This package provides four types of
-commands:
+explore my burgeoning Denote files, resulting in four types of commands:
 
   1. Descriptive statistics: Count notes, attachments and keywords.
   2. Random walks: Generate new ideas using serendipity.
@@ -125,6 +125,8 @@ randomness into your explorations:
      forward or backward) or attachments (forward only).
   4. ‘denote-explore-random-keyword’: Jump to a random Denote file with
      the same selected keyword(s).
+  5. ‘denote-explore-random-signature’: Jump to a random Denote file
+     with the same (partial) signature.
 
    The default state is that these functions jump to any Denote text
 file (plain text, Markdown or Org-mode).  Prefixing the universal
@@ -258,15 +260,24 @@ File: denote-explore.info,  Node: Managing Keywords,  Next: Synchronising Meta D
 3.3 Managing Keywords
 =====================
 
-Denote keywords connect notes with similar content.  Keywords should not
-exist in solitude because a category with only one member is not
-informative.  Single keywords can arise because topics need to be fully
-developed or due to a typo.
+Denote keywords connect notes with similar content.  Denote explore
+provides a few commands to assist with managing your menagerie of
+keywords.
 
-   The ‘denote-explore-single-keywords’ command provides a list of file
-tags that are only used once.  The list of single keywords is presented
-in the minibuffer, from where you can open the relevant note or
-attachment.
+   First step is to explore the keywords already being used in your
+collection of notes.  The ‘denote-explore-list-keywords’ command lists
+all used Denote keywords in a table, sorted by usage counts.  Calling
+this function with the universal argument (‘C-u’), sorts the list
+alphabetically.  This command provides similar functionality to
+‘denote-explore-barchart-keywords’, but can show all keywords in one
+buffer.
+
+   Keywords should not exist in solitude because a category with only
+one member is not informative.  Single keywords can arise because topics
+need to be fully developed or due to a typo.  The
+‘denote-explore-single-keywords’ command provides a list of file tags
+that are only used once.  The list of single keywords is presented in
+the minibuffer, from where you can open the relevant note or attachment.
 
    You can also find notes or attachments without keywords with the
 ‘denote-explore-zero-keywords’ command.  This command lists all notes
@@ -287,6 +298,9 @@ attachments.
    The ‘denote-excluded-files-regexp’ variable can contain a regular
 expression of files that are excluded from the purview of these
 functions.
+
+   You can also visualise keywords using knowledge graphs described
+below.
 
 
 File: denote-explore.info,  Node: Synchronising Meta Data,  Prev: Managing Keywords,  Up: Janitor
@@ -767,11 +781,14 @@ Within the context of Denote, this means that all files have at least
 one link or backlink.  Your network will most likely have isolated nodes
 (files without any (back)links) and islands of connected notes.
 
-   The previously discussed ‘denote-explore-isolated-files’ command
+   The previously mentioned ‘denote-explore-isolated-files’ command
 lists all files without any links and backlinks to and from the note in
-the minibuffer.  You can select any note and add links when required.
-Calling this function with the universal argument ‘C-u’ includes
-attachments in the list of lonely files.
+the minibuffer.  You can select any note and add links as required to
+release it from isolation.  Calling this function with the universal
+argument ‘C-u’ includes attachments in the list of lonely files.  You
+can configure the behaviour of this function by customising
+‘denote-explore-isolated-ignore-keywords’.  This variable provides a
+list of keywords to ignore when identifying isolated notes.
 
    The number of links and backlinks in a file (in mathematical terms,
 edges connected to a node) is the total degree of a node.  The degree
@@ -864,8 +881,8 @@ This code would only have existed with the help of Protesilaos Stavrou,
 developer of Denote.
 
    In addition, Jakub Szczerbowski, Samuel W.  Flint, Ad (skissue),
-Vedang Manerikar, Jousimies, Alexis Praga, and Dav1d23 made significant
-contributions and suggestions.
+Vedang Manerikar, Jousimies, Alexis Praga, Dav1d23 and Quijote Libre
+made significant contributions and suggestions.
 
    Noor Us Sabah on Fiverr wrote the first version of the D3.JS template
 file.  All enhancements were generated with the assistance of ChatGPT.
@@ -895,27 +912,27 @@ General Public License for more details.
 
 Tag Table:
 Node: Top249
-Node: Descriptive Statistics2000
-Node: Random Walks3537
-Node: Janitor6392
-Node: Duplicate notes6968
-Node: Missing Links8980
-Node: Managing Keywords10507
-Node: Synchronising Meta Data12174
-Node: Knowledge Graphs13019
-Node: Principles of Knowledge Graphs13897
-Node: Community of Notes16848
-Node: Note Neighbourhood18530
-Node: Sequences Network20672
-Node: Keyword Network22520
-Node: Network Layout and Presentation25192
-Node: D3js27121
-Node: GraphViz30360
-Node: Graph Exchange XML Format32228
-Node: Analysing the Denote Network33267
-Node: Installation and Package Configuration35798
-Node: Acknowledgements38583
-Node: License39289
+Node: Descriptive Statistics1993
+Node: Random Walks3530
+Node: Janitor6498
+Node: Duplicate notes7074
+Node: Missing Links9086
+Node: Managing Keywords10613
+Node: Synchronising Meta Data12877
+Node: Knowledge Graphs13722
+Node: Principles of Knowledge Graphs14600
+Node: Community of Notes17551
+Node: Note Neighbourhood19233
+Node: Sequences Network21375
+Node: Keyword Network23223
+Node: Network Layout and Presentation25895
+Node: D3js27824
+Node: GraphViz31063
+Node: Graph Exchange XML Format32931
+Node: Analysing the Denote Network33970
+Node: Installation and Package Configuration36727
+Node: Acknowledgements39512
+Node: License40232
 
 End Tag Table
 

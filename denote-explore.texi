@@ -25,9 +25,11 @@
 @node Top
 @top Denote Explorer: Explore your Denote digital garden
 
-The Denote package by Protesilaos (Prot) Stavrou provides extensive functionality for creating, retrieving, managing, and linking files in plain text, Markdown, and Org Mode. The most redeeming qualities of this package are its filename convention and modular simplicity. Due to its reliance on file names, you can also use the package to access other file types, such as PDFs or multimedia files (which we call Denote attachments). In this way, Denote becomes a fully-featured personal knowledge management system. 
+The Denote package by Protesilaos (Prot) Stavrou provides extensive functionality for creating, retrieving, managing, and linking files in plain text, Markdown, and Org Mode. The most redeeming qualities of this package are its filename convention and modular simplicity.
 
-The Denote-Explorer package came into existence as my collection of Denote files grew. I created some auxiliary functions to manage and explore my burgeoning Denote files. This package provides four types of commands:
+Due to its reliance on file names, you can also use the package to access other file types, such as PDFs or multimedia files (which we call Denote attachments). In this way, Denote becomes a fully-featured personal knowledge management system. 
+
+The Denote-Explorer package came into existence as my collection of Denote files grew. I created some auxiliary functions to manage and explore my burgeoning Denote files, resulting in four types of commands:
 
 @enumerate
 @item
@@ -121,7 +123,9 @@ The Denote-Explorer package provides three commands to inject some randomness in
 @item
 @code{denote-explore-random-link}: Jump to a random linked note (either forward or backward) or attachments (forward only).
 @item
-@code{denote-explore-random-keyword}: Jump to a random Denote file with the same selected keyword(s). 
+@code{denote-explore-random-keyword}: Jump to a random Denote file with the same selected keyword(s).
+@item
+@code{denote-explore-random-signature}: Jump to a random Denote file with the same (partial) signature.
 @end enumerate
 
 The default state is that these functions jump to any Denote text file (plain text, Markdown or Org-mode). Prefixing the universal argument (@samp{C-u}) includes attachments in the sample for a random jump, otherwise the walk remains within the collection of notes. The @code{denote-explore-random-regex-ignore} variable can contain a regular expression of files excluded from the sample of files to jump to.
@@ -130,7 +134,7 @@ Jumping to a note that matches a regular expression lets you find random notes m
 
 Jumping to a randomly linked file naturally only works when the current buffer is a Denote file. A warning appears when the current buffer is an isolated note (no links or backlinks available).
 
-When jumping to a random file with one or more matching keywords, you can choose one or more keywords from the current buffer, or override the completion options with free text. The asterisk symbol @samp{*} selects all keywords in the completion list. This section process is skipped when the current buffer only has one keyword. When the current buffer is not a Denote file, you can choose any available keyword(s) in your Denote collection. 
+When jumping to a random file with one or more matching keywords, you can choose one or more keywords from the current buffer, or override the completion options with free text. The asterisk symbol @samp{*} selects all keywords in the completion list. This section process is skipped when the current buffer only has one keyword. When the current buffer is not a Denote file, you can choose any available keyword(s) in your Denote collection.
 
 Jumping to a random note and matching multiple keywords only works when @code{denote-sort-keywords} is enabled, or when the selected keywords are in the same order as in the target file. You can alphabetise keywords in your Denote files with @code{denote-explore-sort-keywords}, explained in the next section.
 
@@ -183,15 +187,19 @@ The @code{denote-excluded-files-regexp} variable can contain a regular expressio
 @node Managing Keywords
 @section Managing Keywords
 
-Denote keywords connect notes with similar content. Keywords should not exist in solitude because a category with only one member is not informative. Single keywords can arise because topics need to be fully developed or due to a typo.
+Denote keywords connect notes with similar content. Denote explore provides a few commands to assist with managing your menagerie of keywords.
 
-The @code{denote-explore-single-keywords} command provides a list of file tags that are only used once. The list of single keywords is presented in the minibuffer, from where you can open the relevant note or attachment.
+First step is to explore the keywords already being used in your collection of notes. The @code{denote-explore-list-keywords} command lists all used Denote keywords in a table, sorted by usage counts. Calling this function with the universal argument (@samp{C-u}), sorts the list alphabetically. This command provides similar functionality to @code{denote-explore-barchart-keywords}, but can show all keywords in one buffer. 
+
+Keywords should not exist in solitude because a category with only one member is not informative. Single keywords can arise because topics need to be fully developed or due to a typo. The @code{denote-explore-single-keywords} command provides a list of file tags that are only used once. The list of single keywords is presented in the minibuffer, from where you can open the relevant note or attachment.
 
 You can also find notes or attachments without keywords with the @code{denote-explore-zero-keywords} command. This command lists all notes and attachments without keywords in the minibuffer, so you can open them and consider adding keywords or leaving them as is.
 
 You can rename or remove keywords with @code{denote-explore-rename-keyword}. Select one or more existing keywords from the completion list and enter the new keyword. This function renames all chosen keywords or removes the original keyword from all existing notes when you enter an empty string as new keyword. This function cycles through all notes and attachments containing one or more selected keywords and asks for confirmation before making any changes. The new keyword list is stored alphabetically. This function uses the front matter as the source of truth for notes and the file name for attachments.
 
 The @code{denote-excluded-files-regexp} variable can contain a regular expression of files that are excluded from the purview of these functions.
+
+You can also visualise keywords using knowledge graphs described below.
 
 @node Synchronising Meta Data
 @section Synchronising Meta Data
@@ -464,7 +472,7 @@ It might seem that adding more connections between your notes improves them, but
 
 Your Denote network is unlikely to be a fully connected graph. In a connected graph, there is a path from any point to any other point. Within the context of Denote, this means that all files have at least one link or backlink. Your network will most likely have isolated nodes (files without any (back)links) and islands of connected notes.
 
-The previously discussed @code{denote-explore-isolated-files} command lists all files without any links and backlinks to and from the note in the minibuffer. You can select any note and add links when required. Calling this function with the universal argument @samp{C-u} includes attachments in the list of lonely files.
+The previously mentioned @code{denote-explore-isolated-files} command lists all files without any links and backlinks to and from the note in the minibuffer. You can select any note and add links as required to release it from isolation. Calling this function with the universal argument @samp{C-u} includes attachments in the list of lonely files. You can configure the behaviour of this function by customising @code{denote-explore-isolated-ignore-keywords}. This variable provides a list of keywords to ignore when identifying isolated notes.
 
 The number of links and backlinks in a file (in mathematical terms, edges connected to a node) is the total degree of a node. The degree distribution of a network is the probability distribution of these degrees over the whole network. The @code{denote-explore-barchart-degree} function uses the built-in chart package to display a simple bar chart of the frequency of the total degree.
 
@@ -535,7 +543,7 @@ You can use the most recent development version directly from GitHub (Emacs 29.1
 
 This code would only have existed with the help of Protesilaos Stavrou, developer of Denote.
 
-In addition, Jakub Szczerbowski, Samuel W@. Flint, Ad (skissue), Vedang Manerikar, Jousimies, Alexis Praga, and Dav1d23 made significant contributions and suggestions.
+In addition, Jakub Szczerbowski, Samuel W@. Flint, Ad (skissue), Vedang Manerikar, Jousimies, Alexis Praga, Dav1d23 and Quijote Libre made significant contributions and suggestions.
 
 Noor Us Sabah on Fiverr wrote the first version of the D3.JS template file. All enhancements were generated with the assistance of ChatGPT@.
 
