@@ -70,6 +70,12 @@ Alternatively, you can install it directly from GitHub:
 * Change Log
 Major version numbers coincide with Denote major versions.
 
+** Version 4.01
+- Various bug fixes and refactoring
+- Added ~denote-explore-random-signature~ function
+- Add ability to ignore files by keyword for determining isolatedness ([[https://github.com/pprevos/denote-explore/pull/41][Pull request 41]])
+- Added ~denote-explore-list-keywords~ function ([[https://github.com/pprevos/denote-explore/pull/42][Pull request 42]])
+
 ** Version 4.0
 - Compatibility check with Denote 4
   - Minor update to denoter-explore-sync-metadata
