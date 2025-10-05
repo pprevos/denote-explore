@@ -352,7 +352,7 @@ Uses front matter for notes and the filename for attachments."
   (let* ((file (if (eq file nil) "" file))
 	 (filetype (denote-filetype-heuristics file))
          (raw-keywords (if (denote-file-is-note-p file)
-                           (denote-retrieve-keywords-value file filetype)
+                           (denote-retrieve-front-matter-keywords-value file filetype)
                          (denote-retrieve-filename-keywords file)))
          (keywords (cond ((or (null raw-keywords) (equal raw-keywords "")) nil)
                          ((stringp raw-keywords) (split-string raw-keywords "_"))
