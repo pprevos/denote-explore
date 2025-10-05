@@ -687,27 +687,32 @@ Follow the links in the tables to review the suspect links."
       (denote-explore--insert-missing-links "file" missing-file-links))
     (pop-to-buffer missing-links-buffer)))
 
-(defun denote-explore--insert-missing-links (type missing-links)
+(defun denote-explore--insert-missing-links-table (type missing-links)
   "Insert table of MISSING-LINKS of TYPE (Denote or file) in an Org mode buffer."
-  (let ((plural-p (if (> (length missing-links) 1) "s" "")))
-    (insert (format "\n* Missing %s link%s\n" type plural-p))
-    (insert (format "%s missing %s link%s\n\n"
-		    (length missing-links) type plural-p))
-    (insert "|-\n| Source | Target |\n|-\n")
-    (dolist (link missing-links)
-      (let* ((source (cdr (assoc 'source link)))
-	     (target-raw (cdr (assoc 'target link)))
-	     (target (if (eq type "Denote")
-			 target-raw
-		       (file-name-nondirectory target-raw)))
-	     (file (car (denote-directory-files source)))
-	     (file-type (denote-filetype-heuristics file))
-	     (title (denote-retrieve-front-matter-title-value file file-type)))
-	(insert "|[[elisp:(denote-explore--review-dead-link \""
-		source "\" \"" target "\")][" title "]]")
-	(insert "|" target "|\n")))
-    (insert "|-\n"))
+  (insert "\n|-\n| Source | Target |\n|-\n")
+  (dolist (link missing-links)
+    (let* ((source (cdr (assoc 'source link)))
+	   (target-raw (cdr (assoc 'target link)))
+	   (target (if (eq type "Denote")
+		       target-raw
+		     (file-name-nondirectory target-raw)))
+	   (file (car (denote-directory-files source)))
+	   (file-type (denote-filetype-heuristics file))
+	   (title (denote-retrieve-front-matter-title-value file file-type)))
+      (insert "|[[elisp:(denote-explore--review-dead-link \""
+	      source "\" \"" target "\")][" title "]]")
+      (insert "|" target "|\n")))
+  (insert "|-\n")
   (org-table-align))
+
+(defun denote-explore--insert-missing-links (type missing-links)
+  "Create Org buffer with MISSING-LINKS of TYPE (Denote or file)."
+  (let ((plural-p (if (not (= (length missing-links) 1)) "s" "")))
+    (insert (format "\n* Missing %s link%s\n" type plural-p))
+    (insert (format "%s missing %s link%s\n"
+		    (length missing-links) type plural-p))
+    (when (> (length missing-links) 0)
+      (denote-explore--insert-missing-links-table type missing-links))))
 
 (define-obsolete-function-alias
   'denote-explore-dead-links
