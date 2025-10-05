@@ -599,7 +599,11 @@ All open Denote note buffers should be saved for this function to work reliably.
 ;;;###autoload
 (defun denote-explore-sync-metadata ()
   "Synchronise filenames with the metadata for all Denote notes.
-The front matter is the source of truth. Keywords are saved alphabetically.
+
+The front matter is the source of truth.
+- Keywords are saved alphabetically.
+- The identifier remains unchanged
+
 All open Denote note buffers need to be saved before invoking this function."
   (interactive)
   ;; Save open Denote notes
@@ -614,7 +618,7 @@ All open Denote note buffers need to be saved before invoking this function."
 	     (file-type (denote-filetype-heuristics file))
 	     (id (denote-retrieve-filename-identifier file))
 	     (title (denote-retrieve-front-matter-title-value file file-type))
-	     (signature (denote-retrieve-filename-signature file))
+	     (signature (denote-retrieve-front-matter-signature-value file file-type))
 	     (keywords (denote-retrieve-front-matter-keywords-value file file-type))
 	     (file-keywords (denote-keywords-combine keywords))
 	     (ext (file-name-extension file t))
