@@ -46,6 +46,7 @@
 (require 'cl-lib)
 (require 'json)
 (require 'browse-url)
+(require 'denote-regexp)
 
 ;;; CUSTOMISATION
 
@@ -556,7 +557,7 @@ Duplicate files are displayed `find-dired'."
 
 Use an empty string as new keyword to remove the selection.
 
-When selecting more than one existing keyword, all selections are renamed
+When selecting more than one existing keyword, all selected terms are renamed
 to the new version or removed.
 
 The filename is taken as the source of truth for attchments and the front matter
@@ -568,10 +569,9 @@ All open Denote note buffers should be saved for this function to work reliably.
   (save-some-buffers nil #'(lambda ()
 			     (denote-filename-is-note-p buffer-file-name)))
   ;; Select keywords and file candidates
-  (let* ((selected-keyword (denote-keywords-prompt "Keyword(s) to rename"))
-         (keywords-regex (mapconcat
-			  (lambda (keyword) (concat "_" keyword)) selected-keyword "\\|"))
-         (files (denote-directory-files keywords-regex))
+  (let* ((selected-keywords (denote-keywords-prompt "Keyword(s) to rename"))
+	 (keywords-regexp (denote-regexp :keywords `(:or ,@selected-keywords)))
+         (files (denote-directory-files keywords-regexp))
 	 (new-keyword (read-from-minibuffer "New keyword: ")))
     ;; Loop through candidates
     (dolist (file files)
@@ -584,12 +584,13 @@ All open Denote note buffers should be saved for this function to work reliably.
 			     (mapcar (lambda (keyword)
 				       (if (member keyword selected-keyword) new-keyword keyword))
 				     current-keywords)))
+	     (id (denote-retrieve-filename-identifier file))
 	     (file-type (denote-filetype-heuristics file)))
-1        (denote-rename-file file
+        (denote-rename-file file
 	 		    (denote-retrieve-title-or-filename file file-type)
 			    (if (equal new-keywords nil) "" (delete-dups new-keywords))
 			    (or (denote-retrieve-filename-signature file) "")
-			    (denote-retrieve-filename-identifier file))))))
+			    id)))))
 
 (define-obsolete-function-alias
   'denote-explore--retrieve-title
