@@ -47,6 +47,7 @@
 (require 'json)
 (require 'browse-url)
 (require 'denote-regexp)
+(require 'denote-sequence)
 
 ;;; CUSTOMISATION
 
@@ -1232,10 +1233,10 @@ Optionally analyse TEXT-ONLY files."
       ;; Extract edges from signatures
       (let ((result '()))
 	(dolist (sequence sequences)
-	  (let* ((parts (split-string sequence "="))
+	  (let* ((parts (denote-sequence-split sequence))
 		 (target sequence)
 		 (source (when (> (length parts) 1)
-			   (mapconcat 'identity (butlast parts) "="))))
+			   (denote-sequence-join (butlast parts) denote-sequence-scheme))))
             (when source
 	      (push `((source . ,source) (target . ,target)) result))))
 	result)
