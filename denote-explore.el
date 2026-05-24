@@ -304,7 +304,7 @@ Count only ATTACHMENTS by prefixing with universal argument."
 (defun denote-explore--jump (files)
   "Jump to a random note in the FILES file list.
 
-Exclude riles matching regx in `denote-explore-random-regex-ignore'.
+Exclude files matching regx in `denote-explore-random-regex-ignore'.
 
 - `denote-explore-random-note': Jump to a random Denote file.
 - `denote-explore-random-regex': Jump to a random Denote file that matches a
