@@ -106,6 +106,8 @@ The ~denote-excluded-files-regexp~ variable can contain a regular expression of 
 
 You can also visualise keywords using knowledge graphs described below.
 
+The [[https://codeberg.org/treflip/denote-wordcloud][keywords wordcloud package]] by treflip generates an interactive wordcloud in plain text for all your keywords to quickly explore your collection.
+
 ** Synchronising Meta Data
 Denote stores the metadata for each note in the filename using its ingenious format. Some of this metadata is copied to the front matter of a note, which can lead to discrepancies between the two metadata sources.
 
