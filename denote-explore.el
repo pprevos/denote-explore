@@ -5,7 +5,7 @@
 ;; Author: Peter Prevos <peter@prevos.net>
 ;; URL: https://github.com/pprevos/denote-explore/
 ;; Version: 4.1
-;; Package-Requires: ((emacs "29.1") (denote "4.0") (denote-sequence "0.3.3") (dash "2.19.1") (denote-regexp "20250415.2202"))
+;; Package-Requires: ((emacs "29.1") (denote "4.0") (dash "2.19.1") (denote-regexp "20250415.2202"))
 ;;
 ;; This file is NOT part of GNU Emacs.
 ;;
@@ -47,7 +47,9 @@
 (require 'json)
 (require 'browse-url)
 (require 'denote-regexp)
-(require 'denote-sequence)
+
+;; Soft requirement
+(require 'denote-sequence nil t)
 
 ;;; CUSTOMISATION
 
@@ -1203,6 +1205,8 @@ When TEXT-ONLY, exclude attachments from the graph."
 (defun denote-explore-network-sequence (text-only)
   "Generate a graph of signature sequences from a selected root node.
 Optionally analyse TEXT-ONLY files."
+  (unless (featurep 'denote-sequence)
+    (user-error "Network Sequence Graphs require denote-sequence to be loaded"))
   (let* ((signature-files (denote-explore--network-filter-files
 			   (denote-directory-files denote-signature-regexp nil text-only)))
 	 (signatures (mapcar #'denote-retrieve-filename-signature signature-files))
@@ -1213,6 +1217,8 @@ Optionally analyse TEXT-ONLY files."
 (defun denote-explore-network-sequence-graph (root text-only)
   "Generate a Denote graph object from signature sequences for ROOT.
 Optionally analyse TEXT-ONLY files."
+  (unless (featurep 'denote-sequence)
+    (user-error "Network Sequence Graphs require denote-sequence to be loaded"))
   (let* ((all-files (denote-directory-files (concat "==" root) nil text-only))
 	 (files (denote-explore--network-filter-files all-files))
 	 (sequences (denote-explore--network-sequence-edges files))
