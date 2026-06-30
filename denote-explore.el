@@ -216,7 +216,8 @@ PROPERTY-LIST is a plist that consists of three elements:
 
 - `:file-extension' File extension to save network.
 - `:encode' function to encode network to graph type.
-- `:display' function to display the graph in external software.")
+- `:display' function to display the graph in external software.
+- `:feature' feature to test to determine if available.")
 
 (defvar denote-explore-graph-types
   `(("Community"
@@ -234,7 +235,8 @@ PROPERTY-LIST is a plist that consists of three elements:
     ("Sequence"
      :description "Hierarchical relationship between signatures"
      :generate denote-explore-network-sequence
-     :regenerate denote-explore-network-sequence-graph))
+     :regenerate denote-explore-network-sequence-graph
+     :feature denote-sequence))
   "List of network types and their (re)generation functions.
 
 PROPERTY-LIST is a plist that consists of three elements:
@@ -1502,13 +1504,19 @@ generate and regenerate graphs.
 The `denote-explore-network-graph-formats' variable contains a list of functions
 to encode and display each graph format."
   (interactive "P")
-  (let* ((options (mapcar (lambda (type)
-			    (format "%s (%s)" (car type)
-				    (plist-get (cdr type) :description)))
-			  denote-explore-graph-types))
-	 (selection (completing-read "Network type?" options))
-	 (graph-type (substring selection 0 (string-match " " selection)))
-	 (config (assoc graph-type denote-explore-graph-types))
+  (let* ((available-types (seq-filter (lambda (type)
+                                        (or (not (plist-get (cdr type) :feature))
+                                            (featurep (plist-get (cdr type) :feature))))
+                                      denote-explore-graph-types))
+         (completion-extra-properties
+          (list :annotation-function
+                (lambda (x)
+                  (propertize (format "  %s"
+                                      (plist-get (cdr (assoc x available-types #'string=))
+                                                 :description))
+                              'face 'completions-annotations))))
+         (graph-type (completing-read "Network type? " (mapcar #'car available-types) nil t))
+	 (config (assoc graph-type available-types))
 	 (generate-graph (plist-get (cdr config) :generate))
 	 (graph (funcall generate-graph text-only)))
     (denote-explore--network-save graph)
