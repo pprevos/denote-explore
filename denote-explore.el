@@ -367,24 +367,11 @@ With universal argument the sample includes links to ATTACHMENTS."
 	(denote-explore--jump links)
       (message "Not a Denote file or no (back)links in or to this buffer"))))
 
-(defun denote-explore--retrieve-keywords (file)
-  "Retrieve alphabetised list of keywords from Denote FILE.
-Uses front matter for notes and the filename for attachments."
-  (let* ((file (if (eq file nil) "" file))
-	 (filetype (denote-filetype-heuristics file))
-         (raw-keywords (if (denote-file-is-note-p file)
-                           (denote-retrieve-front-matter-keywords-value file filetype)
-                         (denote-retrieve-filename-keywords file)))
-         (keywords (cond ((or (null raw-keywords) (equal raw-keywords "")) nil)
-                         ((stringp raw-keywords) (split-string raw-keywords "_"))
-                         (t raw-keywords))))
-    (when keywords (sort keywords 'string<))))
-
 (defun denote-explore--select-keywords ()
   "Select Denote keyword(s) for random jump.
 - Use \"*\" to select all listed keywords.
 - If the current buffer has no Denote keywords, then choose from all available."
-  (let* ((raw-keywords (denote-explore--retrieve-keywords (buffer-file-name)))
+  (let* ((raw-keywords (denote-retrieve-filename-keywords (buffer-file-name)))
 	 (buffer-keywords (if (null raw-keywords)
 			      (denote-keywords)
 			    raw-keywords))
