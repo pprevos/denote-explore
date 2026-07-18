@@ -471,7 +471,7 @@ Duplicate files are displayed in a temporary buffer with links to the
 suspected duplicates."
   (interactive "P")
   (message "Finding duplicated notes")
-  (if-let* ((duplicates (denote-explore--duplicate-notes exclude-exports)))
+  (if-let ((duplicates (denote-explore--duplicate-notes exclude-exports)))
       (with-current-buffer-window "*denote-duplicates*" nil nil
         (erase-buffer)
 	(insert "#+title: Duplicate Denote files ")
@@ -489,7 +489,7 @@ suspected duplicates."
           (dolist (filename (denote-directory-files id))
             (insert (format " - [[file:%s][%s]]\n"
                             filename
-                            (funcall denote-link-description-function filename)))))
+                            (funcall denote-link-description-format filename nil)))))
         (org-mode)
         (read-only-mode))
     (message "No duplicates found")))
