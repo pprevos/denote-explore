@@ -198,7 +198,9 @@ A depth of more than three links is usually not informative because the network 
 The ~denote-explore-network-regex-ignore~ variable lets you define a regular expression of notes exclude from neighbourhood networks. 
 
 ** Sequences Network
-Denote signatures can define a hierarchical sequence of notes, using a family analogy. For example a note with signature =1=a= is the child of a note with signature =1= and a note with signature =1=b= is its sibling. The note with signature =1=a=1= is the child of =1=a= and the grandchild of =1=, and so forth. In a sequence network, links exist independent of any Denote links inside a note, the relationship is only based on the hierarchy of the signatures.
+The `denote-sequence' package provides an optional extension to `denote' for naming files with a sequence scheme. The package lets the user assign hierarchical relationships between files using signatures, such that the contents of one logically follow or complement those of another. For more information see [[info:denote-sequence][info denote-sequence]]. 
+
+For example a note with signature =1=a= is the child of a note with signature =1= and a note with signature =1=b= is its sibling. The note with signature =1=a=1= is the child of =1=a= and the grandchild of =1=, and so forth. In a sequence network, links exist independent of any Denote links inside a note, the relationship is only based on the hierarchy of the signatures.
 
 #+begin_example
 ┌─────┐    ┌─────┐    ┌─────┐  
@@ -211,9 +213,7 @@ Denote signatures can define a hierarchical sequence of notes, using a family an
 
 The content of the signatures can be either numbers or letters as the order of children is not taken into consideration. These sequences can go on to many generations, building a family tree of your notes. These sequences are the basic building block of the popular Zettelkasten methodology.
 
-The Denote-Sequence package provides specialised functions to manage hierarchical connections between files, [[info:denote-sequence][info denote-sequence]]. 
-
-To generate a sequence graph, use ~denote-explore-network~ and select the signature of the root node (note =1= in the diagram). When not selecting any signature, all Denote files with a signature are included in the visualisation.
+Users of the `denote-sequence'  package can generate a sequence graph using ~denote-explore-network~. Select the signature of the root node (note =1= in the diagram) as the starting point. When not selecting any signature, all Denote files with a signature are included in the visualisation.
 
 The ~denote-explore-network-regex-ignore~ variable lets you define a regular expression of notes exclude from neighbourhood networks.
 
