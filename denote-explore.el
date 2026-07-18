@@ -768,25 +768,26 @@ VAR and TITLE used for display."
 
 ;;;###autoload
 (defun denote-explore-barchart-filetypes (&optional attachments)
-  "Visualise the Denote file types for notes and/or attachments.
-With universal argument only visualises ATTACHMENTS, which excludes file
-types listed in `denote-file-type-extensions'."
+  "Visualise the Denote file types for notes and attachments.
+With universal argument ATTACHMENTS, only visualises filetypes for
+attachments, which excludes file types listed in `denote-file-types'."
   (interactive "P")
-  (let* ((files (if attachments
-		    (cl-remove-if #'denote-file-is-note-p (denote-directory-files))
-		  (denote-directory-files)))
-	 (extensions (mapcar (lambda(file) (file-name-extension file))
-			     files))
-	 (ext-list (if attachments
-		       (cl-set-difference extensions
-					  (denote-file-type-extensions)
-					  :test 'equal)
-		     extensions))
-	 (title (if attachments
-		    (denote-explore-count-notes :attachments)
-		  (denote-explore-count-notes))))
+  (let* ((denote-extensions
+	  (mapcar (lambda (type)
+                    (string-remove-prefix "." (plist-get (cdr type) :extension)))
+                  denote-file-types))
+         (all-files (denote-directory-files))
+         (all-extensions (delq nil (mapcar #'file-name-extension all-files)))
+         (extensions (if attachments
+                         (cl-delete-if (lambda (ext)
+                                         (member ext denote-extensions))
+                                       all-extensions)
+                       all-extensions))
+         (title (if attachments
+                    (denote-explore-count-notes :attachments)
+                  (denote-explore-count-notes))))
     (denote-explore--barchart
-     (denote-explore--table ext-list) "Denote file extensions" title)))
+     (denote-explore--table extensions) "Denote file extensions" title)))
 
 (define-obsolete-function-alias
   'denote-explore-extensions-barchart
