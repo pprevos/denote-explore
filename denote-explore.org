@@ -70,13 +70,13 @@ The file's creation date and time are not always relevant for attachments. For e
 
 The ~denote-explore-identify-duplicate-notes~ command lists all duplicate Denote files in a popup org buffer, which includes links to the suspected duplicate notes and attachments.
 
-Additionally, the ~denote-explore-identify-duplicate-notes-dired~ command displays files with duplicate identifiers in a Dired buffer. You can directly change filenames in the Dired buffer with ~dired-toggle-read-only~ (=C-x C-q=) or remove individual duplicates with =D= (~dired-do-delete~). Note that this function only shows files in the denote directory and not its subdirectories or symbolic links.
+Additionally, the ~denote-explore-identify-duplicate-notes-dired~ command displays files with duplicate identifiers in a Dired buffer. You can directly change filenames in the Dired buffer with ~dired-toggle-read-only~ (=C-x C-q=) or remove individual duplicates with =D= (~dired-do-delete~).
 
 With the universal argument (=C-u=), these commands ignore any duplicated identifiers created when exporting Denote Org mode files.
 
 The ~denote-excluded-files-regexp~ variable can contain a regular expression of files excluded from duplicate detection. 
 
-Be careful when manually changing the identifier of a Denote file, as it can destroy the integrity of your links. Please ensure that the file you rename does not have any links pointing to it. You can use the ~denote-find-link~ and ~denote-find-backlink~ commands to check a file for links, or use the Denote Explorer link checker.
+Be careful when manually changing the identifier of a Denote file, as it can destroy the integrity of your links. Please ensure that the file you rename does not have any links pointing to it. You can use the ~denote-find-link~ and ~denote-find-backlink~ commands to check a file for links, or use the Denote Explorer link checker described in the next section.
 
 ** Missing Links
 The Denote identifier keeps links active even when you change the file name, tags or signature. But missing or dead links might still appear in your network of notes when you delete redundant information or you manually change an identifier.
