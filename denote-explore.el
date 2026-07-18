@@ -5,7 +5,7 @@
 ;; Author: Peter Prevos <peter@prevos.net>
 ;; URL: https://github.com/pprevos/denote-explore/
 ;; Version: 4.1
-;; Package-Requires: ((emacs "29.1") (denote "4.0") (denote-sequence "0.3.3") (dash "2.19.1") (denote-regexp "20250415.2202"))
+;; Package-Requires: ((emacs "29.1") (denote "4.0") (dash "2.19.1") (denote-regexp "20250415.2202"))
 ;;
 ;; This file is NOT part of GNU Emacs.
 ;;
@@ -47,7 +47,9 @@
 (require 'json)
 (require 'browse-url)
 (require 'denote-regexp)
-(require 'denote-sequence)
+
+;; Soft requirement
+(require 'denote-sequence nil t)
 
 ;;; CUSTOMISATION
 
@@ -214,7 +216,8 @@ PROPERTY-LIST is a plist that consists of three elements:
 
 - `:file-extension' File extension to save network.
 - `:encode' function to encode network to graph type.
-- `:display' function to display the graph in external software.")
+- `:display' function to display the graph in external software.
+- `:feature' feature to test to determine if available.")
 
 (defvar denote-explore-graph-types
   `(("Community"
@@ -232,7 +235,8 @@ PROPERTY-LIST is a plist that consists of three elements:
     ("Sequence"
      :description "Hierarchical relationship between signatures"
      :generate denote-explore-network-sequence
-     :regenerate denote-explore-network-sequence-graph))
+     :regenerate denote-explore-network-sequence-graph
+     :feature denote-sequence))
   "List of network types and their (re)generation functions.
 
 PROPERTY-LIST is a plist that consists of three elements:
@@ -1203,6 +1207,8 @@ When TEXT-ONLY, exclude attachments from the graph."
 (defun denote-explore-network-sequence (text-only)
   "Generate a graph of signature sequences from a selected root node.
 Optionally analyse TEXT-ONLY files."
+  (unless (featurep 'denote-sequence)
+    (user-error "Network Sequence Graphs require denote-sequence to be loaded"))
   (let* ((signature-files (denote-explore--network-filter-files
 			   (denote-directory-files denote-signature-regexp nil text-only)))
 	 (signatures (mapcar #'denote-retrieve-filename-signature signature-files))
@@ -1213,6 +1219,8 @@ Optionally analyse TEXT-ONLY files."
 (defun denote-explore-network-sequence-graph (root text-only)
   "Generate a Denote graph object from signature sequences for ROOT.
 Optionally analyse TEXT-ONLY files."
+  (unless (featurep 'denote-sequence)
+    (user-error "Network Sequence Graphs require denote-sequence to be loaded"))
   (let* ((all-files (denote-directory-files (concat "==" root) nil text-only))
 	 (files (denote-explore--network-filter-files all-files))
 	 (sequences (denote-explore--network-sequence-edges files))
@@ -1496,13 +1504,19 @@ generate and regenerate graphs.
 The `denote-explore-network-graph-formats' variable contains a list of functions
 to encode and display each graph format."
   (interactive "P")
-  (let* ((options (mapcar (lambda (type)
-			    (format "%s (%s)" (car type)
-				    (plist-get (cdr type) :description)))
-			  denote-explore-graph-types))
-	 (selection (completing-read "Network type?" options))
-	 (graph-type (substring selection 0 (string-match " " selection)))
-	 (config (assoc graph-type denote-explore-graph-types))
+  (let* ((available-types (seq-filter (lambda (type)
+                                        (or (not (plist-get (cdr type) :feature))
+                                            (featurep (plist-get (cdr type) :feature))))
+                                      denote-explore-graph-types))
+         (completion-extra-properties
+          (list :annotation-function
+                (lambda (x)
+                  (propertize (format "  %s"
+                                      (plist-get (cdr (assoc x available-types #'string=))
+                                                 :description))
+                              'face 'completions-annotations))))
+         (graph-type (completing-read "Network type? " (mapcar #'car available-types) nil t))
+	 (config (assoc graph-type available-types))
 	 (generate-graph (plist-get (cdr config) :generate))
 	 (graph (funcall generate-graph text-only)))
     (denote-explore--network-save graph)
