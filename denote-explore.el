@@ -285,22 +285,38 @@ Count only ATTACHMENTS by prefixing with universal argument."
 	     all-keywords distinct-keywords)))
 
 ;;;###autoload
-(defun denote-explore-barchart-timeline ()
-  "Draw a column chart with the number of notes per year."
-  (interactive)
+(defun denote-explore-barchart-timeline (&optional n-years)
+  "Draw a column chart with the number of notes per year.
+When called interactively, prompts for N-YEARS. Empty input includes all years.
+Used programmatically by passing an integer for N-YEARS or nil for all years."
+  (interactive
+   (list (let ((input (read-string "Number of past years to show (leave empty for all): ")))
+           (if (string-empty-p input)
+               nil
+             (string-to-number input)))))
   (let* ((files (denote-directory-files))
-	 (file-names (mapcar #'file-name-nondirectory files))
-	 ;; Extract years from file names
-	 (years (mapcar (lambda (file)
-			  (substring file 0 4))
-			file-names))
-	 (years-table (denote-explore--table years))
-	 (years-table-sorted (sort years-table
-				   (lambda (a b)
-				     (string< (car a) (car b))))))
-    (denote-explore--barchart years-table-sorted
-			      "Year"
-			      "Denote notes and attachments timeline")))
+         (file-names (mapcar #'file-name-nondirectory files))
+         ;; Extract years from file names
+         (years (mapcar (lambda (file)
+                          (substring file 0 4))
+                        file-names))
+         (years-table (denote-explore--table years))
+         (years-table-sorted (sort years-table
+                                   (lambda (a b)
+                                     (string< (car a) (car b)))))
+         ;; Filter down to the last X elements if n-years is provided and valid
+         (final-table (if (and n-years (> n-years 0))
+                          (seq-take (reverse years-table-sorted) n-years)
+                        years-table-sorted))
+         ;; Re-sort chronologically if we had to reverse it to grab the most recent years
+         (final-table-sorted (if (and n-years (> n-years 0))
+                                 (sort final-table
+                                       (lambda (a b)
+                                         (string< (car a) (car b))))
+                               final-table)))
+    (denote-explore--barchart final-table-sorted
+                              "Year"
+                              "Denote notes and attachments timeline")))
 
 ;;; RANDOM WALKS
 ;; Jump to a random note, random linked note or random note with selected tag(s).
@@ -787,7 +803,7 @@ attachments, which excludes file types listed in `denote-file-types'."
                     (denote-explore-count-notes :attachments)
                   (denote-explore-count-notes))))
     (denote-explore--barchart
-     (denote-explore--table extensions) "Denote file extensions" title)))
+     (denote-explore--table extensions) "Denote file extensions" title))
 
 (define-obsolete-function-alias
   'denote-explore-extensions-barchart

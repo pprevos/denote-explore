@@ -24,14 +24,14 @@ The Denote-Explorer package distinguishes between Denote files (notes) and attac
 
 After a day of working hard on your digital knowledge garden, you can count the notes and attachments in your collection. Two functions provide some basic statistics of your Denote files:
 
-1. ~denote-explore-count-notes~: Count the number of notes and attachments. With universal argument, only count notes.
-2. ~denote-explore-count-keywords~: Count the number of distinct Denote keywords. 
+1. ~denote-explore-count-notes~: Count the number of notes and attachments. With universal argument, only count attachments.
+2. ~denote-explore-count-keywords~: Count the number of used and distinct Denote keywords. 
 
 These functions are informative, but a graph says more than a thousand numbers. The built-in =chart.el= package by Eric M. Ludlam is a quaint tool for creating bar charts in a plain text buffer. Two commands are available in Denote-Explorer to visualise basic statistics: 
 
 1. ~denote-explore-barchart-filetypes~: Visualise used file extensions. With universal argument =C-u= visualises only attachments.
 2. ~denote-explore-barchart-keywords~: Visualise the top-n keywords
-3. ~denote-explore-barchart-timeline~: Visualise notes created by year
+3. ~denote-explore-barchart-timeline~: Visualise notes created by year for the last n years, or all years when omitted.
 
 The ~denote-excluded-files-regexp~ variable can contain a regular expression of files excluded from these statistical functions. 
 
