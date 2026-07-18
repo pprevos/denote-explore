@@ -568,14 +568,12 @@ Use an empty string as new keyword to remove the selection.
 When selecting more than one existing keyword, all selected terms are renamed
 to the new version or removed.
 
-The filename is taken as the source of truth for attchments and the front matter
-for notes.
+The filename is taken as the source of truth.
 
 All open Denote note buffers should be saved for this function to work reliably."
   (interactive)
-  ;; Save any open Denote files
   (save-some-buffers nil #'(lambda ()
-			                 (denote-filename-is-note-p buffer-file-name)))
+			     (denote-filename-is-note-p buffer-file-name)))
   ;; Select keywords and file candidates
   (let* ((selected-keywords (denote-keywords-prompt "Keyword(s) to rename"))
 	 (keywords-regexp (denote-regexp :keywords `(:or ,@selected-keywords)))
@@ -586,7 +584,7 @@ All open Denote note buffers should be saved for this function to work reliably.
       (let* ((denote-rename-confirmations '(rewrite-front-matter modify-file-name))
              (denote-sort-keywords t)
 	     (denote-known-keywords nil)
-	     (current-keywords (denote-explore--retrieve-keywords file))
+	     (current-keywords (denote-retrieve-filename-keywords-as-list file))
 	     (new-keywords (if (equal new-keyword "")
                                (cl-set-difference current-keywords selected-keywords :test 'string=)
                              (mapcar (lambda (keyword)
@@ -595,11 +593,11 @@ All open Denote note buffers should be saved for this function to work reliably.
 	     (id (denote-retrieve-filename-identifier file))
 	     (file-type (denote-filetype-heuristics file)))
         (denote-rename-file file
-	 		    (denote-retrieve-title-or-filename file file-type)
+	 		    'keep-current
 			    (if (equal new-keywords nil) "" (delete-dups new-keywords))
-			    (or (denote-retrieve-filename-signature file) "")
-                            (denote-retrieve-front-matter-date-value file file-type)
-			    id)))))
+			    'keep-current
+                            'keep-current
+			    'keep-current)))))
 
 (define-obsolete-function-alias
   'denote-explore--retrieve-title
