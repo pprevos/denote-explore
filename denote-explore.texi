@@ -21,6 +21,8 @@
 @author Peter Prevos
 @end titlepage
 
+@contents
+
 @ifnottex
 @node Top
 @top Denote Explorer: Explore your Denote digital garden
@@ -88,9 +90,9 @@ After a day of working hard on your digital knowledge garden, you can count the 
 
 @enumerate
 @item
-@code{denote-explore-count-notes}: Count the number of notes and attachments. With universal argument, only count notes.
+@code{denote-explore-count-notes}: Count the number of notes and attachments. With universal argument, only count attachments.
 @item
-@code{denote-explore-count-keywords}: Count the number of distinct Denote keywords. 
+@code{denote-explore-count-keywords}: Count the number of used and distinct Denote keywords. 
 @end enumerate
 
 These functions are informative, but a graph says more than a thousand numbers. The built-in @samp{chart.el} package by Eric M@. Ludlam is a quaint tool for creating bar charts in a plain text buffer. Two commands are available in Denote-Explorer to visualise basic statistics: 
@@ -101,7 +103,7 @@ These functions are informative, but a graph says more than a thousand numbers. 
 @item
 @code{denote-explore-barchart-keywords}: Visualise the top-n keywords
 @item
-@code{denote-explore-barchart-timeline}: Visualise notes created by year
+@code{denote-explore-barchart-timeline}: Visualise notes created by year for the last n years, or all years when omitted.
 @end enumerate
 
 The @code{denote-excluded-files-regexp} variable can contain a regular expression of files excluded from these statistical functions.
@@ -161,13 +163,13 @@ The file's creation date and time are not always relevant for attachments. For e
 
 The @code{denote-explore-identify-duplicate-notes} command lists all duplicate Denote files in a popup org buffer, which includes links to the suspected duplicate notes and attachments.
 
-Additionally, the @code{denote-explore-identify-duplicate-notes-dired} command displays files with duplicate identifiers in a Dired buffer. You can directly change filenames in the Dired buffer with @code{dired-toggle-read-only} (@samp{C-x C-q}) or remove individual duplicates with @samp{D} (@code{dired-do-delete}). Note that this function only shows files in the denote directory and not its subdirectories or symbolic links.
+Additionally, the @code{denote-explore-identify-duplicate-notes-dired} command displays files with duplicate identifiers in a Dired buffer. You can directly change filenames in the Dired buffer with @code{dired-toggle-read-only} (@samp{C-x C-q}) or remove individual duplicates with @samp{D} (@code{dired-do-delete}).
 
 With the universal argument (@samp{C-u}), these commands ignore any duplicated identifiers created when exporting Denote Org mode files.
 
 The @code{denote-excluded-files-regexp} variable can contain a regular expression of files excluded from duplicate detection. 
 
-Be careful when manually changing the identifier of a Denote file, as it can destroy the integrity of your links. Please ensure that the file you rename does not have any links pointing to it. You can use the @code{denote-find-link} and @code{denote-find-backlink} commands to check a file for links, or use the Denote Explorer link checker.
+Be careful when manually changing the identifier of a Denote file, as it can destroy the integrity of your links. Please ensure that the file you rename does not have any links pointing to it. You can use the @code{denote-find-link} and @code{denote-find-backlink} commands to check a file for links, or use the Denote Explorer link checker described in the next section.
 
 @node Missing Links
 @section Missing Links
@@ -200,6 +202,8 @@ You can rename or remove keywords with @code{denote-explore-rename-keyword}. Sel
 The @code{denote-excluded-files-regexp} variable can contain a regular expression of files that are excluded from the purview of these functions.
 
 You can also visualise keywords using knowledge graphs described below.
+
+The @uref{https://codeberg.org/treflip/denote-wordcloud, keywords wordcloud package} by treflip generates an interactive wordcloud in plain text for all your keywords to quickly explore your collection.
 
 @node Synchronising Meta Data
 @section Synchronising Meta Data
@@ -322,7 +326,9 @@ The @code{denote-explore-network-regex-ignore} variable lets you define a regula
 @node Sequences Network
 @section Sequences Network
 
-Denote signatures can define a hierarchical sequence of notes, using a family analogy. For example a note with signature @samp{1=a} is the child of a note with signature @samp{1} and a note with signature @samp{1=b} is its sibling. The note with signature @samp{1=a=1} is the child of @samp{1=a} and the grandchild of @samp{1}, and so forth. In a sequence network, links exist independent of any Denote links inside a note, the relationship is only based on the hierarchy of the signatures.
+The `denote-sequence' package provides an optional extension to `denote' for naming files with a sequence scheme. The package lets the user assign hierarchical relationships between files using signatures, such that the contents of one logically follow or complement those of another. For more information see @ref{Top,info denote-sequence,,denote-sequence,}. 
+
+For example a note with signature @samp{1=a} is the child of a note with signature @samp{1} and a note with signature @samp{1=b} is its sibling. The note with signature @samp{1=a=1} is the child of @samp{1=a} and the grandchild of @samp{1}, and so forth. In a sequence network, links exist independent of any Denote links inside a note, the relationship is only based on the hierarchy of the signatures.
 
 @example
 ┌─────┐    ┌─────┐    ┌─────┐  
@@ -335,9 +341,7 @@ Denote signatures can define a hierarchical sequence of notes, using a family an
 
 The content of the signatures can be either numbers or letters as the order of children is not taken into consideration. These sequences can go on to many generations, building a family tree of your notes. These sequences are the basic building block of the popular Zettelkasten methodology.
 
-The Denote-Sequence package provides specialised functions to manage hierarchical connections between files, @ref{Top,info denote-sequence,,denote-sequence,}. 
-
-To generate a sequence graph, use @code{denote-explore-network} and select the signature of the root node (note @samp{1} in the diagram). When not selecting any signature, all Denote files with a signature are included in the visualisation.
+Users of the `denote-sequence'  package can generate a sequence graph using @code{denote-explore-network}. Select the signature of the root node (note @samp{1} in the diagram) as the starting point. When not selecting any signature, all Denote files with a signature are included in the visualisation.
 
 The @code{denote-explore-network-regex-ignore} variable lets you define a regular expression of notes exclude from neighbourhood networks.
 

@@ -4,8 +4,8 @@
 ;;
 ;; Author: Peter Prevos <peter@prevos.net>
 ;; URL: https://github.com/pprevos/denote-explore/
-;; Version: 4.1
-;; Package-Requires: ((emacs "29.1") (denote "4.0") (dash "2.19.1") (denote-regexp "20250415.2202"))
+;; Version: 4.2
+;; Package-Requires: ((emacs "29.1") (denote "4.2") (dash "2.19.1") (denote-regexp "20250415.2202"))
 ;;
 ;; This file is NOT part of GNU Emacs.
 ;;
