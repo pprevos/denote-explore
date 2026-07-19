@@ -788,7 +788,7 @@ attachments, which excludes file types listed in `denote-file-types'."
                     (denote-explore-count-notes :attachments)
                   (denote-explore-count-notes))))
     (denote-explore--barchart
-     (denote-explore--table extensions) "Denote file extensions" title))
+     (denote-explore--table extensions) "Denote file extensions" title)))
 
 (define-obsolete-function-alias
   'denote-explore-extensions-barchart
