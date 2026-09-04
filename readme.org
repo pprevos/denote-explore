@@ -25,7 +25,7 @@ The configuration below customises all available variables and binds all availab
     (denote-explore-network-keywords-ignore "<keywords list>")
     (denote-explore-network-regex-ignore "<regex>")
     (denote-explore-network-format 'd3.js)
-    (denote-explore-network-d3-colours 'SchemeObservable10)
+    (denote-explore-network-d3-colours 'schemeObservable10)
     (denote-explore-network-d3-js "https://d3js.org/d3.v7.min.js")
     (denote-explore-network-d3-template "<file path>")
     (denote-explore-network-graphviz-header "<header strings>")
