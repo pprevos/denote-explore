@@ -70,6 +70,10 @@ Alternatively, you can install it directly from GitHub:
 * Change Log
 Major version numbers coincide with Denote major versions.
 
+** Version 4.2
+- Minor compatability issues with Emacs 31 (~if-let~)
+- Bug fixed to =HTML= template ()
+
 ** Version 4.1
 - Minor compatibility issues with Denote 4.1. No upgrades.
 

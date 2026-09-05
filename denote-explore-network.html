@@ -162,7 +162,6 @@
     <div id="info-button" class="info-button" title="Click for more information">ℹ</div>
     <!-- Tooltip Container -->
     <div class="info-tooltip"></div>
-</div>
     <script src="{{d3-js}}"></script>
     <script>
       const data = {{json-content}}
@@ -171,10 +170,20 @@
       const height = 900;
       const fontSize = 18;
       const color = d3.scaleOrdinal(d3.{{d3-colourscheme}});
-      const links = data.edges; // Array of edges
       const nodes = data.nodes; // Array of nodes
+      // Filter out invalid edges referencing non-existent node IDs to prevent layout crashes
+      const nodeIds = new Set(nodes.map(n => n.id));
+      const links = data.edges.filter(l => nodeIds.has(l.source) && nodeIds.has(l.target));
+
+      // Get unique sorted degree values to map label density ranks accurately without dead zones
+      const uniqueDegrees = Array.from(new Set(nodes.map(d => d.degree))).sort((a, b) => a - b);
       // Variable to hold the current minimum degree tag value
       let minDegreeTag = 2;
+      if (!uniqueDegrees.includes(minDegreeTag)) {
+          minDegreeTag = uniqueDegrees[Math.floor(uniqueDegrees.length / 2)] || 0;
+      }
+      const initialSliderIndex = uniqueDegrees.indexOf(minDegreeTag);
+      const initialSliderValue = initialSliderIndex !== -1 ? (uniqueDegrees.length - 1) - initialSliderIndex : 0;
 
       // Create a tooltip div
       const tooltip = d3.select("body")
@@ -351,10 +360,12 @@
       .on("drag", dragged)
       .on("end", dragended));
 
-      // Add labels for nodes with degree > minDegreeTag
-      const labels = svgGroup.append("g")
-      .selectAll("text")
-      .data(nodes.filter(d => d.degree > minDegreeTag)) // Filter nodes based on degree
+      // Add a dedicated group container for text labels to ensure consistent D3 parentage
+      const labelGroup = svgGroup.append("g").attr("class", "labels-group");
+
+      // Add labels for nodes with degree >= minDegreeTag
+      let labels = labelGroup.selectAll("text")
+      .data(nodes.filter(d => d.degree >= minDegreeTag), d => d.id) // Filter nodes based on degree and bind keys
       .join("text")
       .attr("dx", 10)
       .attr("dy", ".35em")
@@ -390,7 +401,7 @@
       const dx = d.target.x - d.source.x;
       const dy = d.target.y - d.source.y;
       const distance = Math.sqrt(dx * dx + dy * dy) || 1; // Avoid division by zero
-      const targetRadius = radiusScale(d.target.degree); // Exact node radius
+      const targetRadius = isKeywordType ? 15 : radiusScale(d.target.degree); // Exact node radius
       const offsetY = (dy / distance) * targetRadius;
       return d.target.y - offsetY;
       });
@@ -469,6 +480,13 @@
 	      metadataContainer.appendChild(graphParameter);
 	  }
 
+	  if (data.meta.type === "Sequence") {
+	      const graphParameter = document.createElement("div");
+	      graphParameter.className = "metadata";
+	      graphParameter.textContent = `Root signature: "${data.meta.parameters[0] || 'All'}"`;
+	      metadataContainer.appendChild(graphParameter);
+	  }
+
 	  // Number of nodes
 	  const nodeCount = document.createElement("div");
 	  nodeCount.className = "metadata";
@@ -510,7 +528,7 @@
 	      toggleButton.style.marginTop = "10px";
 	      toggleButton.style.padding = "10px 20px";
 	      toggleButton.style.borderRadius = "5px";
-	      toggleButton.style.border = "1px solid #darkgrey";
+	      toggleButton.style.border = "1px solid darkgrey";
 	      toggleButton.style.backgroundColor = "darkgrey";
 	      toggleButton.style.color = "white";
 	      toggleButton.style.cursor = "pointer";
@@ -578,7 +596,7 @@
 		  colorBox.style.width = "15px";
 		  colorBox.style.height = "15px";
 		  colorBox.style.marginRight = "10px";
-		  colorBox.style.backgroundColor = d3.{{d3-colourscheme}}[legendData.indexOf(entry)];
+		  colorBox.style.backgroundColor = color(entry.type);
 		  legendItem.appendChild(colorBox);
 
 		  const text = document.createElement("span");
@@ -604,112 +622,119 @@
 
       // Bar chart
       const keywordCounts = data.nodes.reduce((acc, node) => {
-      (node.keywords || []).forEach((keyword) => {
-      acc[keyword] = (acc[keyword] || 0) + 1;
-      });
-      return acc;
+	  (node.keywords || []).forEach((keyword) => {
+	      acc[keyword] = (acc[keyword] || 0) + 1;
+	  });
+	  return acc;
       }, {});
 
       const keywordData = Object.entries(keywordCounts).map(([keyword, count]) => ({
-      keyword,
-      count,
+	  keyword,
+	  count,
       }));
 
-      // Sort keywordData by count in descending order
-      keywordData.sort((a, b) => b.count - a.count);
+      if (keywordData.length > 0) {
+	  // Sort keywordData by count in descending order
+	  keywordData.sort((a, b) => b.count - a.count);
 
-      // Define constants
-      const barHeight = 20; // Height of each bar
-      const barSpacing = 5; // Space between bars
-      const chartWidth = 400;
-      const margin = { top: 20, right: 20, bottom: 30, left: 20 }; // Initial margins
+	  // Define constants
+	  const barHeight = 20; // Height of each bar
+	  const barSpacing = 5; // Space between bars
+	  const chartWidth = 400;
+	  const margin = { top: 20, right: 20, bottom: 30, left: 20 }; // Initial margins
 
-      // Create a temporary SVG to measure label dimensions
-      const tempSVG = d3.select("body").append("svg").attr("class", "temp-svg");
+	  // Create a temporary SVG to measure label dimensions
+	  const tempSVG = d3.select("body").append("svg").attr("class", "temp-svg");
 
-      // Calculate max label width for y-axis
-      const maxYLabelWidth = d3.max(keywordData, (d) => {
-      const textElement = tempSVG
-      .append("text")
-      .attr("class", "temp-text")
-      .style("font-size", `${fontSize}px`)
-      .text(d.keyword);
-      const textWidth = textElement.node().getBBox().width;
-      textElement.remove();
-      return textWidth;
-      });
+	  // Calculate max label width for y-axis
+	  const maxYLabelWidth = d3.max(keywordData, (d) => {
+	      const textElement = tempSVG
+		    .append("text")
+		    .attr("class", "temp-text")
+		    .style("font-size", `${fontSize}px`)
+		    .text(d.keyword);
+	      const textWidth = textElement.node().getBBox().width;
+	      textElement.remove();
+	      return textWidth;
+	  });
 
-      // Calculate max label height for x-axis
-      const maxXLabelHeight = d3.max(keywordData, (d) => {
-      const textElement = tempSVG
-      .append("text")
-      .attr("class", "temp-text")
-      .style("font-size", `${fontSize}px`)
-      .text(d.count * 2);
-      const textHeight = textElement.node().getBBox().height;
-      textElement.remove();
-      return textHeight;
-      });
-      tempSVG.remove(); // Clean up the temporary SVG
+	  // Calculate max label height for x-axis
+	  const maxXLabelHeight = d3.max(keywordData, (d) => {
+	      const textElement = tempSVG
+		    .append("text")
+		    .attr("class", "temp-text")
+		    .style("font-size", `${fontSize}px`)
+		    .text(d.count * 2);
+	      const textHeight = textElement.node().getBBox().height;
+	      textElement.remove();
+	      return textHeight;
+	  });
+	  tempSVG.remove(); // Clean up the temporary SVG
 
-      // Update margins dynamically
-      margin.left = maxYLabelWidth + 20; // Add padding
-      margin.bottom = maxXLabelHeight + 10; // Add padding
+	  // Update margins dynamically
+	  margin.left = maxYLabelWidth + 20; // Add padding
+	  margin.bottom = maxXLabelHeight + 10; // Add padding
 
-      // Compute chart height based on number of bars
-      const chartHeight = keywordData.length * (barHeight + barSpacing) + margin.top + margin.bottom;
+	  // Compute chart height based on number of bars
+	  const chartHeight = keywordData.length * (barHeight + barSpacing) + margin.top + margin.bottom;
 
-      // Update scales
-      const x = d3
-      .scaleLinear()
-      .domain([0, d3.max(keywordData, (d) => d.count)])
-      .range([0, chartWidth - margin.left - margin.right]);
+	  // Update scales
+	  const x = d3
+		.scaleLinear()
+		.domain([0, d3.max(keywordData, (d) => d.count)])
+		.range([0, chartWidth - margin.left - margin.right]);
 
-      const y = d3
-      .scaleBand()
-      .domain(keywordData.map((d) => d.keyword))
-      .range([0, keywordData.length * (barHeight + barSpacing)])
-      .padding(0.1); // Padding within the band
+	  const y = d3
+		.scaleBand()
+		.domain(keywordData.map((d) => d.keyword))
+		.range([0, keywordData.length * (barHeight + barSpacing)])
+		.padding(0.1); // Padding within the band
 
-      // Create SVG
-      const chartSVG = d3
-      .select(chartContainer)
-      .append("svg")
-      .attr("width", chartWidth)
-      .attr("height", chartHeight);
+	  // Create SVG
+	  const chartSVG = d3
+		.select(chartContainer)
+		.append("svg")
+		.attr("width", chartWidth)
+		.attr("height", chartHeight);
 
-      const chartGroup = chartSVG
-      .append("g")
-      .attr("transform", `translate(${margin.left}, ${margin.top})`);
+	  const chartGroup = chartSVG
+		.append("g")
+		.attr("transform", `translate(${margin.left}, ${margin.top})`);
 
-      // Add bars
-      chartGroup
-      .selectAll(".bar")
-      .data(keywordData)
-      .enter()
-      .append("rect")
-      .attr("class", "bar")
-      .attr("x", 0)
-      .attr("y", (d, i) => i * (barHeight + barSpacing)) // Use index to calculate position
-      .attr("width", (d) => x(d.count))
-      .attr("height", barHeight)
-      .attr("fill", "lightgrey");
+	  // Add bars
+	  chartGroup
+	      .selectAll(".bar")
+	      .data(keywordData)
+	      .enter()
+	      .append("rect")
+	      .attr("class", "bar")
+	      .attr("x", 0)
+	      .attr("y", (d, i) => i * (barHeight + barSpacing)) // Use index to calculate position
+	      .attr("width", (d) => x(d.count))
+	      .attr("height", barHeight)
+	      .attr("fill", "lightgrey");
 
-      // Add y-axis
-      chartGroup
-      .append("g")
-      .call(d3.axisLeft(y))
-      .selectAll("text")
-      .style("font-size", `${fontSize}px`);
+	  // Add y-axis
+	  chartGroup
+	      .append("g")
+	      .call(d3.axisLeft(y))
+	      .selectAll("text")
+	      .style("font-size", `${fontSize}px`);
 
-      // Add x-axis
-      const maxValue = d3.max(keywordData, d => d.count); // Get the maximum value
-      chartGroup
-      .append("g")
-      .attr("transform", `translate(0, ${chartHeight - margin.top - margin.bottom})`)
-      .call(d3.axisBottom(x).tickValues([0, maxValue])) // Set tick values to only 0 and max
-      .selectAll("text")
-      .style("font-size", `${fontSize}px`);
+	  // Add x-axis
+	  const maxValue = d3.max(keywordData, d => d.count); // Get the maximum value
+	  chartGroup
+	      .append("g")
+	      .attr("transform", `translate(0, ${chartHeight - margin.top - margin.bottom})`)
+	      .call(d3.axisBottom(x).tickValues([0, maxValue])) // Set tick values to only 0 and max
+	      .selectAll("text")
+	      .style("font-size", `${fontSize}px`);
+      } else {
+	  const emptyMsg = document.createElement("div");
+	  emptyMsg.className = "metadata";
+	  emptyMsg.textContent = "No keywords present in this network";
+	  chartContainer.appendChild(emptyMsg);
+      }
 
       // Append the chart container to the tooltip or desired location
       infoTooltip.appendChild(chartContainer);
@@ -743,29 +768,28 @@
       const slider = sliderContainer.append('input')
 	    .attr('type', 'range')
 	    .attr('min', 0)
-	    .attr('max', d3.max(nodes, d => d.degree))
-	    .attr('value', minDegreeTag)
+	    .attr('max', uniqueDegrees.length - 1)
+	    .attr('value', initialSliderValue)
 	    .style('width', '150px')
 	    .on('input', function () {
-		minDegreeTag = d3.max(nodes, d => d.degree) - +this.value;
+		const idx = (uniqueDegrees.length - 1) - +this.value;
+		minDegreeTag = uniqueDegrees[idx];
 		updateLabels();
 	    });
 
       // Function to update labels based on the slider value
       function updateLabels() {
-	  labels = svgGroup.selectAll('text')
-              .data(nodes.filter(d => d.degree > minDegreeTag), d => d.id)
+	  labels = labelGroup.selectAll('text')
+              .data(nodes.filter(d => d.degree >= minDegreeTag), d => d.id)
               .join(
 		  enter => enter.append('text')
-                      .attr('x', d => d.x)
-                      .attr('y', d => d.y)
                       .attr('dx', 10)
                       .attr('dy', '.35em')
                       .style('font-size', `${fontSize}px`)
                       .style('font-family', 'sans-serif')
                       .style('fill', '#333')
                       .text(d => d.name),
-		  update => update.attr('x', d => d.x).attr('y', d => d.y),
+		  update => update,
 		  exit => exit.remove()
               );
 	  simulation.alpha(1).restart();
