@@ -347,7 +347,7 @@ Exclude files matching regx in `denote-explore-random-regex-ignore'.
   "Jump to a random Denote file and optionally INCLUDE-ATTACHMENTS.
 With universal argument the sample includes attachments."
   (interactive "P")
-  (if-let ((denotes (denote-directory-files nil t (not include-attachments))))
+  (if-let* ((denotes (denote-directory-files nil t (not include-attachments))))
       (denote-explore--jump denotes)
     (user-error "No Denote files found")))
 
@@ -406,7 +406,7 @@ With universal argument the sample will INCLUDE-ATTACHMENTS."
   "Jump to a random not matching a regular expression REGEX.
 Use Universal Argument to INCLUDE-ATTACHMENTS"
   (interactive "sRegular expression: \nP")
-  (if-let ((sample (denote-directory-files regex t (not include-attachments))))
+  (if-let* ((sample (denote-directory-files regex t (not include-attachments))))
       (denote-explore--jump sample)
     (message "No matching Denote files found")))
 
@@ -471,7 +471,7 @@ Duplicate files are displayed in a temporary buffer with links to the
 suspected duplicates."
   (interactive "P")
   (message "Finding duplicated notes")
-  (if-let ((duplicates (denote-explore--duplicate-notes exclude-exports)))
+  (if-let* ((duplicates (denote-explore--duplicate-notes exclude-exports)))
       (with-current-buffer-window "*denote-duplicates*" nil nil
         (erase-buffer)
 	(insert "#+title: Duplicate Denote files ")
@@ -1238,7 +1238,7 @@ Optionally analyse TEXT-ONLY files."
 
 (defun denote-explore--network-sequence-edges (files)
   "Create an edgle list of signatures from FILES."
-  (if-let ((sequences (mapcar #'denote-retrieve-filename-signature files))
+  (if-let* ((sequences (mapcar #'denote-retrieve-filename-signature files))
 	   ((> (length files) 1)))
       ;; Extract edges from signatures
       (let ((result '()))
