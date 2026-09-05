@@ -9,59 +9,106 @@
           margin: 0;
           padding: 0;
           display: flex;
-          justify-content: center;
-          align-items: center;
+          flex-direction: row-reverse; /* SVG on the left, Sidebar on the right */
           height: 100vh;
+          overflow: hidden;
           background-color: #f8f8f8;
       }
 
       svg {
+          flex: 1;
+          height: 100vh;
+          max-width: calc(100% - 450px); /* Leave room for sidebar */
           border: 0px solid #ccc;
 	  z-index: 1;
       }
 
-      .tooltip {
-          position: absolute;
+      .sidebar {
+          width: 450px;
+          height: 100vh;
           background-color: white;
-          border: 1px solid #ddd;
-          border-radius: 8px;
-          padding: 15px;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-          pointer-events: none;
-          line-height: 1.4;
-          max-width: 600px;
-	  z-index: 1000;
+          border-left: 1px solid #ddd;
+          box-shadow: -4px 0 12px rgba(0, 0, 0, 0.05);
+          padding: 25px;
+          box-sizing: border-box;
+          z-index: 2;
+          line-height: 1.5;
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+      }
+
+      .sidebar-header {
+          padding-bottom: 15px;
+          border-bottom: 1px solid #eee;
+          margin-bottom: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          flex-shrink: 0;
+      }
+
+      .sidebar-content {
+          flex: 1;
+          overflow-y: auto;
+      }
+
+      .sidebar-placeholder {
+          color: #888;
+          font-style: italic;
+          text-align: center;
+          margin-top: 50px;
+          font-size: 18px;
+      }
+
+      .resizer {
+          width: 4px;
+          height: 100vh;
+          background-color: #e5e7eb;
+          cursor: col-resize;
+          z-index: 10;
+          transition: background-color 0.2s, width 0.2s;
+          flex-shrink: 0;
+      }
+
+      .resizer:hover, .resizer:active {
+          background-color: #3b82f6;
+          width: 6px;
       }
 
       .lighter {
 	  color: #888;
       }
 
-      .tooltip .title {
+      .sidebar .title {
           font-weight: bold;
-          margin-bottom: 10px;
+          margin-bottom: 15px;
 	  font-size: 28px;
+          color: #111;
+          word-break: break-word;
       }
 
-      .tooltip .keywords {
+      .sidebar .keywords {
           display: flex;
           flex-wrap: wrap;
-          gap: 5px;
-          margin-top: 5px;
+          gap: 6px;
+          margin-top: 10px;
       }
 
-      .tooltip .keywords span {
+      .sidebar .keywords span {
           background-color: #e0e7ff;
           color: #3b82f6;
-          padding: 2px 8px;
+          padding: 4px 10px;
           border-radius: 4px;
-          font-size: 18px;
+          font-size: 16px;
+          font-weight: 500;
       }
 
-      .tooltip .metadata {
-          margin-top: 10px;
+      .sidebar .metadata {
+          margin-top: 12px;
           font-size: 18px;
-          color: #333;
+          color: #444;
+          word-break: break-word;
       }
 
       .hidden {
@@ -158,6 +205,18 @@
     </style>
   </head>
   <body>
+    <!-- Sidebar Container -->
+    <div id="sidebar" class="sidebar">
+      <div class="sidebar-header">
+        <label for="density-slider" style="font-weight: 500; font-size: 16px; color: #555;">Label density:</label>
+        <input type="range" id="density-slider" style="width: 150px; cursor: pointer;">
+      </div>
+      <div id="sidebar-content" class="sidebar-content">
+        <div class="sidebar-placeholder">Hover over a node to view note details</div>
+      </div>
+    </div>
+    <!-- Sidebar Resizer -->
+    <div id="resizer" class="resizer"></div>
     <!-- Info Button -->
     <div id="info-button" class="info-button" title="Click for more information">ℹ</div>
     <!-- Tooltip Container -->
@@ -185,10 +244,7 @@
       const initialSliderIndex = uniqueDegrees.indexOf(minDegreeTag);
       const initialSliderValue = initialSliderIndex !== -1 ? (uniqueDegrees.length - 1) - initialSliderIndex : 0;
 
-      // Create a tooltip div
-      const tooltip = d3.select("body")
-	    .append("div")
-	    .attr("class", "tooltip hidden");
+      // Hover details are rendered statically inside the #sidebar container
 
       // Create a zoom behaviour
       const zoom = d3.zoom()
@@ -257,24 +313,18 @@
       // Add arrow markers
       .attr("marker-end", (d, i) => data.meta.directed ? `url(#arrow-${i})` : null)
 
-      // Add hover interaction for edges
+      // Add hover interaction for edges to show connection details in the sidebar
       .on("mouseover", (event, d) => {
-      if (data.meta.type === "Keywords") {
-      // Generate content for the tooltip
-      const tooltipContent = `
-      <div class="metadata">From: ${d.source.name}</div>
-      <div class="metadata">To: ${d.target.name}</div>
-      <div class="metadata">Weight: ${d.weight || 'undefined'}</div>
-      `;
-      tooltip
-      .classed("hidden", false)
-      .html(tooltipContent)
-      .style("left", (event.pageX + 10) + "px")
-      .style("top", (event.pageY + 10) + "px");
-      }
+          const edgeContent = `
+          <div class="title">Connection Details</div>
+          <div class="metadata"><strong>From:</strong> ${d.source.name}</div>
+          <div class="metadata"><strong>To:</strong> ${d.target.name}</div>
+          ${d.weight ? `<div class="metadata"><strong>Weight:</strong> ${d.weight}</div>` : ''}
+          `;
+          d3.select("#sidebar-content").html(edgeContent);
       })
       .on("mouseout", () => {
-      tooltip.classed("hidden", true);
+          d3.select("#sidebar-content").html('<div class="sidebar-placeholder">Hover over a node to view note details</div>');
       });
 
       // Add nodes
@@ -291,69 +341,59 @@
       }
       })
       .on("mouseover", (event, d) => {
-      // Check if the filename is an image or a PDF
-      const isImage = /\.(jpg|jpeg|png|gif|svg)$/i.test(d.filename);
-      const isPDF = /\.pdf$/i.test(d.filename);
-      // Generate tooltip content based on meta.type
-      const tooltipContent = data.meta.type === "Keywords"
-      ? `
-      <div class="title">${d.name}</div>
-      <div class="metadata">Degree: ${d.degree}</div>
-      `:
-      // Tooltip for other types
-      `
-      <div class="title">${d.name}</div>
-      <div class="metadata">ID: ${d.id.replace('T', '<span class="lighter">T</span>')}</div>
-      <div class="metadata">Degree: ${d.degree}, Backlinks: ${d.backlinks}</div>
-      <div class="metadata">Type: ${d.type}</div>
-      ${d.signature ? `<div class="metadata">Signature: ${d.signature}</div>` : ''}
-      <div class="keywords">${d.keywords && d.keywords.length > 0 ? d.keywords.map(keyword =>
-        `<span>${keyword}</span>`).join('') :
-        '<div class="metadata">No keywords</div>'}</div>
-      ${isImage
-      ? `<img src="${d.filename}" alt="${d.name}"
-	  onload="if(this.naturalHeight > this.naturalWidth) this.style.maxHeight='500px';"
-	  style="max-width: 100%; height: auto; margin-top: 10px;">`
-        : isPDF
-      ? `<iframe src="${d.filename}?toolbar=0&navpanes=0&scrollbar=0#view=FitH"
-		 style="width: 100%; height: 500px; margin-top: 10px; border: none;"></iframe>`
-          : ''
-        }
-      `;
-    // Display the tooltip and set its initial content
-    tooltip
-        .classed("hidden", false)
-        .html(tooltipContent);
-
-    // Calculate tooltip dimensions
-    const tooltipNode = tooltip.node();
-    const tooltipWidth = tooltipNode.offsetWidth;
-    const tooltipHeight = tooltipNode.offsetHeight;
-
-    // Get viewport dimensions
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
-
-    // Calculate mouse position
-    let tooltipX = event.pageX + 10; // Default offset
-    let tooltipY = event.pageY + 10;
-
-    // Adjust position to fit within the viewport
-    if (tooltipX + tooltipWidth > viewportWidth) {
-        tooltipX = viewportWidth - tooltipWidth - 10; // Align with the right edge
-    }
-    if (tooltipY + tooltipHeight > viewportHeight) {
-        tooltipY = viewportHeight - tooltipHeight - 10; // Align with the bottom edge
-    }
-
-    // Set tooltip position
-    tooltip
-        .style("left", `${tooltipX}px`)
-        .style("top", `${tooltipY}px`);
-})
-.on("mouseout", () => {
-    tooltip.classed("hidden", true);
-});
+          // Check if the filename is an image, PDF, or a text document
+          const isImage = /\.(jpg|jpeg|png|gif|svg)$/i.test(d.filename);
+          const isPDF = /\.pdf$/i.test(d.filename);
+          const isTextDoc = /\.(txt|md|org)$/i.test(d.filename);
+          // Generate content based on meta.type
+          const sidebarContent = data.meta.type === "Keywords"
+          ? `
+          <div class="title">${d.name}</div>
+          <div class="metadata">Degree: ${d.degree}</div>
+          `:
+          // Sidebar content for other types
+          `
+          <div class="title">${d.name}</div>
+          <div class="metadata">ID: ${d.id.replace('T', '<span class="lighter">T</span>')}</div>
+          <div class="metadata">Degree: ${d.degree}, Backlinks: ${d.backlinks}</div>
+          <div class="metadata">Type: ${d.type}</div>
+          ${d.signature ? `<div class="metadata">Signature: ${d.signature}</div>` : ''}
+          <div class="keywords">${d.keywords && d.keywords.length > 0 ? d.keywords.map(keyword =>
+            `<span>${keyword}</span>`).join('') :
+            '<div class="metadata">No keywords</div>'}</div>
+          ${isImage
+          ? `<img src="${d.filename}" alt="${d.name}"
+	      onload="if(this.naturalHeight > this.naturalWidth) this.style.maxHeight='500px';"
+	      style="max-width: 100%; height: auto; margin-top: 15px; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">`
+            : isPDF
+          ? `<iframe src="${d.filename}?toolbar=0&navpanes=0&scrollbar=0#view=FitH"
+		     style="width: 100%; height: 500px; margin-top: 15px; border: 1px solid #ddd; border-radius: 4px;"></iframe>`
+            : isTextDoc
+          ? `
+             <div class="metadata" style="margin-top: 15px; font-weight: bold;">File Preview:</div>
+             <iframe src="${d.filename}"
+		     onload="try {
+			 const doc = this.contentDocument || this.contentWindow.document;
+			 const pre = doc.querySelector('pre') || doc.body;
+			 pre.style.fontSize = '18px';
+			 pre.style.lineHeight = '1.5';
+			 pre.style.fontFamily = 'sans-serif';
+			 pre.style.color = '#333';
+			 pre.style.padding = '15px';
+			 pre.style.margin = '0';
+			 doc.body.style.backgroundColor = '#fdfdfd';
+		     } catch(e) { console.error('Could not apply preview styles:', e); }"
+		     style="width: 100%; height: 450px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px; background-color: #fcfcfc;"></iframe>`
+              : ''
+            }
+          `;
+          // Update sidebar content
+          d3.select("#sidebar-content").html(sidebarContent);
+      })
+      .on("mouseout", () => {
+          // Revert to placeholder on mouseout
+          d3.select("#sidebar-content").html('<div class="sidebar-placeholder">Hover over a node to view note details</div>');
+      });
       // Add drag behavior
       node.call(d3.drag()
       .on("start", dragstarted)
@@ -753,24 +793,11 @@
       });
 
 
-      // Label density
-      // Add a slider element to the top-right corner
-      const sliderContainer = d3.select('body').append('div')
-	    .style('position', 'fixed')
-	    .style('top', '10px')
-	    .style('right', '10px')
-	    .style('z-index', '1000');
-
-      sliderContainer.append('label')
-    .text('Label density: ')
-    .style('margin-right', '10px');
-
-      const slider = sliderContainer.append('input')
-	    .attr('type', 'range')
+      // Label density slider initialization
+      const slider = d3.select('#density-slider')
 	    .attr('min', 0)
 	    .attr('max', uniqueDegrees.length - 1)
 	    .attr('value', initialSliderValue)
-	    .style('width', '150px')
 	    .on('input', function () {
 		const idx = (uniqueDegrees.length - 1) - +this.value;
 		minDegreeTag = uniqueDegrees[idx];
@@ -794,6 +821,48 @@
               );
 	  simulation.alpha(1).restart();
       }
+
+      // Sidebar resizer drag functionality
+      const resizer = document.getElementById("resizer");
+      const sidebar = document.getElementById("sidebar");
+      const svgElement = d3.select("svg").node();
+
+      let isDragging = false;
+
+      resizer.addEventListener("mousedown", (e) => {
+          isDragging = true;
+          const startX = e.clientX;
+          const startWidth = sidebar.offsetWidth;
+          
+          document.body.style.userSelect = "none";
+          document.body.style.cursor = "col-resize";
+
+          function onMouseMove(e) {
+              if (!isDragging) return;
+              const deltaX = startX - e.clientX;
+              let newWidth = startWidth + deltaX;
+
+              // Enforce safe bounds
+              if (newWidth < 250) newWidth = 250;
+              if (newWidth > window.innerWidth - 300) newWidth = window.innerWidth - 300;
+
+              sidebar.style.width = `${newWidth}px`;
+              if (svgElement) {
+                  svgElement.style.maxWidth = `calc(100% - ${newWidth}px)`;
+              }
+          }
+
+          function onMouseUp() {
+              isDragging = false;
+              document.body.style.userSelect = "";
+              document.body.style.cursor = "";
+              window.removeEventListener("mousemove", onMouseMove);
+              window.removeEventListener("mouseup", onMouseUp);
+          }
+
+          window.addEventListener("mousemove", onMouseMove);
+          window.addEventListener("mouseup", onMouseUp);
+      });
 
     </script>
   </body>
