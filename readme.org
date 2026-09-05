@@ -72,7 +72,7 @@ Major version numbers coincide with Denote major versions.
 
 ** Version 4.2
 - Minor compatability issues with Emacs 31 (~if-let~)
-- Bug fixed to =HTML= template ()
+- Bug fixes and overall improvements to =HTML= template for D#js visualisation
 
 ** Version 4.1
 - Minor compatibility issues with Denote 4.1. No upgrades.
